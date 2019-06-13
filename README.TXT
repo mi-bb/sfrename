@@ -4,7 +4,7 @@ CONTENTS OF THIS FILE
  * About
  * Copyright and license
  * Requirements
- * Instalation and running
+ * Installation and running
   * Compilation
   * Example of use
   * Example of use with Midnight Commander
@@ -53,7 +53,7 @@ Program may work in previous versions, I just wrote on which I was compiling
 this program and there were no problems.
 
 
-Instalation and running
+Installation and running
 ------------------------
 
 Compile source file with gcc, example compile command is showed below:

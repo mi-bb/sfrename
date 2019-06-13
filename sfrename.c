@@ -24,8 +24,8 @@
  *
  * Program renames files.
  *
- * @date January 25, 2019
- * @version 1.0
+ * @date June 13, 2019
+ * @version 1.1
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <gio/gio.h>
 #include <gdk/gdkkeysyms.h>
 #include <gmodule.h>
 
@@ -94,6 +95,58 @@ RFiles {
 } RFiles;
 //------------------------------------------------------------------------------
 /**
+ * @brief  RFiles initialization.
+ *
+ * @param[out] r_files Pointer to RFiles with all file names and settings
+ * @return     none
+ */
+static void
+rfiles_init (RFiles *r_files)
+{
+    // Setting file list properties
+    r_files->uplo = 2;         // upper/lower case setting
+    r_files->spaces = 2;       // spaces/underscores setting
+    r_files->applyto = 2;      // apply to names/ext/both setting
+    r_files->renexit = 1;      // exit after rename setting
+    r_files->delete.cnt = 0;   // chars to delete
+    r_files->delete.pos = 0;   // delete starting at pos
+    r_files->insert.pos = 0;   // insert string at pos
+    r_files->names.cnt = 0;    // names count
+    r_files->entry = NULL;     // entry list
+    r_files->names.org = NULL; // org names list
+    r_files->names.new = NULL; // new names list
+    // clear replace from and to strings
+    memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
+    memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
+    memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
+}
+//------------------------------------------------------------------------------
+/**
+ * @brief  Free allocated memory.
+ *
+ * @param[in,out] r_files Pointer to RFiles with all file names and settings
+ * @return        none
+ */
+static void
+free_stuff (RFiles *r_files)
+{
+    printf ("freeing stuff\n");
+
+    printf ("%d\n", r_files->names.cnt);
+
+    for (uint16_t j=0; j < r_files->names.cnt; ++j) {
+        g_slice_free1 ( (FN_LEN+1) * sizeof (char), r_files->names.org[j]);
+        g_slice_free1 ( (FN_LEN+1) * sizeof (char), r_files->names.new[j]);
+    }
+    if (r_files->names.new != NULL)
+        g_free (r_files->names.new);
+    if (r_files->names.org != NULL)
+        g_free (r_files->names.org);
+    if (r_files->entry != NULL)
+        g_free (r_files->entry);
+}
+//------------------------------------------------------------------------------
+/**
  * @brief  Check if file can be renamed and rename it.
  *
  * @param[in] old_name Old file name
@@ -109,6 +162,7 @@ file_check_and_rename (const char *old_name,
                        const char *new_name)
 {
     uint8_t ui_res = 0;
+
     // Check if new file name is different than old
     if (strcmp (old_name, new_name) != 0) {
         // Check if file with new file name don't exist
@@ -144,9 +198,11 @@ static uint16_t
 utf8_get_last_char_len (const char *s_str,
                         uint16_t    i_max_chars)
 {
-    uint16_t i_len = strlen (s_str);
+    char     *x     = NULL;
+    uint16_t  i_len = strlen (s_str);
+
     while (i_len > i_max_chars) {
-        char *x = (char*) s_str + i_len;
+        x = (char*) s_str + i_len;
         x = g_utf8_find_prev_char (s_str, x);
         i_len = x-s_str;
     }
@@ -169,10 +225,11 @@ string_replace_in (char *src_dest,
                    char *s_fr,
                    char *s_to)
 {
-    char head[FN_LEN+1]; // temp file name
-    char *srcdst = src_dest; // copy src_dest pointer
-    char *pn = NULL; // find string pointer
-    uint16_t i = 0;
+    char    head[FN_LEN+1]; // temp file name
+    char    *srcdst = src_dest; // copy src_dest pointer
+    char    *pn     = NULL; // find string pointer
+    uint16_t i      = 0;
+
     memset (head, 0, sizeof (head)); // zeroing file name
     pn = strstr (srcdst, s_fr); // find the first occurence of "replace from"
     if (pn == NULL) return; // exit function if "replace from" was not found
@@ -208,12 +265,20 @@ string_delete_chars (char *src_dst,
                      char *ch_cnt,
                      char *ch_pos)
 {
-    uint16_t i_cnt = atoi (ch_cnt);
-    uint16_t i_pos = atoi (ch_pos);
-    uint16_t i_len = strlen (src_dst);
+    uint16_t  i_cnt  = 0;
+    uint16_t  i_pos  = 0;
+    uint16_t  i_len  = 0;
+    uint16_t  i_olen = 0;
+    char     *ch_po  = NULL;
+    char     *ch_cn  = NULL;
+
+    i_cnt = atoi (ch_cnt);
+    i_pos = atoi (ch_pos);
+    i_len = strlen (src_dst);
+
     if (i_cnt == 0) return;
     if (g_utf8_validate (src_dst, -1, NULL)) {
-        uint16_t i_olen = i_len;
+        i_olen = i_len;
         i_len = g_utf8_strlen (src_dst, -1);
         if (i_cnt > i_len)
             i_cnt = i_len;
@@ -226,8 +291,8 @@ string_delete_chars (char *src_dst,
             else
                 i_cnt = i_len - i_pos;
         }
-        char *ch_po = g_utf8_offset_to_pointer (src_dst, i_pos);
-        char *ch_cn = g_utf8_offset_to_pointer (src_dst, i_pos + i_cnt);
+        ch_po = g_utf8_offset_to_pointer (src_dst, i_pos);
+        ch_cn = g_utf8_offset_to_pointer (src_dst, i_pos + i_cnt);
         memmove (ch_po, ch_cn, i_olen - i_pos - (ch_cn - ch_po) + 1);
     }
 }
@@ -245,27 +310,31 @@ string_insert_string (char *s_dst,
                       char *s_src,
                       char *ch_pos)
 {
-    char s_tmp[FN_LEN+1];
-    uint16_t i_pos = atoi (ch_pos);
-    uint16_t i_srl = strlen (s_src);
-    uint16_t i_dsl = strlen (s_dst);
-    uint16_t i_s_len = 0;
+    char     *x       = NULL;
+    char     *s_tm    = NULL;
+    char      s_tmp[FN_LEN+1];
+    uint16_t  i_pos   = 0;
+    uint16_t  i_srl   = 0;
+    uint16_t  i_dsl   = 0;
+    uint16_t  i_s_len = 0;
+
+    i_pos   = atoi (ch_pos);
+    i_srl   = strlen (s_src);
+    i_dsl   = strlen (s_dst);
+
     if (i_srl == 0) return;
     memset (s_tmp, 0, sizeof (s_tmp));
-
     if (g_utf8_validate (s_dst, -1, NULL)) {
         i_s_len = utf8_get_last_char_len (s_src, FN_LEN - i_dsl);
-        char *x = g_utf8_offset_to_pointer (s_dst, i_pos);
+        x = g_utf8_offset_to_pointer (s_dst, i_pos);
         i_pos = x - s_dst;
         i_dsl = g_utf8_strlen (s_dst, -1);
         if (i_pos > i_dsl)
             i_pos = i_dsl;
-
         g_utf8_strncpy (s_tmp, s_dst, i_pos);
         strncat (s_tmp, s_src, i_s_len);
-
         if (i_pos < i_dsl) {
-            char *s_tm = g_utf8_substring (s_dst, 
+            s_tm = g_utf8_substring (s_dst, 
                     i_pos, g_utf8_strlen (s_dst, -1));
             g_strlcat (s_tmp, s_tm, FN_LEN + 1);
             g_free (s_tm);
@@ -287,8 +356,10 @@ string_to_lower (char *src_dst,
                  char *unused1,
                  char *unused2)
 {
+    char *ts = NULL;
+
     if (g_utf8_validate (src_dst, -1, NULL)) {
-        char *ts = g_utf8_strdown (src_dst, -1);
+        ts = g_utf8_strdown (src_dst, -1);
         g_utf8_strncpy (src_dst, ts, g_utf8_strlen (ts, -1));
         g_free (ts);
     }
@@ -307,8 +378,10 @@ string_to_upper (char *src_dst,
                  char *unused1,
                  char *unused2)
 {
+    char *ts = NULL;
+
     if (g_utf8_validate (src_dst, -1, NULL)) {
-        char *ts = g_utf8_strup(src_dst, -1);
+        ts = g_utf8_strup(src_dst, -1);
         g_utf8_strncpy (src_dst, ts, g_utf8_strlen (ts, -1));
         g_free (ts);
     }
@@ -331,7 +404,10 @@ string_extract_name_ext (const char *f_name_ext,
                          char       *f_name,
                          char       *f_ext)
 {
-    char *pn = strrchr (f_name_ext, '.'); // find first dot from right
+    const char *pn = NULL;
+
+    pn = strrchr (f_name_ext, '.'); // find first dot from right
+
     // if file is hidden or has no ext copy whole src name as f_name
     if ((pn == NULL) || (pn == f_name_ext))
         strcpy (f_name, f_name_ext); 
@@ -355,9 +431,12 @@ string_combine_name_ext (char *f_name_ext,
                          char *f_name,
                          char *f_ext)
 {
+    uint16_t i_lc = 0;
+
     memset (f_name_ext, 0, FN_LEN + 1);
+
     if (strcmp (f_ext, "") != 0) { // estenstion present
-        uint16_t i_lc = utf8_get_last_char_len (f_name, FN_LEN - strlen(f_ext));
+        i_lc = utf8_get_last_char_len (f_name, FN_LEN - strlen(f_ext));
         strncpy (f_name_ext, f_name, i_lc);
         strcat (f_name_ext, f_ext); // append extension to source/result string
     }
@@ -386,11 +465,12 @@ string_process_filename (void        (*fun) (char*, char*, char*),
                          char         *s_to,
                          const uint8_t ne)
 {
+    char f_name[FN_LEN + 1]; // temp name
+    char f_ext[50];          // lets hope there are no larger extensions
+
     if (ne == 2)
         (*fun) (src_dst, s_fr, s_to); // change text in name and ext
     else { // change text in name or ext
-        char f_name[FN_LEN + 1]; // temp name
-        char f_ext[50]; // lets hope there are no larger extensions
         memset (f_name, 0, sizeof (f_name)); // zeroing file name
         memset (f_ext, 0, sizeof (f_ext)); // zeroing file ext
         // get name and ext to separate strings
@@ -416,8 +496,10 @@ name_delete_chars (RFiles        *r_files,
 {
     char tmp1[10];
     char tmp2[10];
+
     memset (tmp1, 0, sizeof (tmp1)); // zeroing tmp1
     memset (tmp2, 0, sizeof (tmp2)); // zeroing tmp2
+
     if (r_files->delete.cnt == 0) return; // exit if no chars to delete
     sprintf (tmp1, "%d", r_files->delete.cnt);
     sprintf (tmp2, "%d", r_files->delete.pos);
@@ -439,7 +521,9 @@ name_insert_string (RFiles        *r_files,
                     const uint16_t i)
 {
     char tmp[10];
+
     memset (tmp, 0, sizeof (tmp)); // zeroing tmp
+
     if (strcmp (r_files->insert.text, "") == 0) return;
     sprintf (tmp, "%d", r_files->insert.pos);
     string_process_filename (string_insert_string,
@@ -517,7 +601,10 @@ static void
 entry_check_and_update (GtkWidget  *widget,
                         const char *new_str)
 {
-    const char *en = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *en = NULL;
+
+    en = gtk_entry_get_text (GTK_ENTRY (widget));
+
     if (strcmp (new_str, en) != 0)
         gtk_entry_set_text (GTK_ENTRY (widget), new_str);
 }
@@ -558,11 +645,12 @@ file_names_update_changes (RFiles *r_files)
 static int8_t
 get_radio_active (GtkRadioButton *radiob)
 {
+    int8_t          i        = -1;   // active RadioButton index
     GtkRadioButton *tmp_butt = NULL; // temp RadioButton
-    int8_t i = -1; // active RadioButton index
-    // get RadioButton group list
-    GSList *tmp_list = gtk_radio_button_get_group (radiob);
-    while (tmp_list) { // iterating through RadioButton list
+    GSList         *tmp_list = NULL; // get RadioButton group list
+
+    tmp_list = gtk_radio_button_get_group (radiob);
+    while (tmp_list != NULL) { // iterating through RadioButton list
         ++i; // increment index of active RadioButton
         tmp_butt = tmp_list->data; // getting current list value (RadioButton)
         tmp_list = tmp_list->next; // going to next value
@@ -571,6 +659,21 @@ get_radio_active (GtkRadioButton *radiob)
     }
     tmp_butt = NULL; // nulling temp button
     return i;
+}
+//------------------------------------------------------------------------------
+/**
+ * @brief  Destroy program window event.
+ *
+ * @param[in] widget     The object which received the signal
+ * @param[in] data       User data set when the signal handler was connected
+ * @return    none
+ */
+static void
+event_close (GtkWidget *widget,
+             gpointer   data)
+{
+    GtkWidget *gw_toplevel = gtk_widget_get_toplevel (widget);
+    gtk_widget_destroy (gw_toplevel);
 }
 //------------------------------------------------------------------------------
 /**
@@ -588,10 +691,12 @@ static void
 event_click_rename (GtkWidget *widget,
                     RFiles    *r_files)
 {
-    uint8_t ui_renamed = 0;
-    uint8_t ui_ren_count = 0; // Count renamed files
+    const char *a            = NULL;
+    uint8_t     ui_renamed   = 0;
+    uint8_t     ui_ren_count = 0; // Count renamed files
+
     for (int i = 0; i < r_files->names.cnt; ++i) {
-        const char *a = gtk_entry_get_text (GTK_ENTRY (r_files->entry[i]));
+        a = gtk_entry_get_text (GTK_ENTRY (r_files->entry[i]));
         ui_renamed = file_check_and_rename (r_files->names.org[i], a);
         if (ui_renamed == 1) {       // Renamed
             printf ("File: %s renamed to: %s\n", r_files->names.org[i], a);
@@ -615,7 +720,7 @@ event_click_rename (GtkWidget *widget,
     printf ("Renamed %d files of %d\n", ui_ren_count, r_files->names.cnt);
     // exit application if "Exit after rename" checkbox was selected
     if (r_files->renexit)
-        gtk_main_quit ();
+        event_close (widget, NULL);
     else
         file_names_update_changes (r_files);
 }
@@ -653,8 +758,10 @@ static void
 event_insert_string_entry_changed (GtkWidget *widget,
                                    RFiles    *r_files)
 {
+    const char *s_en = NULL;
+
+    s_en = gtk_entry_get_text (GTK_ENTRY (widget));
     memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
     strncpy (r_files->insert.text, s_en, utf8_get_last_char_len (s_en, FN_LEN));
     file_names_update_changes (r_files);
 }
@@ -711,6 +818,7 @@ event_case_radio_active (GtkRadioButton *radiob,
                          RFiles         *r_files)
 {
     static uint8_t dbl = 0; // to remove double toggling
+
     if (dbl ^= 1) {
         r_files->uplo = get_radio_active (radiob);
         file_names_update_changes (r_files);
@@ -732,6 +840,7 @@ event_spaces_radio_active (GtkRadioButton *radiob,
                            RFiles         *r_files)
 {
     static uint8_t dbl = 0; // to remove double toggling
+
     if (dbl ^= 1) {
         r_files->spaces = get_radio_active (radiob);
         file_names_update_changes (r_files);
@@ -752,7 +861,9 @@ static void
 event_replace_from_entry_changed (GtkWidget *widget,
                                   RFiles    *r_files)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+    const char *s_en = NULL;
+
+    s_en = gtk_entry_get_text (GTK_ENTRY(widget));
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
     strncpy (r_files->replace.from,
             s_en, utf8_get_last_char_len (s_en, FN_LEN));
@@ -773,7 +884,9 @@ static void
 event_replace_to_entry_changed (GtkWidget *widget,
                                 RFiles    *r_files)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+    const char *s_en = NULL;
+    
+    s_en = gtk_entry_get_text (GTK_ENTRY(widget));
     memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
     strncpy (r_files->replace.to, s_en, utf8_get_last_char_len (s_en, FN_LEN));
     if (strcmp (r_files->replace.from, "") != 0)
@@ -796,6 +909,7 @@ event_apply_radio_active (GtkRadioButton *radiob,
                           RFiles         *r_files)
 {
     static uint8_t dbl = 0; // to remove double toggling
+
     if (dbl ^= 1) {
         // read apply to names/ext active RadioButton
         r_files->applyto = get_radio_active (radiob);
@@ -822,38 +936,6 @@ event_toggle_rename_exit (GtkToggleButton *toggleb,
 }
 //------------------------------------------------------------------------------
 /**
- * @brief  Delete event.
- *
- * @param[in] widget The object which received the signal
- * @param[in] event  The event which triggered this signal
- * @param[in] data   User data set when the signal handler was connected
- * @return 
- */
-static gboolean
-event_delete (GtkWidget *widget,
-              GdkEvent  *event,
-              gpointer   data)
-{
-    return FALSE;
-}
-//------------------------------------------------------------------------------
-/**
- * @brief  Destroy event.
- *
- * @param[in] widget     The object which received the signal
- * @param[in] data       User data set when the signal handler was connected
- * @return    TRUE,FALSE
- * @retval    TRUE       To stop other handlers from being invoked for the event
- * @retval    FALSE      To propagate the event further
- */
-static void
-event_destroy (GtkWidget *widget,
-               gpointer   data)
-{
-    gtk_main_quit ();
-}
-//------------------------------------------------------------------------------
-/**
  * @brief  React to key pressed in main window.
  *
  * @param[in] widget    The object which received the signal
@@ -867,31 +949,13 @@ event_win_key_press (GtkWidget   *widget,
 {
     // Catch Esc key in main window and exit
     if (event->keyval == GDK_KEY_Escape)
-        gtk_main_quit ();
+        event_close (widget, NULL);
     // Catch Enter and preform rename
     if (event->keyval == GDK_KEY_Return) {
         RFiles *r_files = user_data;
         event_click_rename (widget, r_files);
     }
     return FALSE;
-}
-//------------------------------------------------------------------------------
-/**
- * @brief  Free allocated memory.
- *
- * @param[in,out] r_files Pointer to RFiles with all file names and settings
- * @return        none
- */
-static void
-free_stuff (RFiles *r_files)
-{
-    for (uint16_t j=0; j < r_files->names.cnt; ++j) {
-        g_slice_free1 ( (FN_LEN+1) * sizeof (char), r_files->names.org[j]);
-        g_slice_free1 ( (FN_LEN+1) * sizeof (char), r_files->names.new[j]);
-    }
-    g_free (r_files->names.new);
-    g_free (r_files->names.org);
-    g_free (r_files->entry);
 }
 //------------------------------------------------------------------------------
 /**
@@ -909,6 +973,7 @@ create_upcase_lowercase_box (GtkWidget **gw_container,
     GtkWidget *gw_ncc;
     GtkWidget *gw_lcc;
     GtkWidget *gw_upc;
+
     gw_ncc = gtk_radio_button_new_with_label (NULL, "No change");
     gw_lcc = gtk_radio_button_new_with_label_from_widget (
             GTK_RADIO_BUTTON (gw_ncc), "To lowercase");
@@ -946,6 +1011,7 @@ create_spaces_to_underscores_box (GtkWidget **gw_container,
     GtkWidget *gw_sptounc;
     GtkWidget *gw_sptou;
     GtkWidget *gw_utosp;
+
     gw_sptounc = gtk_radio_button_new_with_label (NULL, "No change");
     gw_sptou = gtk_radio_button_new_with_label_from_widget (
             GTK_RADIO_BUTTON (gw_sptounc), "Space to underscore");
@@ -983,6 +1049,7 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
     GtkWidget *gw_appne;
     GtkWidget *gw_appn;
     GtkWidget *gw_appe;
+
     gw_appne = gtk_radio_button_new_with_label (NULL, "Apply to name and ext");
     gw_appn = gtk_radio_button_new_with_label_from_widget (
             GTK_RADIO_BUTTON (gw_appne), "Apply to name");
@@ -1020,6 +1087,7 @@ create_replace_str_with_str_box (GtkWidget **gw_container,
     GtkWidget *gw_sto;
     GtkWidget *gw_lab1;
     GtkWidget *gw_lab2;
+
     gw_sfrom = gtk_entry_new ();
     gw_sto = gtk_entry_new ();
     gtk_entry_set_max_length (GTK_ENTRY (gw_sfrom), FN_LEN);
@@ -1055,9 +1123,9 @@ static void
 create_delete_chars_box (GtkWidget **gw_container,
                          RFiles     *r_files)
 {
-    GtkWidget *gw_del_cnt;
-    GtkWidget *gw_del_pos;
-    GtkWidget *gw_lab;
+    GtkWidget     *gw_del_cnt;
+    GtkWidget     *gw_del_pos;
+    GtkWidget     *gw_lab;
     GtkAdjustment *gw_del_adj_cnt;
     GtkAdjustment *gw_del_adj_pos;
 
@@ -1093,9 +1161,9 @@ static void
 create_insert_string_box (GtkWidget **gw_container,
                           RFiles     *r_files)
 {
-    GtkWidget *gw_lab;
-    GtkWidget *gw_ins_entry;
-    GtkWidget *gw_ins_pos;
+    GtkWidget     *gw_lab;
+    GtkWidget     *gw_ins_entry;
+    GtkWidget     *gw_ins_pos;
     GtkAdjustment *gw_ins_adj_pos;
 
     gw_lab = gtk_label_new ("Insert text:");
@@ -1136,12 +1204,13 @@ create_rename_close_exit_box (GtkWidget **gw_container,
     GtkWidget *gw_but_cc;
     // Exit after rename check button
     GtkWidget *gw_renexit;
+
     gw_but_ok = gtk_button_new_with_label ("Rename");
     gw_but_cc = gtk_button_new_with_label ("Close");
     g_signal_connect (G_OBJECT (gw_but_ok),
             "clicked", G_CALLBACK (event_click_rename), r_files);
     g_signal_connect (G_OBJECT (gw_but_cc),
-            "clicked", G_CALLBACK (event_destroy), NULL);
+            "clicked", G_CALLBACK (event_close), NULL);
     gw_renexit = gtk_check_button_new_with_label ("Exit after rename");
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_renexit), TRUE);
     g_signal_connect (G_OBJECT (gw_renexit),
@@ -1162,53 +1231,43 @@ create_rename_close_exit_box (GtkWidget **gw_container,
  * strings for buffering original and changed file names.
  * Creates container and puts entries in it.
  *
- * @param[in]     argv         Arguments passed to program in command line
- * @param[in]     argc         Number of passed arguments
+ * @param[in]     files        an array of GFiles
+ * @param[in]     n_files      length of files
  * @param[in,out] r_files      Pointer to RFiles with all file names and
  *                             settings
  * @param[out]    gw_container Pointer to entry box container pointer
  * @return        Number of passed file names
  */
 static int16_t
-create_file_name_entries (char      **argv,
-                          int         argc,
+create_file_name_entries (GFile     **files,
+                          gint        n_files,
                           RFiles     *r_files,
                           GtkWidget **gw_container)
 {
-    GtkWidget *gw_entry_box;
-    GtkWidget *gw_vp;
+    GtkWidget     *gw_entry_box;
+    GtkWidget     *gw_vp;
     GtkAdjustment *ga_h;
     GtkAdjustment *ga_v;
-    uint16_t ui_cn = 0;  // file names count
-    // Setting file list properties
-    r_files->uplo = 2;       // upper/lower case setting
-    r_files->spaces = 2;     // spaces/underscores setting
-    r_files->applyto = 2;    // apply to names/ext/both setting
-    r_files->renexit = 1;    // exit after rename setting
-    r_files->delete.cnt = 0; // chars to delete
-    r_files->delete.pos = 0; // delete starting at pos
-    r_files->insert.pos = 0; // insert string at pos
-    // clear replace from and to strings
-    memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
-    memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
-    memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
+    uint16_t       ui_cn = 0;  // file names count
+
     // Allocate memory for pointers to entries and file name strings
-    r_files->entry = g_malloc ( (argc-1) * sizeof (GtkWidget*));
-    r_files->names.org = g_malloc ( (argc-1) * sizeof (char*));
-    r_files->names.new = g_malloc ( (argc-1) * sizeof (char*));
+    r_files->entry = g_malloc (n_files * sizeof (GtkWidget*));
+    r_files->names.org = g_malloc (n_files * sizeof (char*));
+    r_files->names.new = g_malloc (n_files * sizeof (char*));
     // Create box for file name entries
     gw_entry_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
-    for (uint16_t i=0; i < argc - 1; ++i) {
-        if (strcmp (argv[i + 1], "..") == 0) continue;
-        if (access (argv[i + 1], F_OK) == 0) { // check if file exists
+    for (int i = 0; i < n_files; ++i) {
+        char *ch_fname = g_file_get_basename (files[i]);
+        if (strcmp (ch_fname, "..") == 0) continue;
+        if (access (ch_fname, F_OK) == 0) { // check if file exists
             // Allocate memory for original and new file name strings
             r_files->names.org[ui_cn] = g_slice_alloc0 (
                     (FN_LEN + 1) * sizeof (char));
             r_files->names.new[ui_cn] = g_slice_alloc0 (
                     (FN_LEN + 1) * sizeof (char));
             // Copy verified file names to original and new file name string
-            strcpy (r_files->names.org[ui_cn], argv[i + 1]);
-            strcpy (r_files->names.new[ui_cn], argv[i + 1]);
+            strcpy (r_files->names.org[ui_cn], ch_fname);
+            strcpy (r_files->names.new[ui_cn], ch_fname);
             // Create entry and set max length to defined file name length
             r_files->entry[ui_cn] = gtk_entry_new ();
             gtk_entry_set_max_length (GTK_ENTRY (r_files->entry[ui_cn]),
@@ -1221,6 +1280,7 @@ create_file_name_entries (char      **argv,
                                r_files->entry[ui_cn], FALSE, FALSE, 0);
             ++ui_cn;
         }
+        g_free (ch_fname);
     }
     // Make scrollbars
     *gw_container = gtk_scrolled_window_new (NULL, NULL);
@@ -1233,7 +1293,7 @@ create_file_name_entries (char      **argv,
     gtk_container_add (GTK_CONTAINER (*gw_container), gw_vp);
     // If file count is smaller than passed arguments, decrease number of
     // entries, original and new file name strings
-    if (ui_cn < argc-1) {
+    if (ui_cn < n_files) {
         r_files->entry = g_realloc (
                 r_files->entry, ui_cn * sizeof (GtkWidget*));
         r_files->names.org = g_realloc (
@@ -1249,41 +1309,87 @@ create_file_name_entries (char      **argv,
  * @brief  Creates main window, its properties and connects window signals.
  *
  * @param[in,out] window  Pointer to a window pointer
+ * @param[in,out] application  Pointer to GtkApplication
  * @param[in]     r_files Pointer to RFiles with all file names and settings
  * @return        none
  */
 static void
-create_window (GtkWidget **window,
-               RFiles     *r_files)
+create_window (GtkWidget        **window,
+               GtkApplication    *application,
+               RFiles            *r_files)
 {
     // Create window widget
-    *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    *window = gtk_application_window_new (application);
+    //*window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     // Set window properties
-    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.0");
+    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1");
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
     // Connect window events
     g_signal_connect (G_OBJECT (*window),
-            "delete_event", G_CALLBACK (event_delete), NULL);
-    g_signal_connect (G_OBJECT (*window),
-            "destroy", G_CALLBACK (event_destroy), NULL);
-    g_signal_connect (G_OBJECT (*window),
             "key-press-event", G_CALLBACK (event_win_key_press), r_files);
 }
 //------------------------------------------------------------------------------
 /**
- * @brief Main function.
+ * @brief  Application startup signal.
  *
- * @param[in] argc Arguments passed to the program from the environment in which
- *                 the program is run
- * @param[in] argv Pointer to the first element of an array of pointers that
- *                 represent the arguments passed to the program
- * @return         Return value
- */  
-int
-main (int    argc,
-      char **argv)
+ * @param[in,out] application  Pointer to GtkApplication
+ * @param[in,out] r_files      Pointer to RFiles with all file names and
+ *                             settings
+ * @return        none
+ */
+static void
+startup (GtkApplication *application,
+         RFiles         *r_files)
+{
+    rfiles_init (r_files);
+}
+//------------------------------------------------------------------------------
+/**
+ * @brief  Application shutdown signal.
+ *
+ * @param[in,out] application  Pointer to GtkApplication
+ * @param[in,out] r_files      Pointer to RFiles with all file names and
+ *                             settings
+ * @return        none
+ */
+static void
+shutdown (GtkApplication *application,
+          RFiles         *r_files)
+{
+    free_stuff (r_files);
+}
+//------------------------------------------------------------------------------
+/**
+ * @brief  Application activate signal.
+ *
+ * @param[in,out] application  Pointer to GtkApplication
+ * @return        none
+ */
+static void
+activate (GtkApplication *application)
+{
+    printf ("No files to open\n");
+}
+//------------------------------------------------------------------------------
+/**
+ * @brief  Open files in application signal.
+ *
+ * @param[in,out] application  Pointer to GtkApplication
+ * @param[in,out] files        An array of GFiles to open
+ * @param[in]     n_files      The length of the files array
+ * @param[in]     hint         A hint (or ""), but never NULL
+ * @param[in,out] r_files      Pointer to RFiles with all file names and
+ *                             settings
+ * @return        none
+ */
+static void
+open (GtkApplication  *application,
+      GFile          **files,
+      int              n_files,
+      const char      *hint,
+      RFiles          *r_files)
 {
     GtkWidget *window;
     GtkWidget *gw_entry_box;
@@ -1297,36 +1403,23 @@ main (int    argc,
     GtkWidget *gw_udusc_box;
     GtkWidget *gw_okcl_box;
     GtkWidget *gw_sep;
-    RFiles r_files;
-
-    // GTK+ init
-    gtk_init (&argc, &argv);
 
     // Create file name entries and set r_files properties
-    create_file_name_entries (argv, argc, &r_files, &gw_entry_box);
-
-    if (r_files.names.cnt < 1) {
-        printf (" no files\n");
-        free_stuff (&r_files);
-        return 0;
+    create_file_name_entries (files , n_files, r_files, &gw_entry_box);
+    if (r_files->names.cnt < 1) {
+        printf ("No files to open\n");
+        return;
     }
-
     // Create main window and set properties
-    create_window (&window, &r_files);
-    // To uppercase lowercase box
-    create_upcase_lowercase_box (&gw_uplc_box, &r_files);
-    // Space to underscores box
-    create_spaces_to_underscores_box (&gw_undersc_box, &r_files);
-    // Apply to filename and ext box
-    create_apply_to_names_ext_box (&gw_apply_box, &r_files);
-    // Replace strings box
-    create_replace_str_with_str_box (&gw_replace_str_box, &r_files);
-
-    create_delete_chars_box (&gw_del_str_box, &r_files);
-
-    create_insert_string_box (&gw_ins_str_box, &r_files);
+    create_window (&window, application, r_files);
+    create_upcase_lowercase_box (&gw_uplc_box, r_files);
+    create_spaces_to_underscores_box (&gw_undersc_box, r_files);
+    create_apply_to_names_ext_box (&gw_apply_box, r_files);
+    create_replace_str_with_str_box (&gw_replace_str_box, r_files);
+    create_delete_chars_box (&gw_del_str_box, r_files);
+    create_insert_string_box (&gw_ins_str_box, r_files);
     // OK, Close box
-    create_rename_close_exit_box (&gw_okcl_box, &r_files);
+    create_rename_close_exit_box (&gw_okcl_box, r_files);
 
     // Box for up down, underscore and apply to boxes
     gw_udusc_box = gtk_grid_new ();
@@ -1365,11 +1458,34 @@ main (int    argc,
 
     gtk_container_add (GTK_CONTAINER (window), gw_vbox);
     gtk_widget_show_all (window);
+}
+//------------------------------------------------------------------------------
+/**
+ * @brief Main function.
+ *
+ * @param[in] argc Arguments passed to the program from the environment in which
+ *                 the program is run
+ * @param[in] argv Pointer to the first element of an array of pointers that
+ *                 represent the arguments passed to the program
+ * @return         Return value
+ */  
+//------------------------------------------------------------------------------
+int
+main (int argc, char **argv)
+{
+    GtkApplication  *app;
+    int              status;
+    RFiles           r_files;
 
-    gtk_main ();
-    
-    free_stuff (&r_files);
-    return 0;
+    app = gtk_application_new ("org.nongnu.SmallFileRenamer",
+                           G_APPLICATION_HANDLES_OPEN);
+    g_signal_connect (app, "startup", G_CALLBACK (startup), &r_files);
+    g_signal_connect (app, "shutdown", G_CALLBACK (shutdown), &r_files);
+    g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+    g_signal_connect (app, "open", G_CALLBACK (open), &r_files);
+    status = g_application_run (G_APPLICATION (app), argc, argv);
+    g_object_unref (app);
+    return status;
 }
 //------------------------------------------------------------------------------
 

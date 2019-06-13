@@ -18,3 +18,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
         * sfrename.c: First relase.
         
+2019-06-13  Michal Babik  <michalb1981@o2.pl>
+
+        * sfrename.c: include <gio/gio.h>
+        * sfrename.c (main): Changed GTK app starting mode.
+        * sfrename.c (event_delete): Function is no longer needed, removed.
+        * sfrename.c (event_destroy): Renamed to event_close.
+        * sfrename.c (event_close, event_win_key_press): Changed app closing.
+        * sfrename.c (create_rename_close_exit_box): Changed button signal from
+          event_destroy to event_close
+        * sfrename.c (create_file_name_entries): Changed function args.
+          New file name getting mode.
+        * sfrename.c (create_window): New arg application.
+          New window creating mode, removed not needed signal connections.
+        * sfrename.c (activate): New function.
+        * sfrename.c (open): New function.
+        * sfrename.c (rfiles_init): New function.
+
