@@ -25,7 +25,7 @@
  * Program renames files.
  *
  * @date June 23, 2019
- * @version 1.1
+ * @version 1.1.1
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
@@ -1320,7 +1320,7 @@ create_window (GtkWidget        **window,
     *window = gtk_application_window_new (application);
     //*window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     // Set window properties
-    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1");
+    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1.1");
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
