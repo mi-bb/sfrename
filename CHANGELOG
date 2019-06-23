@@ -35,3 +35,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         * sfrename.c (open): New function.
         * sfrename.c (rfiles_init): New function.
 
+2019-06-23  Michal Babik  <michalb1981@o2.pl>
+        * sfrename.c (free_stuff): Removed not needed print command.
+

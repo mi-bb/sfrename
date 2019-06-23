@@ -24,7 +24,7 @@
  *
  * Program renames files.
  *
- * @date June 13, 2019
+ * @date June 23, 2019
  * @version 1.1
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -130,8 +130,6 @@ rfiles_init (RFiles *r_files)
 static void
 free_stuff (RFiles *r_files)
 {
-    printf ("freeing stuff\n");
-
     printf ("%d\n", r_files->names.cnt);
 
     for (uint16_t j=0; j < r_files->names.cnt; ++j) {
