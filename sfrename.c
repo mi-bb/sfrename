@@ -24,8 +24,8 @@
  *
  * Program renames files.
  *
- * @date June 23, 2019
- * @version 1.1.1
+ * @date October 10, 2019
+ * @version 1.1.2
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
@@ -130,8 +130,6 @@ rfiles_init (RFiles *r_files)
 static void
 free_stuff (RFiles *r_files)
 {
-    printf ("%d\n", r_files->names.cnt);
-
     for (uint16_t j=0; j < r_files->names.cnt; ++j) {
         g_slice_free1 ( (FN_LEN+1) * sizeof (char), r_files->names.org[j]);
         g_slice_free1 ( (FN_LEN+1) * sizeof (char), r_files->names.new[j]);
