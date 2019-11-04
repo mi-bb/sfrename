@@ -42,9 +42,6 @@
 #define WIN_WIDTH  600  //!< Application window width
 #define WIN_HEIGHT 800  //!< Application window height
 //------------------------------------------------------------------------------
-//  gcc -std=c11 -Wall `pkg-config --cflags gtk+-3.0` -o sfrename sfrename.c
-//  `pkg-config --libs gtk+-3.0`
-//------------------------------------------------------------------------------
 /**
  * @brief  Delete text in name settings
  */
@@ -221,9 +218,9 @@ string_replace_in (char *src_dest,
                    char *s_fr,
                    char *s_to)
 {
-    char    head[FN_LEN+1]; // temp file name
+    char    head[FN_LEN+1];     // temp file name
     char    *srcdst = src_dest; // copy src_dest pointer
-    char    *pn     = NULL; // find string pointer
+    char    *pn     = NULL;     // find string pointer
     uint16_t i      = 0;
 
     memset (head, 0, sizeof (head)); // zeroing file name
@@ -239,7 +236,7 @@ string_replace_in (char *src_dest,
                 head[i++] = s_to[j];
         }
         srcdst = pn + strlen (s_fr); // change source pointer to "after found"
-        pn = strstr (srcdst, s_fr); // find another "to replace" str in src
+        pn = strstr (srcdst, s_fr);  // find another "to replace" str in src
     }
     for (; *srcdst; srcdst++) {
         if (i < FN_LEN)

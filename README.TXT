@@ -56,10 +56,9 @@ this program and there were no problems.
 Installation and running
 ------------------------
 
-Compile source file with gcc, example compile command is showed below:
+Unpack archive, go to sources directory and type:
 
-gcc -std=c11 -Wall `pkg-config --cflags gtk+-3.0` -o sfrename sfrename.c \
-`pkg-config --libs gtk+-3.0`
+    make
 
 File names should be passed to program as arguments, example of use:
 
