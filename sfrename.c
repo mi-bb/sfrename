@@ -24,8 +24,8 @@
  *
  * Program renames files.
  *
- * @date October 10, 2019
- * @version 1.1.2
+ * @date November 8, 2019
+ * @version 1.1.3
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
@@ -101,17 +101,17 @@ static void
 rfiles_init (RFiles *r_files)
 {
     // Setting file list properties
-    r_files->uplo = 2;         // upper/lower case setting
-    r_files->spaces = 2;       // spaces/underscores setting
-    r_files->applyto = 2;      // apply to names/ext/both setting
-    r_files->renexit = 1;      // exit after rename setting
-    r_files->delete.cnt = 0;   // chars to delete
-    r_files->delete.pos = 0;   // delete starting at pos
-    r_files->insert.pos = 0;   // insert string at pos
-    r_files->names.cnt = 0;    // names count
-    r_files->entry = NULL;     // entry list
-    r_files->names.org = NULL; // org names list
-    r_files->names.new = NULL; // new names list
+    r_files->uplo       = 2;    // upper/lower case setting
+    r_files->spaces     = 2;    // spaces/underscores setting
+    r_files->applyto    = 2;    // apply to names/ext/both setting
+    r_files->renexit    = 1;    // exit after rename setting
+    r_files->delete.cnt = 0;    // chars to delete
+    r_files->delete.pos = 0;    // delete starting at pos
+    r_files->insert.pos = 0;    // insert string at pos
+    r_files->names.cnt  = 0;    // names count
+    r_files->entry      = NULL; // entry list
+    r_files->names.org  = NULL; // org names list
+    r_files->names.new  = NULL; // new names list
     // clear replace from and to strings
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
     memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
@@ -191,8 +191,8 @@ static uint16_t
 utf8_get_last_char_len (const char *s_str,
                         uint16_t    i_max_chars)
 {
-    char     *x     = NULL;
-    uint16_t  i_len = strlen (s_str);
+    char     *x     = NULL;           // Char position
+    uint16_t  i_len = strlen (s_str); // String length
 
     while (i_len > i_max_chars) {
         x = (char*) s_str + i_len;
@@ -258,12 +258,12 @@ string_delete_chars (char *src_dst,
                      char *ch_cnt,
                      char *ch_pos)
 {
-    uint16_t  i_cnt  = 0;
-    uint16_t  i_pos  = 0;
-    uint16_t  i_len  = 0;
-    uint16_t  i_olen = 0;
-    char     *ch_po  = NULL;
-    char     *ch_cn  = NULL;
+    uint16_t  i_cnt  = 0;    // Delete chars count
+    uint16_t  i_pos  = 0;    // Delete start position
+    uint16_t  i_len  = 0;    // Length of text to process
+    uint16_t  i_olen = 0;    // Length of text before processing
+    char     *ch_po  = NULL; // Pointer to delete start position
+    char     *ch_cn  = NULL; // Pointer to position after deleted chars
 
     i_cnt = atoi (ch_cnt);
     i_pos = atoi (ch_pos);
@@ -303,14 +303,14 @@ string_insert_string (char *s_dst,
                       char *s_src,
                       char *ch_pos)
 {
-    char     *x       = NULL;
-    char     *s_tm    = NULL;
-    char      s_tmp[FN_LEN+1];
-    uint16_t  i_pos   = 0;
-    uint16_t  i_srl   = 0;
-    uint16_t  i_dsl   = 0;
-    uint16_t  i_s_len = 0;
-
+    char     *x       = NULL;  // Insert text position pointer for utf text
+    char     *s_tm    = NULL;  // Rest text utf position pointer
+    char      s_tmp[FN_LEN+1]; // Temp text
+    uint16_t  i_pos   = 0;     // Text insert position 
+    uint16_t  i_srl   = 0;     // Length of text to insert
+    uint16_t  i_dsl   = 0;     // Length of destination text
+    uint16_t  i_s_len = 0;     // Position to insert text and not exceed max
+                               // file name length
     i_pos   = atoi (ch_pos);
     i_srl   = strlen (s_src);
     i_dsl   = strlen (s_dst);
@@ -349,7 +349,7 @@ string_to_lower (char *src_dst,
                  char *unused1,
                  char *unused2)
 {
-    char *ts = NULL;
+    char *ts = NULL; // temp string
 
     if (g_utf8_validate (src_dst, -1, NULL)) {
         ts = g_utf8_strdown (src_dst, -1);
@@ -371,7 +371,7 @@ string_to_upper (char *src_dst,
                  char *unused1,
                  char *unused2)
 {
-    char *ts = NULL;
+    char *ts = NULL; // temp string
 
     if (g_utf8_validate (src_dst, -1, NULL)) {
         ts = g_utf8_strup(src_dst, -1);
@@ -397,9 +397,7 @@ string_extract_name_ext (const char *f_name_ext,
                          char       *f_name,
                          char       *f_ext)
 {
-    const char *pn = NULL;
-
-    pn = strrchr (f_name_ext, '.'); // find first dot from right
+    const char *pn = strrchr (f_name_ext, '.'); // find first dot from right
 
     // if file is hidden or has no ext copy whole src name as f_name
     if ((pn == NULL) || (pn == f_name_ext))
@@ -487,8 +485,8 @@ static void
 name_delete_chars (RFiles        *r_files,
                    const uint16_t i)
 {
-    char tmp1[10];
-    char tmp2[10];
+    char tmp1[10]; // temp value to pass to function
+    char tmp2[10]; // temp value to pass to function
 
     memset (tmp1, 0, sizeof (tmp1)); // zeroing tmp1
     memset (tmp2, 0, sizeof (tmp2)); // zeroing tmp2
@@ -513,7 +511,7 @@ static void
 name_insert_string (RFiles        *r_files,
                     const uint16_t i)
 {
-    char tmp[10];
+    char tmp[10]; // temp value to pass to function
 
     memset (tmp, 0, sizeof (tmp)); // zeroing tmp
 
@@ -594,9 +592,7 @@ static void
 entry_check_and_update (GtkWidget  *widget,
                         const char *new_str)
 {
-    const char *en = NULL;
-
-    en = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *en = gtk_entry_get_text (GTK_ENTRY (widget));
 
     if (strcmp (new_str, en) != 0)
         gtk_entry_set_text (GTK_ENTRY (widget), new_str);
@@ -854,9 +850,7 @@ static void
 event_replace_from_entry_changed (GtkWidget *widget,
                                   RFiles    *r_files)
 {
-    const char *s_en = NULL;
-
-    s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
     strncpy (r_files->replace.from,
             s_en, utf8_get_last_char_len (s_en, FN_LEN));
@@ -877,9 +871,7 @@ static void
 event_replace_to_entry_changed (GtkWidget *widget,
                                 RFiles    *r_files)
 {
-    const char *s_en = NULL;
-    
-    s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
     memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
     strncpy (r_files->replace.to, s_en, utf8_get_last_char_len (s_en, FN_LEN));
     if (strcmp (r_files->replace.from, "") != 0)
@@ -962,10 +954,9 @@ static void
 create_upcase_lowercase_box (GtkWidget **gw_container,
                              RFiles     *r_files)
 {
-    // Uppercase / lowercase radios
-    GtkWidget *gw_ncc;
-    GtkWidget *gw_lcc;
-    GtkWidget *gw_upc;
+    GtkWidget *gw_ncc; // No change radio button
+    GtkWidget *gw_lcc; // Lovercase radio button
+    GtkWidget *gw_upc; // Uppercase radio button
 
     gw_ncc = gtk_radio_button_new_with_label (NULL, "No change");
     gw_lcc = gtk_radio_button_new_with_label_from_widget (
@@ -1000,10 +991,9 @@ static void
 create_spaces_to_underscores_box (GtkWidget **gw_container,
                                   RFiles     *r_files)
 {
-    // Space to underscores radios
-    GtkWidget *gw_sptounc;
-    GtkWidget *gw_sptou;
-    GtkWidget *gw_utosp;
+    GtkWidget *gw_sptounc; // No change radio button
+    GtkWidget *gw_sptou;   // Space to unserscore radio button
+    GtkWidget *gw_utosp;   // Underscore to space radio button
 
     gw_sptounc = gtk_radio_button_new_with_label (NULL, "No change");
     gw_sptou = gtk_radio_button_new_with_label_from_widget (
@@ -1038,10 +1028,9 @@ static void
 create_apply_to_names_ext_box (GtkWidget **gw_container,
                                RFiles     *r_files)
 {
-    // Apply to names and extensions
-    GtkWidget *gw_appne;
-    GtkWidget *gw_appn;
-    GtkWidget *gw_appe;
+    GtkWidget *gw_appne; // Apply to name and extension radio button
+    GtkWidget *gw_appn;  // Apply to name only radio button
+    GtkWidget *gw_appe;  // Aply to extension only radio button
 
     gw_appne = gtk_radio_button_new_with_label (NULL, "Apply to name and ext");
     gw_appn = gtk_radio_button_new_with_label_from_widget (
@@ -1076,10 +1065,10 @@ static void
 create_replace_str_with_str_box (GtkWidget **gw_container,
                                  RFiles     *r_files)
 {
-    GtkWidget *gw_sfrom;
-    GtkWidget *gw_sto;
-    GtkWidget *gw_lab1;
-    GtkWidget *gw_lab2;
+    GtkWidget *gw_sfrom; // Replace from entry
+    GtkWidget *gw_sto;   // Replace to entry
+    GtkWidget *gw_lab1;  // Description label
+    GtkWidget *gw_lab2;  // Description label
 
     gw_sfrom = gtk_entry_new ();
     gw_sto = gtk_entry_new ();
@@ -1116,11 +1105,11 @@ static void
 create_delete_chars_box (GtkWidget **gw_container,
                          RFiles     *r_files)
 {
-    GtkWidget     *gw_del_cnt;
-    GtkWidget     *gw_del_pos;
-    GtkWidget     *gw_lab;
-    GtkAdjustment *gw_del_adj_cnt;
-    GtkAdjustment *gw_del_adj_pos;
+    GtkWidget     *gw_del_cnt;     // Delete chars count spin button
+    GtkWidget     *gw_del_pos;     // Delete from position spin button
+    GtkWidget     *gw_lab;         // Description label
+    GtkAdjustment *gw_del_adj_cnt; // Adjustment for spin button
+    GtkAdjustment *gw_del_adj_pos; // Adjustment for spin button
 
     gw_lab = gtk_label_new ("Delete text:");
     gw_del_adj_cnt = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
@@ -1154,10 +1143,10 @@ static void
 create_insert_string_box (GtkWidget **gw_container,
                           RFiles     *r_files)
 {
-    GtkWidget     *gw_lab;
-    GtkWidget     *gw_ins_entry;
-    GtkWidget     *gw_ins_pos;
-    GtkAdjustment *gw_ins_adj_pos;
+    GtkWidget     *gw_lab;         // Description label
+    GtkWidget     *gw_ins_entry;   // Insert text entry
+    GtkWidget     *gw_ins_pos;     // Insert text position spin button
+    GtkAdjustment *gw_ins_adj_pos; // Adjustment for spin button
 
     gw_lab = gtk_label_new ("Insert text:");
     gw_ins_entry = gtk_entry_new ();
@@ -1192,11 +1181,9 @@ static void
 create_rename_close_exit_box (GtkWidget **gw_container,
                               RFiles     *r_files)
 {
-    // Rename close buttons
-    GtkWidget *gw_but_ok;
-    GtkWidget *gw_but_cc;
-    // Exit after rename check button
-    GtkWidget *gw_renexit;
+    GtkWidget *gw_but_ok;  // Rename button
+    GtkWidget *gw_but_cc;  // Close button
+    GtkWidget *gw_renexit; // Exit after rename check button
 
     gw_but_ok = gtk_button_new_with_label ("Rename");
     gw_but_cc = gtk_button_new_with_label ("Close");
@@ -1237,11 +1224,11 @@ create_file_name_entries (GFile     **files,
                           RFiles     *r_files,
                           GtkWidget **gw_container)
 {
-    GtkWidget     *gw_entry_box;
-    GtkWidget     *gw_vp;
-    GtkAdjustment *ga_h;
-    GtkAdjustment *ga_v;
-    uint16_t       ui_cn = 0;  // file names count
+    GtkWidget     *gw_entry_box; // Box fo file name Entry fields
+    GtkWidget     *gw_vp;        // ViewPort
+    GtkAdjustment *ga_h;         // Adjustment for scrolled window and viewport
+    GtkAdjustment *ga_v;         // Adjustment for scrolled window and viewport
+    uint16_t       ui_cn = 0;    // File names count
 
     // Allocate memory for pointers to entries and file name strings
     r_files->entry = g_malloc (n_files * sizeof (GtkWidget*));
@@ -1315,7 +1302,7 @@ create_window (GtkWidget        **window,
     *window = gtk_application_window_new (application);
     //*window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     // Set window properties
-    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1.2");
+    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1.3");
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
@@ -1384,18 +1371,18 @@ open (GtkApplication  *application,
       const char      *hint,
       RFiles          *r_files)
 {
-    GtkWidget *window;
-    GtkWidget *gw_entry_box;
-    GtkWidget *gw_vbox;
-    GtkWidget *gw_uplc_box;
-    GtkWidget *gw_undersc_box;
-    GtkWidget *gw_replace_str_box;
-    GtkWidget *gw_del_str_box;
-    GtkWidget *gw_ins_str_box;
-    GtkWidget *gw_apply_box;
-    GtkWidget *gw_udusc_box;
-    GtkWidget *gw_okcl_box;
-    GtkWidget *gw_sep;
+    GtkWidget *window;             // Appliation window
+    GtkWidget *gw_entry_box;       // File name list widget
+    GtkWidget *gw_vbox;            // Main window pack widget
+    GtkWidget *gw_uplc_box;        // Upcase / lowercase widget
+    GtkWidget *gw_undersc_box;     // Spaces to underscores widget
+    GtkWidget *gw_replace_str_box; // Replace text widget
+    GtkWidget *gw_del_str_box;     // Delete text widget
+    GtkWidget *gw_ins_str_box;     // Insert text widget
+    GtkWidget *gw_apply_box;       // Apply to names / extenstions widget
+    GtkWidget *gw_udusc_box;       // Widget to pack all settings
+    GtkWidget *gw_okcl_box;        // Rename / Close widget
+    GtkWidget *gw_sep;             // Separator widget
 
     // Create file name entries and set r_files properties
     create_file_name_entries (files , n_files, r_files, &gw_entry_box);
