@@ -13,11 +13,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2019-11-28  v1.1.3  Michal Babik  <michalb1981@o2.pl>
+        * sfrename.c (string_insert_string): Little changed function to insert
+          string in file name.
+        * sfrename.c (string_replace_in): Little changed function to replace
+          strings in file name.
+        * sfrename.c (string_to_lower): Added string length validation.
+        * sfrename.c (string_to_upper): Added string length validation.
+        * Some code updates
 
-2019-01-25  Michal Babik  <michalb1981@o2.pl>
+2019-10-10  v1.1.2  Michal Babik  <michalb1981@o2.pl>
+        * sfrename.c (free_stuff): Removed not needed print command.
 
-        * sfrename.c: First relase.
-        
+2019-06-23  Michal Babik  <michalb1981@o2.pl>
+        * sfrename.c (free_stuff): Removed not needed print command.
+
 2019-06-13  Michal Babik  <michalb1981@o2.pl>
 
         * sfrename.c: include <gio/gio.h>
@@ -35,9 +45,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         * sfrename.c (open): New function.
         * sfrename.c (rfiles_init): New function.
 
-2019-06-23  Michal Babik  <michalb1981@o2.pl>
-        * sfrename.c (free_stuff): Removed not needed print command.
+2019-01-25  Michal Babik  <michalb1981@o2.pl>
 
-2019-10-10  Michal Babik  <michalb1981@o2.pl>
-        * sfrename.c (free_stuff): Removed not needed print command.
+        * sfrename.c: First relase.
 

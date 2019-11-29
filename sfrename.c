@@ -38,59 +38,68 @@
 #include <gdk/gdkkeysyms.h>
 #include <gmodule.h>
 
-#define FN_LEN 255      //!< Maximum chars in file name string
-#define WIN_WIDTH  600  //!< Application window width
-#define WIN_HEIGHT 800  //!< Application window height
-//------------------------------------------------------------------------------
+#define FN_LEN     255  /**< Maximum chars in file name string */
+#define WIN_WIDTH  600  /**< Application window width */
+#define WIN_HEIGHT 800  /**< Application window height */
+#define APP_NAME   "Small File Renamer"
+#define APP_VER    " v1.1.3"
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete text in name settings
  */
 typedef struct
 RDelete {
-    uint8_t   cnt;               //!< Delete chars count
-    uint8_t   pos;               //!< Delete chars starting position
+    uint8_t   cnt;               /**< Delete chars count */
+    uint8_t   pos;               /**< Delete chars starting position */
 } RDelete;
 /**
  * @brief  Insert text in name settings
  */
 typedef struct
 RInsert {
-    char      text[FN_LEN + 1];  //!< String to insert in file name
-    uint8_t   pos;               //!< Position to put string
+    char      text [FN_LEN + 1]; /**< String to insert in file name */
+    uint8_t   pos;               /**< Position to put string */
 } RInsert;
 /**
  * @brief  Replace strings in name settings
  */
 typedef struct
 RReplace {
-    char      from[FN_LEN + 1];  //!< Replace from string
-    char      to[FN_LEN + 1];    //!< Replace to string
+    char      from [FN_LEN + 1]; /**< Replace from string */
+    char      to   [FN_LEN + 1]; /**< Replace to string */
 } RReplace;
 /**
  * @brief  File names buffer and entries
  */
 typedef struct
 RFnames {
-    int         cnt;        //!< Count of file names
-    char      **org;        //!< Original file names buffer
-    char      **new;        //!< New file names buffer
+    int         cnt;             /**< Count of file names */
+    char      **new;             /**< New file names buffer */
+    char      **org;             /**< Original file names buffer */
 } RFnames;
 /** 
  * @brief Basic program data structure
  */ 
 typedef struct
 RFiles {
-    GtkWidget **entry;      //!< Entries with file names
-    RFnames     names;      //!< File names, old, new, entries
-    RDelete     delete;     //!< Delete chars properties
-    RInsert     insert;     //!< Insert text properties
-    RReplace    replace;    //!< Replace string with string settings
-    uint8_t     uplo;       //!< Upper/lower case option
-    uint8_t     spaces;     //!< Spaces/underscores option
-    uint8_t     applyto;    //!< Apply to file names/ext or both option
-    uint8_t     renexit;    //!< Exit after rename option
+    GtkWidget **entry;           /**< Entries with file names */
+    RFnames     names;           /**< File names, old, new, entries */
+    RDelete     delete;          /**< Delete chars properties */
+    RInsert     insert;          /**< Insert text properties */
+    RReplace    replace;         /**< Replace string with string settings */
+    uint8_t     uplo;            /**< Upper/lower case option */
+    uint8_t     spaces;          /**< Spaces/underscores option */
+    uint8_t     applyto;         /**< Apply to file names/ext or both option */
+    uint8_t     renexit;         /**< Exit after rename option */
 } RFiles;
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
+enum {
+    REN_OK,         /**< File renamed */
+    REN_NOT_REN,    /**< Could not rename */
+    REN_EXISTS,     /**< File already exists */
+    REN_NC          /**< No change */
+};
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  RFiles initialization.
  *
@@ -100,7 +109,7 @@ RFiles {
 static void
 rfiles_init (RFiles *r_files)
 {
-    // Setting file list properties
+    /* Setting file list properties */
     r_files->uplo       = 2;    // upper/lower case setting
     r_files->spaces     = 2;    // spaces/underscores setting
     r_files->applyto    = 2;    // apply to names/ext/both setting
@@ -112,12 +121,12 @@ rfiles_init (RFiles *r_files)
     r_files->entry      = NULL; // entry list
     r_files->names.org  = NULL; // org names list
     r_files->names.new  = NULL; // new names list
-    // clear replace from and to strings
+    /* clear replace from and to strings */
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
-    memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
-    memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
+    memset (r_files->replace.to,   0, sizeof (r_files->replace.to));
+    memset (r_files->insert.text,  0, sizeof (r_files->insert.text));
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  *
@@ -138,17 +147,13 @@ free_stuff (RFiles *r_files)
     if (r_files->entry != NULL)
         g_free (r_files->entry);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Check if file can be renamed and rename it.
  *
  * @param[in] old_name Old file name
  * @param[in] new_name New file name
  * @return    Renaming status
- * @retval 0  No change
- * @retval 1  File successfully renamed
- * @retval 2  Could not rename file
- * @retval 3  Such file already exists
  */
 static uint8_t
 file_check_and_rename (const char *old_name,
@@ -156,52 +161,51 @@ file_check_and_rename (const char *old_name,
 {
     uint8_t ui_res = 0;
 
-    // Check if new file name is different than old
+    /* Check if new file name is different than old */
     if (strcmp (old_name, new_name) != 0) {
-        // Check if file with new file name don't exist
+        /* Check if file with new file name don't exist */
         if (access (new_name, F_OK) != 0) {
-            // Renaming file
+            /* Renaming file */
             if (rename (old_name, new_name) == 0)
-                ui_res = 1; // OK
+                ui_res = REN_OK;      // OK
             else
-                ui_res = 2; // Could not rename
+                ui_res = REN_NOT_REN; // Could not rename
         }
         else
-            ui_res = 3;     // File exists
+            ui_res = REN_EXISTS;      // File exists
     }
     else
-        ui_res = 0;         // No chgange
+        ui_res = REN_NC;              // No chgange
     return ui_res;
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
- * @brief  Get length (not greater than i_max_chars) in bytes to the last utf8
- *         char in string s_str.
+ * @brief  Get length (not greater than i_max_chars) in bytes for the input
+ *         string.
  *
- *  Gets length of maximum correct utf8 chars in string. End of string should be
+ *  Gets length of maximum correct chars in string. End of string should be
  *  a null character. Returned length can not be greater than i_max_chars,
- *  input string may have any length (not greater that uint16_t range).
+ *  input string may have any length.
  *  Utf8 chars can be multi byte and you can cut it in half with a simple split.
  *
- * @param[in] s_str       Input string
- * @param[in] i_max_chars Maximum possible bytes of length
- * @return    Length in bytes of correct chars up to i_max_chars value
+ * @param[in] s_str   Input string
+ * @param[in] ui_max  Maximum possible bytes of length
+ * @return    Length in bytes of correct chars up to ui_max value
  */
-static uint16_t
-utf8_get_last_char_len (const char *s_str,
-                        uint16_t    i_max_chars)
+static size_t
+get_valid_length (const char   *s_str,
+                  const size_t  ui_max)
 {
-    char     *x     = NULL;           // Char position
-    uint16_t  i_len = strlen (s_str); // String length
+    size_t ui_len = 0;
 
-    while (i_len > i_max_chars) {
-        x = (char*) s_str + i_len;
-        x = g_utf8_find_prev_char (s_str, x);
-        i_len = x-s_str;
-    }
-    return i_len;
+    ui_len = strlen (s_str);
+    if (ui_len > ui_max)
+        ui_len = ui_max;
+    while (!g_utf8_validate (s_str, ui_len, NULL))
+        ui_len--;
+    return ui_len;
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /** 
  * @brief  Replace one string with another in a given src_dest string.
  *
@@ -214,37 +218,51 @@ utf8_get_last_char_len (const char *s_str,
  * @return        none
  */ 
 static void
-string_replace_in (char *src_dest,
-                   char *s_fr,
-                   char *s_to)
+string_replace_in (char       *src_dest,
+                   const char *s_fr,
+                   const char *s_to)
 {
-    char    head[FN_LEN+1];     // temp file name
-    char    *srcdst = src_dest; // copy src_dest pointer
-    char    *pn     = NULL;     // find string pointer
-    uint16_t i      = 0;
+    char          s_tmp [FN_LEN+1];    // temp file name
+    const size_t  ui_max   = FN_LEN;   // max length of name
+    const char   *s_to_p   = NULL;     // pointer to s_to
+    char         *srcdst   = src_dest; // copy src_dest pointer
+    char         *pn       = NULL;     // find string pointer
+    size_t        ui_vlen  = 0;        // valid name length
+    uint16_t      i        = 0;
+    size_t        ui_frlen = 0;        // valid name length
 
-    memset (head, 0, sizeof (head)); // zeroing file name
-    pn = strstr (srcdst, s_fr); // find the first occurence of "replace from"
-    if (pn == NULL) return; // exit function if "replace from" was not found
-    while (pn != NULL) {  // while there are "replace from" in source string
-        for (; srcdst != pn; srcdst++) {
-            if (i < FN_LEN)
-                head[i++] = *srcdst;
+    memset (s_tmp, 0, sizeof (s_tmp)); // zeroing file name
+
+    pn = strstr (srcdst, s_fr);
+    if (pn == NULL)
+        return; 
+
+    ui_frlen = strlen (s_fr);
+
+    while (pn != NULL) {
+        s_to_p = s_to;
+        while (srcdst != pn && i < FN_LEN) {
+            s_tmp[i++] = *srcdst++;
         }
-        for (uint16_t j = 0; j < strlen (s_to); ++j) {
-            if (i < FN_LEN)
-                head[i++] = s_to[j];
+        while (*s_to_p && i < FN_LEN) {
+            s_tmp[i++] = *s_to_p++;
         }
-        srcdst = pn + strlen (s_fr); // change source pointer to "after found"
-        pn = strstr (srcdst, s_fr);  // find another "to replace" str in src
+        /* change source pointer to "after found" */
+        srcdst = pn + ui_frlen; 
+        pn = strstr (srcdst, s_fr);
     }
-    for (; *srcdst; srcdst++) {
-        if (i < FN_LEN)
-            head[i++] = *srcdst;
+    while (*srcdst && i < FN_LEN) {
+        s_tmp[i++] = *srcdst++;
     }
-    strcpy (src_dest, head); // copy temp string to source / dest string
+    ui_vlen = get_valid_length (s_tmp, ui_max);
+    strncpy (src_dest, s_tmp, ui_vlen);
+    src_dest[ui_vlen] = '\0';
+    #ifdef DEBUG
+        printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
+        printf ("%ld %s\n", strlen (src_dest), src_dest);
+    #endif
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /** 
  * @brief  Detele chars in string.
  *
@@ -254,9 +272,9 @@ string_replace_in (char *src_dest,
  * @return        none
  */ 
 static void
-string_delete_chars (char *src_dst,
-                     char *ch_cnt,
-                     char *ch_pos)
+string_delete_chars (char       *src_dst,
+                     const char *ch_cnt,
+                     const char *ch_pos)
 {
     uint16_t  i_cnt  = 0;    // Delete chars count
     uint16_t  i_pos  = 0;    // Delete start position
@@ -289,7 +307,7 @@ string_delete_chars (char *src_dst,
         memmove (ch_po, ch_cn, i_olen - i_pos - (ch_cn - ch_po) + 1);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string to existing string at specified position.
  *
@@ -299,43 +317,59 @@ string_delete_chars (char *src_dst,
  * @return        none
  */
 static void
-string_insert_string (char *s_dst,
-                      char *s_src,
-                      char *ch_pos)
+string_insert_string (char       *s_srcdst,
+                      const char *s_ins,
+                      const char *ch_pos)
 {
-    char     *x       = NULL;  // Insert text position pointer for utf text
-    char     *s_tm    = NULL;  // Rest text utf position pointer
-    char      s_tmp[FN_LEN+1]; // Temp text
-    uint16_t  i_pos   = 0;     // Text insert position 
-    uint16_t  i_srl   = 0;     // Length of text to insert
-    uint16_t  i_dsl   = 0;     // Length of destination text
-    uint16_t  i_s_len = 0;     // Position to insert text and not exceed max
-                               // file name length
-    i_pos   = atoi (ch_pos);
-    i_srl   = strlen (s_src);
-    i_dsl   = strlen (s_dst);
+    char          s_tmp [FN_LEN+1];     // Temp String
+    size_t        ui_pos     = 0;       // Text insert position 
+    size_t        ui_len     = 0;       // Length of text
+    const size_t  ui_max     = FN_LEN;  // Max string length
+    const char   *x          = NULL;    // Insert text pointer
+    char         *tp         = NULL;    // Temp string pointer
+    const char   *sp         = NULL;    // Source string pointer
+    const char   *ip         = NULL;    // Insert string pointer
+    size_t        ui_slen_u8 = 0;       // Length of unicode text
 
-    if (i_srl == 0) return;
+    if (s_srcdst == NULL || s_ins == NULL || ch_pos == NULL)
+        return;
+
+    ui_pos     = atoi (ch_pos);
+    ui_slen_u8 = g_utf8_strlen (s_srcdst, -1);
+
+    sp = s_srcdst;
+    tp = s_tmp;
+    ip = s_ins;
+
     memset (s_tmp, 0, sizeof (s_tmp));
-    if (g_utf8_validate (s_dst, -1, NULL)) {
-        i_s_len = utf8_get_last_char_len (s_src, FN_LEN - i_dsl);
-        x = g_utf8_offset_to_pointer (s_dst, i_pos);
-        i_pos = x - s_dst;
-        i_dsl = g_utf8_strlen (s_dst, -1);
-        if (i_pos > i_dsl)
-            i_pos = i_dsl;
-        g_utf8_strncpy (s_tmp, s_dst, i_pos);
-        strncat (s_tmp, s_src, i_s_len);
-        if (i_pos < i_dsl) {
-            s_tm = g_utf8_substring (s_dst, 
-                    i_pos, g_utf8_strlen (s_dst, -1));
-            g_strlcat (s_tmp, s_tm, FN_LEN + 1);
-            g_free (s_tm);
+
+    if (g_utf8_validate (s_srcdst, -1, NULL) && 
+        g_utf8_validate (s_ins, -1, NULL)) {
+
+        if (ui_pos > ui_slen_u8)
+            ui_pos = ui_slen_u8;
+
+        x = g_utf8_offset_to_pointer (s_srcdst, ui_pos);
+
+        while (sp != x) {
+            *tp++ = *sp++;
         }
-        g_strlcpy (s_dst, s_tmp, FN_LEN + 1);
+        while (*ip && (tp - s_tmp < ui_max)) {
+            *tp++ = *ip++;
+        }
+        while (*sp && (tp - s_tmp < ui_max)) {
+            *tp++ = *sp++;
+        }
+
+        ui_len = get_valid_length (s_tmp, ui_max);
+        strncpy (s_srcdst, s_tmp, ui_len);
+        #ifdef DEBUG
+            printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
+            printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
+        #endif
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to lower case.
  *
@@ -345,19 +379,29 @@ string_insert_string (char *s_dst,
  * @return        none
  */
 static void
-string_to_lower (char *src_dst,
-                 char *unused1,
-                 char *unused2)
+string_to_lower (char       *s_srcdst,
+                 const char *unused1,
+                 const char *unused2)
 {
-    char *ts = NULL; // temp string
+    char         *s_tt   = NULL;   // temp string
+    const size_t  ui_max = FN_LEN; // Max string length
+    size_t        ui_len  = 0;     // Length of name string
 
-    if (g_utf8_validate (src_dst, -1, NULL)) {
-        ts = g_utf8_strdown (src_dst, -1);
-        g_utf8_strncpy (src_dst, ts, g_utf8_strlen (ts, -1));
-        g_free (ts);
+    if (s_srcdst == NULL)
+        return;
+
+    if (g_utf8_validate (s_srcdst, -1, NULL)) {
+        s_tt = g_utf8_strdown (s_srcdst, -1);
+        ui_len = get_valid_length (s_tt, ui_max);
+        strncpy (s_srcdst, s_tt, ui_len);
+        #ifdef DEBUG
+            printf ("\n%ld %s\n", ui_len, s_tt);
+            printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
+        #endif
+        g_free (s_tt);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to upper case.
  *
@@ -367,19 +411,29 @@ string_to_lower (char *src_dst,
  * @return        none
  */
 static void
-string_to_upper (char *src_dst,
-                 char *unused1,
-                 char *unused2)
+string_to_upper (char       *s_srcdst,
+                 const char *unused1,
+                 const char *unused2)
 {
-    char *ts = NULL; // temp string
+    char         *s_tt   = NULL;   // temp string
+    const size_t  ui_max = FN_LEN; // Max string length
+    size_t        ui_len  = 0;     // Length of name string
 
-    if (g_utf8_validate (src_dst, -1, NULL)) {
-        ts = g_utf8_strup(src_dst, -1);
-        g_utf8_strncpy (src_dst, ts, g_utf8_strlen (ts, -1));
-        g_free (ts);
+    if (s_srcdst == NULL)
+        return;
+
+    if (g_utf8_validate (s_srcdst, -1, NULL)) {
+        s_tt = g_utf8_strup(s_srcdst, -1);
+        ui_len = get_valid_length (s_tt, ui_max);
+        strncpy (s_srcdst, s_tt, ui_len);
+        #ifdef DEBUG
+            printf ("\n%ld %s\n", ui_len, s_tt);
+            printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
+        #endif
+        g_free (s_tt);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Find file name and extension and store in appropriate strings.
  *
@@ -393,21 +447,21 @@ string_to_upper (char *src_dst,
  * @return     none
  */
 static void
-string_extract_name_ext (const char *f_name_ext,
-                         char       *f_name,
-                         char       *f_ext)
+string_extract_name_ext (const char *s_name_ext,
+                         char       *s_name,
+                         char       *s_ext)
 {
-    const char *pn = strrchr (f_name_ext, '.'); // find first dot from right
+    const char *pn = strrchr (s_name_ext, '.'); // find first dot from right
 
-    // if file is hidden or has no ext copy whole src name as f_name
-    if ((pn == NULL) || (pn == f_name_ext))
-        strcpy (f_name, f_name_ext); 
+    /* if file is hidden or has no ext copy whole src name as f_name */
+    if ((pn == NULL) || (pn == s_name_ext))
+        strcpy (s_name, s_name_ext); 
     else { // should be file name with ext
-        strcpy (f_ext, pn); // copy extension to f_ext
-        strncpy (f_name, f_name_ext, pn - f_name_ext); // copy name to f_name
+        strcpy (s_ext, pn); // copy extension to f_ext
+        strncpy (s_name, s_name_ext, pn - s_name_ext); // copy name to f_name
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Join file name with its extension.
  *
@@ -418,24 +472,28 @@ string_extract_name_ext (const char *f_name_ext,
  * @return     none
  */
 static void
-string_combine_name_ext (char *f_name_ext,
-                         char *f_name,
-                         char *f_ext)
+string_combine_name_ext (char *s_name_ext,
+                         char *s_name,
+                         char *s_ext)
 {
-    uint16_t i_lc = 0;
+    size_t       ui_len = 0;
+    const size_t ui_max = FN_LEN - strlen(s_ext);
 
-    memset (f_name_ext, 0, FN_LEN + 1);
+    memset (s_name_ext, 0, FN_LEN + 1);
 
-    if (strcmp (f_ext, "") != 0) { // estenstion present
-        i_lc = utf8_get_last_char_len (f_name, FN_LEN - strlen(f_ext));
-        strncpy (f_name_ext, f_name, i_lc);
-        strcat (f_name_ext, f_ext); // append extension to source/result string
+    if (s_ext != NULL && strcmp (s_ext, "") != 0) { // estenstion present
+        ui_len = get_valid_length (s_name, ui_max);
+        strncpy (s_name_ext, s_name, ui_len);
+        strcat (s_name_ext, s_ext); // append extension to source/result string
     }
     else { // no extenstion
-        strncpy (f_name_ext, f_name, utf8_get_last_char_len (f_name, FN_LEN));
+        strncpy (s_name_ext, s_name, get_valid_length (s_name, FN_LEN));
     }
+    #ifdef DEBUG
+        printf ("%ld %s\n", strlen (s_name_ext), s_name_ext);
+    #endif
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Function to process file name str using a pointed function.
  *
@@ -450,28 +508,28 @@ string_combine_name_ext (char *f_name_ext,
  * @return        none
  */
 static void
-string_process_filename (void        (*fun) (char*, char*, char*),
-                         char         *src_dst,
-                         char         *s_fr,
-                         char         *s_to,
-                         const uint8_t ne)
+string_process_filename (void          (*fun) (char*, const char*, const char*),
+                         char           *src_dst,
+                         const char     *s_fr,
+                         const char     *s_to,
+                         const uint8_t   ne)
 {
     char f_name[FN_LEN + 1]; // temp name
     char f_ext[50];          // lets hope there are no larger extensions
 
     if (ne == 2)
-        (*fun) (src_dst, s_fr, s_to); // change text in name and ext
+        fun (src_dst, s_fr, s_to); // change text in name and ext
     else { // change text in name or ext
         memset (f_name, 0, sizeof (f_name)); // zeroing file name
-        memset (f_ext, 0, sizeof (f_ext)); // zeroing file ext
-        // get name and ext to separate strings
+        memset (f_ext,  0, sizeof (f_ext)); // zeroing file ext
+        /* get name and ext to separate strings */
         string_extract_name_ext (src_dst, f_name, f_ext);
-        if (ne == 1) (*fun) (f_name, s_fr, s_to); // change name only
-        if (ne == 0) (*fun) (f_ext,  s_fr, s_to); // change ext only
+        if (ne == 1) fun (f_name, s_fr, s_to); // change name only
+        if (ne == 0) fun (f_ext,  s_fr, s_to); // change ext only
         string_combine_name_ext (src_dst, f_name, f_ext); // join name and ext
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete chars in specified file name.
  *
@@ -495,9 +553,11 @@ name_delete_chars (RFiles        *r_files,
     sprintf (tmp1, "%d", r_files->delete.cnt);
     sprintf (tmp2, "%d", r_files->delete.pos);
     string_process_filename (string_delete_chars,
-            r_files->names.new[i], tmp1, tmp2, r_files->applyto);
+                             r_files->names.new[i],
+                             tmp1, tmp2,
+                             r_files->applyto);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string in specified file name at some position.
  *
@@ -518,9 +578,11 @@ name_insert_string (RFiles        *r_files,
     if (strcmp (r_files->insert.text, "") == 0) return;
     sprintf (tmp, "%d", r_files->insert.pos);
     string_process_filename (string_insert_string,
-            r_files->names.new[i], r_files->insert.text, tmp, r_files->applyto);
+                             r_files->names.new[i],
+                             r_files->insert.text, tmp,
+                             r_files->applyto);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Change specified file name to upcase or lowercase.
  *
@@ -532,16 +594,20 @@ static void
 name_to_upcase_lowercase (RFiles        *r_files,
                           const uint16_t i)
 {
-    // to uppercase
+    /* to uppercase */
     if (r_files->uplo == 0)
         string_process_filename (string_to_upper,
-                r_files->names.new[i], NULL, NULL, r_files->applyto);
-    // to lowercase
+                                 r_files->names.new[i],
+                                 NULL, NULL,
+                                 r_files->applyto);
+    /* to lowercase */
     if (r_files->uplo == 1)
         string_process_filename (string_to_lower,
-                r_files->names.new[i], NULL, NULL, r_files->applyto);
+                                 r_files->names.new[i],
+                                 NULL, NULL,
+                                 r_files->applyto);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Replace spaces to underscores or vice versa in specified file name to
  *         other.
@@ -554,15 +620,20 @@ static void
 name_spaces_underscores (RFiles        *r_files,
                          const uint16_t i)
 {
-    // underscores to spaces
+    /* underscores to spaces */
     if (r_files->spaces == 0)
         string_process_filename (string_replace_in,
-                r_files->names.new[i], "_", " ", r_files->applyto);
-    // spaces to underscores
-    if (r_files->spaces == 1) string_process_filename (string_replace_in,
-            r_files->names.new[i], " ", "_", r_files->applyto);
+                                 r_files->names.new[i],
+                                 "_", " ",
+                                 r_files->applyto);
+    /* spaces to underscores */
+    if (r_files->spaces == 1) 
+        string_process_filename (string_replace_in,
+                                 r_files->names.new[i],
+                                 " ", "_",
+                                 r_files->applyto);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Replace string in specified file name to other.
  *         If "replace from" string is not empty, perform string replace.
@@ -576,10 +647,12 @@ name_replace_strings (RFiles        *r_files,
                       const uint16_t i)
 {
     if (strcmp (r_files->replace.from, "") != 0)
-        string_process_filename (string_replace_in, r_files->names.new[i],
-                r_files->replace.from, r_files->replace.to, r_files->applyto);
+        string_process_filename (string_replace_in,
+                                 r_files->names.new[i],
+                                 r_files->replace.from, r_files->replace.to,
+                                 r_files->applyto);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Checks if the new entry text is equal to the previous value and
  *         changes it to a new value if it is not.
@@ -597,7 +670,7 @@ entry_check_and_update (GtkWidget  *widget,
     if (strcmp (new_str, en) != 0)
         gtk_entry_set_text (GTK_ENTRY (widget), new_str);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Apply changes to all file names in buffer and update entries.
  *
@@ -608,11 +681,11 @@ static void
 file_names_update_changes (RFiles *r_files)
 {
     for (uint16_t i = 0; i < r_files->names.cnt; ++i) {
-        // clear file name
+        /* clear file name */
         memset (r_files->names.new[i], 0, FN_LEN+1);
-        // set old name as tooltip
+        /* set old name as tooltip */
         gtk_widget_set_tooltip_text (r_files->entry[i], r_files->names.org[i]);
-        // copy original name to new to process
+        /* copy original name to new to process */
         strcpy (r_files->names.new[i], r_files->names.org[i]);
         name_to_upcase_lowercase (r_files, i);
         name_spaces_underscores (r_files, i);
@@ -622,7 +695,7 @@ file_names_update_changes (RFiles *r_files)
         entry_check_and_update (r_files->entry[i], r_files->names.new[i]);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Get active RadioButton in a group of RadioButton items.
  *
@@ -639,17 +712,18 @@ get_radio_active (GtkRadioButton *radiob)
     GSList         *tmp_list = NULL; // get RadioButton group list
 
     tmp_list = gtk_radio_button_get_group (radiob);
-    while (tmp_list != NULL) { // iterating through RadioButton list
-        ++i; // increment index of active RadioButton
+    while (tmp_list != NULL) {
+        ++i;
         tmp_butt = tmp_list->data; // getting current list value (RadioButton)
-        tmp_list = tmp_list->next; // going to next value
-        // if current RadioButton is active break the loop
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tmp_butt))) break;
+        tmp_list = tmp_list->next;
+
+        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tmp_butt)))
+            break;
     }
     tmp_butt = NULL; // nulling temp button
     return i;
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Destroy program window event.
  *
@@ -664,7 +738,7 @@ event_close (GtkWidget *widget,
     GtkWidget *gw_toplevel = gtk_widget_get_toplevel (widget);
     gtk_widget_destroy (gw_toplevel);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Rename button clicked.
  *
@@ -682,38 +756,54 @@ event_click_rename (GtkWidget *widget,
 {
     const char *a            = NULL;
     uint8_t     ui_renamed   = 0;
-    uint8_t     ui_ren_count = 0; // Count renamed files
+    uint8_t     ui_ren_count = 0; // Number of renamed files
 
     for (int i = 0; i < r_files->names.cnt; ++i) {
         a = gtk_entry_get_text (GTK_ENTRY (r_files->entry[i]));
+
         ui_renamed = file_check_and_rename (r_files->names.org[i], a);
-        if (ui_renamed == 1) {       // Renamed
-            printf ("File: %s renamed to: %s\n", r_files->names.org[i], a);
-            // copy new name to original in buffer
-            strcpy (r_files->names.org[i], a); 
-            ++ui_ren_count;
-        }
-        if (ui_renamed > 1) {   // File not renamed
-            if  (ui_renamed == 2)    // Coud not rename
+
+        switch (ui_renamed) {
+
+            case REN_OK:
+                printf ("File: %s renamed to: %s\n", r_files->names.org[i], a);
+                /* copy new name to original in buffer */
+                strcpy (r_files->names.org[i], a); 
+                ++ui_ren_count;
+                break;
+
+            case REN_NC:
+                printf ("No change in file: %s\n", r_files->names.org[i]);
+                break;
+
+            case REN_NOT_REN:
                 printf ("File: %s could not be renamed\n",
                         r_files->names.org[i]);
-            if  (ui_renamed == 3)    // file already exists
+                break;
+
+            case REN_EXISTS:
                 printf ("File: %s already exists\n", a);
-            // Revert old file names to new
+                break;
+
+            default:
+                break;
+        }
+        if (ui_renamed != REN_OK && ui_renamed != REN_NC) {
+            /* Revert old file names to new */
             strcpy (r_files->names.new[i], r_files->names.org[i]);
-            // Update file name in entry
+            /* Update file name in entry */
             entry_check_and_update (r_files->entry[i],
-                    r_files->names.new[i]);
+                                    r_files->names.new[i]);
         }
     }
     printf ("Renamed %d files of %d\n", ui_ren_count, r_files->names.cnt);
-    // exit application if "Exit after rename" checkbox was selected
+    /* exit application if "Exit after rename" checkbox was selected */
     if (r_files->renexit)
         event_close (widget, NULL);
     else
         file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string text position in SpinButton changed.
  *
@@ -732,7 +822,7 @@ event_insert_pos_changed (GtkSpinButton *sp_button,
     if (strcmp (r_files->insert.text, "") != 0)
         file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string text in Entry changed.
  *
@@ -751,10 +841,10 @@ event_insert_string_entry_changed (GtkWidget *widget,
 
     s_en = gtk_entry_get_text (GTK_ENTRY (widget));
     memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
-    strncpy (r_files->insert.text, s_en, utf8_get_last_char_len (s_en, FN_LEN));
+    strncpy (r_files->insert.text, s_en, get_valid_length (s_en, FN_LEN));
     file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete char number of chars to delete in SpinButton changed.
  *
@@ -772,7 +862,7 @@ event_delete_cnt_changed (GtkSpinButton *sp_button,
     r_files->delete.cnt = gtk_spin_button_get_value_as_int (sp_button);
     file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete char position velue in SpinButton changed.
  *
@@ -791,7 +881,7 @@ event_delete_pos_changed (GtkSpinButton *sp_button,
     if (r_files->delete.cnt > 0)
         file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Upper/lower case RadioButton changed.
  *
@@ -813,7 +903,7 @@ event_case_radio_active (GtkRadioButton *radiob,
         file_names_update_changes (r_files);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Space/underscore replace RadioButton changed.
  *
@@ -835,7 +925,7 @@ event_spaces_radio_active (GtkRadioButton *radiob,
         file_names_update_changes (r_files);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Changed "replace from" value in replace strings section.
  *
@@ -853,10 +943,10 @@ event_replace_from_entry_changed (GtkWidget *widget,
     const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
     strncpy (r_files->replace.from,
-            s_en, utf8_get_last_char_len (s_en, FN_LEN));
+            s_en, get_valid_length (s_en, FN_LEN));
     file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Changed "replace to" value in replace strings section.
  *
@@ -873,11 +963,11 @@ event_replace_to_entry_changed (GtkWidget *widget,
 {
     const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
     memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
-    strncpy (r_files->replace.to, s_en, utf8_get_last_char_len (s_en, FN_LEN));
+    strncpy (r_files->replace.to, s_en, get_valid_length (s_en, FN_LEN));
     if (strcmp (r_files->replace.from, "") != 0)
         file_names_update_changes (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Changed state of RadioButton responsible for applying changes to file
  *         name, file extension or both.
@@ -896,13 +986,13 @@ event_apply_radio_active (GtkRadioButton *radiob,
     static uint8_t dbl = 0; // to remove double toggling
 
     if (dbl ^= 1) {
-        // read apply to names/ext active RadioButton
+        /* read apply to names/ext active RadioButton */
         r_files->applyto = get_radio_active (radiob);
-        // perform updates in file names
+
         file_names_update_changes (r_files);
     }
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Exit after rename CheckBox state changed.
  *
@@ -916,10 +1006,10 @@ static void
 event_toggle_rename_exit (GtkToggleButton *toggleb,
                           RFiles          *r_files)
 {
-    // Set renexit value in r_files based on the value of ChackBox
+    /* Set renexit value in r_files based on the value of ChackBox */
     r_files->renexit = (uint8_t) gtk_toggle_button_get_active (toggleb);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  React to key pressed in main window.
  *
@@ -932,17 +1022,17 @@ event_win_key_press (GtkWidget   *widget,
                      GdkEventKey *event,
                      gpointer     user_data)
 {
-    // Catch Esc key in main window and exit
+    /* Catch Esc key in main window and exit */
     if (event->keyval == GDK_KEY_Escape)
         event_close (widget, NULL);
-    // Catch Enter and preform rename
+    /* Catch Enter and preform rename */
     if (event->keyval == GDK_KEY_Return) {
         RFiles *r_files = user_data;
         event_click_rename (widget, r_files);
     }
     return FALSE;
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates upcase / lowercase container.
  *
@@ -969,7 +1059,7 @@ create_upcase_lowercase_box (GtkWidget **gw_container,
             "toggled", G_CALLBACK (event_case_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_upc),
             "toggled", G_CALLBACK (event_case_radio_active), r_files);
-    // To uppercase lowercase box
+    /* To uppercase lowercase box */
     *gw_container = gtk_grid_new ();
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
     gtk_grid_attach (GTK_GRID (*gw_container), gw_ncc, 0, 0, 1, 1);
@@ -978,7 +1068,7 @@ create_upcase_lowercase_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_upc, gw_lcc, GTK_POS_BOTTOM, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates space to underscore and vice versa container.
  *
@@ -1006,7 +1096,7 @@ create_spaces_to_underscores_box (GtkWidget **gw_container,
             "toggled", G_CALLBACK (event_spaces_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_utosp),
             "toggled", G_CALLBACK (event_spaces_radio_active), r_files);
-    // Space to underscores box
+    /* Space to underscores box */
     *gw_container = gtk_grid_new ();
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
     gtk_grid_attach (GTK_GRID (*gw_container), gw_sptounc, 0, 0, 1, 1);
@@ -1015,7 +1105,7 @@ create_spaces_to_underscores_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_utosp, gw_sptou, GTK_POS_BOTTOM, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates Apply to name/ext/both container.
  *
@@ -1030,7 +1120,7 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
 {
     GtkWidget *gw_appne; // Apply to name and extension radio button
     GtkWidget *gw_appn;  // Apply to name only radio button
-    GtkWidget *gw_appe;  // Aply to extension only radio button
+    GtkWidget *gw_appe;  // Apply to extension only radio button
 
     gw_appne = gtk_radio_button_new_with_label (NULL, "Apply to name and ext");
     gw_appn = gtk_radio_button_new_with_label_from_widget (
@@ -1043,7 +1133,7 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
             "toggled", G_CALLBACK (event_apply_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_appe),
             "toggled", G_CALLBACK (event_apply_radio_active), r_files);
-    // Apply to names and extensions box
+    /* Apply to names and extensions box */
     *gw_container = gtk_grid_new ();
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
     gtk_grid_attach (GTK_GRID (*gw_container), gw_appne, 0, 0, 1, 1);
@@ -1052,7 +1142,7 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_appe, gw_appn, GTK_POS_BOTTOM, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates replace string with other string container.
  *
@@ -1092,7 +1182,7 @@ create_replace_str_with_str_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_sto, gw_lab2, GTK_POS_RIGHT, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates container with widgets to delete chars in file name string.
  *
@@ -1130,7 +1220,7 @@ create_delete_chars_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_del_pos, gw_del_cnt, GTK_POS_RIGHT, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates container with widgets to insert string into file name.
  *
@@ -1168,7 +1258,7 @@ create_insert_string_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_ins_pos, gw_ins_entry, GTK_POS_RIGHT, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates Rename - Close - Exit after rename container.
  *
@@ -1203,7 +1293,7 @@ create_rename_close_exit_box (GtkWidget **gw_container,
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_renexit, gw_but_cc, GTK_POS_RIGHT, 1, 1);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates file entry box, file name entries, set r_files properties.
  *
@@ -1230,39 +1320,42 @@ create_file_name_entries (GFile     **files,
     GtkAdjustment *ga_v;         // Adjustment for scrolled window and viewport
     uint16_t       ui_cn = 0;    // File names count
 
-    // Allocate memory for pointers to entries and file name strings
+    /* Allocate memory for pointers to entries and file name strings */
     r_files->entry = g_malloc (n_files * sizeof (GtkWidget*));
     r_files->names.org = g_malloc (n_files * sizeof (char*));
     r_files->names.new = g_malloc (n_files * sizeof (char*));
-    // Create box for file name entries
+    /* Create box for file name entries */
     gw_entry_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
     for (int i = 0; i < n_files; ++i) {
         char *ch_fname = g_file_get_basename (files[i]);
-        if (strcmp (ch_fname, "..") == 0) continue;
+        if (strcmp (ch_fname, "..") == 0) {
+            g_free (ch_fname);
+            continue;
+        }
         if (access (ch_fname, F_OK) == 0) { // check if file exists
-            // Allocate memory for original and new file name strings
+            /* Allocate memory for original and new file name strings */
             r_files->names.org[ui_cn] = g_slice_alloc0 (
                     (FN_LEN + 1) * sizeof (char));
             r_files->names.new[ui_cn] = g_slice_alloc0 (
                     (FN_LEN + 1) * sizeof (char));
-            // Copy verified file names to original and new file name string
+            /* Copy verified file names to original and new file name string */
             strcpy (r_files->names.org[ui_cn], ch_fname);
             strcpy (r_files->names.new[ui_cn], ch_fname);
-            // Create entry and set max length to defined file name length
+            /* Create entry and set max length to defined file name length */
             r_files->entry[ui_cn] = gtk_entry_new ();
             gtk_entry_set_max_length (GTK_ENTRY (r_files->entry[ui_cn]),
-                                     FN_LEN);
-            // Set entry file names
+                                      FN_LEN);
+            /* Set entry file names */
             gtk_entry_set_text (GTK_ENTRY (r_files->entry[ui_cn]),
-                    r_files->names.org[ui_cn]);
-            // Add entry to the container
+                                r_files->names.org[ui_cn]);
+            /* Add entry to the container */
             gtk_box_pack_start (GTK_BOX (gw_entry_box),
-                               r_files->entry[ui_cn], FALSE, FALSE, 0);
+                                r_files->entry[ui_cn], FALSE, FALSE, 0);
             ++ui_cn;
         }
         g_free (ch_fname);
     }
-    // Make scrollbars
+    /* Make scrollbars */
     *gw_container = gtk_scrolled_window_new (NULL, NULL);
     ga_h = gtk_scrolled_window_get_hadjustment(
             GTK_SCROLLED_WINDOW (*gw_container));
@@ -1271,8 +1364,8 @@ create_file_name_entries (GFile     **files,
     gw_vp = gtk_viewport_new (ga_h, ga_v);
     gtk_container_add (GTK_CONTAINER (gw_vp), gw_entry_box);
     gtk_container_add (GTK_CONTAINER (*gw_container), gw_vp);
-    // If file count is smaller than passed arguments, decrease number of
-    // entries, original and new file name strings
+    /* If file count is smaller than passed arguments, decrease number of
+     * entries, original and new file name strings */
     if (ui_cn < n_files) {
         r_files->entry = g_realloc (
                 r_files->entry, ui_cn * sizeof (GtkWidget*));
@@ -1284,7 +1377,7 @@ create_file_name_entries (GFile     **files,
     r_files->names.cnt = ui_cn; // set file count value in r_files
     return 0;
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Creates main window, its properties and connects window signals.
  *
@@ -1298,19 +1391,19 @@ create_window (GtkWidget        **window,
                GtkApplication    *application,
                RFiles            *r_files)
 {
-    // Create window widget
+    /* Create window widget */
     *window = gtk_application_window_new (application);
-    //*window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    // Set window properties
-    gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1.3");
+    /* Set window properties */
+    gtk_window_set_title (GTK_WINDOW (*window), APP_NAME APP_VER);
+    //gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1.3");
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
-    // Connect window events
+    /* Connect window events */
     g_signal_connect (G_OBJECT (*window),
             "key-press-event", G_CALLBACK (event_win_key_press), r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Application startup signal.
  *
@@ -1325,7 +1418,7 @@ startup (GtkApplication *application,
 {
     rfiles_init (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Application shutdown signal.
  *
@@ -1340,7 +1433,7 @@ shutdown (GtkApplication *application,
 {
     free_stuff (r_files);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Application activate signal.
  *
@@ -1352,7 +1445,7 @@ activate (GtkApplication *application)
 {
     printf ("No files to open\n");
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Open files in application signal.
  *
@@ -1384,13 +1477,13 @@ open (GtkApplication  *application,
     GtkWidget *gw_okcl_box;        // Rename / Close widget
     GtkWidget *gw_sep;             // Separator widget
 
-    // Create file name entries and set r_files properties
+    /* Create file name entries and set r_files properties */
     create_file_name_entries (files , n_files, r_files, &gw_entry_box);
     if (r_files->names.cnt < 1) {
         printf ("No files to open\n");
         return;
     }
-    // Create main window and set properties
+    /* Create main window and set properties */
     create_window (&window, application, r_files);
     create_upcase_lowercase_box (&gw_uplc_box, r_files);
     create_spaces_to_underscores_box (&gw_undersc_box, r_files);
@@ -1398,10 +1491,10 @@ open (GtkApplication  *application,
     create_replace_str_with_str_box (&gw_replace_str_box, r_files);
     create_delete_chars_box (&gw_del_str_box, r_files);
     create_insert_string_box (&gw_ins_str_box, r_files);
-    // OK, Close box
+    /* OK, Close box */
     create_rename_close_exit_box (&gw_okcl_box, r_files);
 
-    // Box for up down, underscore and apply to boxes
+    /* Box for up down, underscore and apply to boxes */
     gw_udusc_box = gtk_grid_new ();
     gtk_grid_set_column_spacing (GTK_GRID (gw_udusc_box), 4);
     gtk_grid_set_row_spacing (GTK_GRID (gw_udusc_box), 4);
@@ -1422,7 +1515,7 @@ open (GtkApplication  *application,
     gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
             gw_del_str_box, gw_ins_str_box, GTK_POS_RIGHT, 1, 1);
 
-    // Main application widgets box
+    /* Main application widgets box */
     gw_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
     gtk_box_pack_start (GTK_BOX (gw_vbox),
             gtk_label_new("Enter new file / directory name"), FALSE, FALSE, 0);
@@ -1439,7 +1532,7 @@ open (GtkApplication  *application,
     gtk_container_add (GTK_CONTAINER (window), gw_vbox);
     gtk_widget_show_all (window);
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 /**
  * @brief Main function.
  *
@@ -1449,7 +1542,7 @@ open (GtkApplication  *application,
  *                 represent the arguments passed to the program
  * @return         Return value
  */  
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 int
 main (int argc, char **argv)
 {
@@ -1463,10 +1556,11 @@ main (int argc, char **argv)
     g_signal_connect (app, "shutdown", G_CALLBACK (shutdown), &r_files);
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
     g_signal_connect (app, "open", G_CALLBACK (open), &r_files);
+    g_set_application_name (APP_NAME);
     status = g_application_run (G_APPLICATION (app), argc, argv);
     g_object_unref (app);
     return status;
 }
-//------------------------------------------------------------------------------
+/*----------------------------------------------------------------------------*/
 
 
