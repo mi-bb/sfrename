@@ -24,7 +24,7 @@
  *
  * Program renames files.
  *
- * @date November 8, 2019
+ * @date November 29, 2019
  * @version 1.1.3
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -199,10 +199,13 @@ get_valid_length (const char   *s_str,
     size_t ui_len = 0;
 
     ui_len = strlen (s_str);
+
     if (ui_len > ui_max)
         ui_len = ui_max;
+
     while (!g_utf8_validate (s_str, ui_len, NULL))
         ui_len--;
+
     return ui_len;
 }
 /*----------------------------------------------------------------------------*/
@@ -229,7 +232,7 @@ string_replace_in (char       *src_dest,
     char         *pn       = NULL;     // find string pointer
     size_t        ui_vlen  = 0;        // valid name length
     uint16_t      i        = 0;
-    size_t        ui_frlen = 0;        // valid name length
+    size_t        ui_frlen = 0;        // rename from length
 
     memset (s_tmp, 0, sizeof (s_tmp)); // zeroing file name
 
@@ -240,7 +243,9 @@ string_replace_in (char       *src_dest,
     ui_frlen = strlen (s_fr);
 
     while (pn != NULL) {
+
         s_to_p = s_to;
+
         while (srcdst != pn && i < FN_LEN) {
             s_tmp[i++] = *srcdst++;
         }
@@ -276,21 +281,25 @@ string_delete_chars (char       *src_dst,
                      const char *ch_cnt,
                      const char *ch_pos)
 {
-    uint16_t  i_cnt  = 0;    // Delete chars count
-    uint16_t  i_pos  = 0;    // Delete start position
-    uint16_t  i_len  = 0;    // Length of text to process
-    uint16_t  i_olen = 0;    // Length of text before processing
-    char     *ch_po  = NULL; // Pointer to delete start position
-    char     *ch_cn  = NULL; // Pointer to position after deleted chars
+    size_t  i_cnt  = 0;    // Delete chars count
+    size_t  i_pos  = 0;    // Delete start position
+    size_t  i_len  = 0;    // Length of text to process
+    size_t  i_olen = 0;    // Length of text before processing
+    char   *ch_po  = NULL; // Pointer to delete start position
+    char   *ch_cn  = NULL; // Pointer to position after deleted chars
 
-    i_cnt = atoi (ch_cnt);
-    i_pos = atoi (ch_pos);
+    i_cnt = (size_t) atoi (ch_cnt);
+    i_pos = (size_t) atoi (ch_pos);
     i_len = strlen (src_dst);
 
-    if (i_cnt == 0) return;
+    if (i_cnt == 0)
+        return;
+
     if (g_utf8_validate (src_dst, -1, NULL)) {
+
         i_olen = i_len;
-        i_len = g_utf8_strlen (src_dst, -1);
+        i_len = (size_t) g_utf8_strlen (src_dst, -1);
+
         if (i_cnt > i_len)
             i_cnt = i_len;
         if (i_pos > i_len)
@@ -304,6 +313,7 @@ string_delete_chars (char       *src_dst,
         }
         ch_po = g_utf8_offset_to_pointer (src_dst, i_pos);
         ch_cn = g_utf8_offset_to_pointer (src_dst, i_pos + i_cnt);
+
         memmove (ch_po, ch_cn, i_olen - i_pos - (ch_cn - ch_po) + 1);
     }
 }
@@ -330,12 +340,13 @@ string_insert_string (char       *s_srcdst,
     const char   *sp         = NULL;    // Source string pointer
     const char   *ip         = NULL;    // Insert string pointer
     size_t        ui_slen_u8 = 0;       // Length of unicode text
+    size_t        i          = 0;
 
     if (s_srcdst == NULL || s_ins == NULL || ch_pos == NULL)
         return;
 
-    ui_pos     = atoi (ch_pos);
-    ui_slen_u8 = g_utf8_strlen (s_srcdst, -1);
+    ui_pos     = (size_t) atoi (ch_pos);
+    ui_slen_u8 = (size_t) g_utf8_strlen (s_srcdst, -1);
 
     sp = s_srcdst;
     tp = s_tmp;
@@ -352,17 +363,18 @@ string_insert_string (char       *s_srcdst,
         x = g_utf8_offset_to_pointer (s_srcdst, ui_pos);
 
         while (sp != x) {
-            *tp++ = *sp++;
+            tp[i++] = *sp++;
         }
-        while (*ip && (tp - s_tmp < ui_max)) {
-            *tp++ = *ip++;
+        while (*ip && i < ui_max) {
+            tp[i++] = *ip++;
         }
-        while (*sp && (tp - s_tmp < ui_max)) {
-            *tp++ = *sp++;
+        while (*sp && i < ui_max) {
+            tp[i++] = *sp++;
         }
 
         ui_len = get_valid_length (s_tmp, ui_max);
         strncpy (s_srcdst, s_tmp, ui_len);
+
         #ifdef DEBUG
             printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
             printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
@@ -391,13 +403,18 @@ string_to_lower (char       *s_srcdst,
         return;
 
     if (g_utf8_validate (s_srcdst, -1, NULL)) {
+
         s_tt = g_utf8_strdown (s_srcdst, -1);
+
         ui_len = get_valid_length (s_tt, ui_max);
+
         strncpy (s_srcdst, s_tt, ui_len);
+
         #ifdef DEBUG
             printf ("\n%ld %s\n", ui_len, s_tt);
             printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
         #endif
+
         g_free (s_tt);
     }
 }
@@ -417,19 +434,24 @@ string_to_upper (char       *s_srcdst,
 {
     char         *s_tt   = NULL;   // temp string
     const size_t  ui_max = FN_LEN; // Max string length
-    size_t        ui_len  = 0;     // Length of name string
+    size_t        ui_len = 0;      // Length of name string
 
     if (s_srcdst == NULL)
         return;
 
     if (g_utf8_validate (s_srcdst, -1, NULL)) {
+
         s_tt = g_utf8_strup(s_srcdst, -1);
+
         ui_len = get_valid_length (s_tt, ui_max);
+
         strncpy (s_srcdst, s_tt, ui_len);
+
         #ifdef DEBUG
             printf ("\n%ld %s\n", ui_len, s_tt);
             printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
         #endif
+
         g_free (s_tt);
     }
 }
@@ -482,7 +504,9 @@ string_combine_name_ext (char *s_name_ext,
     memset (s_name_ext, 0, FN_LEN + 1);
 
     if (s_ext != NULL && strcmp (s_ext, "") != 0) { // estenstion present
+
         ui_len = get_valid_length (s_name, ui_max);
+
         strncpy (s_name_ext, s_name, ui_len);
         strcat (s_name_ext, s_ext); // append extension to source/result string
     }
@@ -520,12 +544,16 @@ string_process_filename (void          (*fun) (char*, const char*, const char*),
     if (ne == 2)
         fun (src_dst, s_fr, s_to); // change text in name and ext
     else { // change text in name or ext
+
         memset (f_name, 0, sizeof (f_name)); // zeroing file name
         memset (f_ext,  0, sizeof (f_ext)); // zeroing file ext
+
         /* get name and ext to separate strings */
         string_extract_name_ext (src_dst, f_name, f_ext);
+
         if (ne == 1) fun (f_name, s_fr, s_to); // change name only
         if (ne == 0) fun (f_ext,  s_fr, s_to); // change ext only
+
         string_combine_name_ext (src_dst, f_name, f_ext); // join name and ext
     }
 }
@@ -549,9 +577,13 @@ name_delete_chars (RFiles        *r_files,
     memset (tmp1, 0, sizeof (tmp1)); // zeroing tmp1
     memset (tmp2, 0, sizeof (tmp2)); // zeroing tmp2
 
-    if (r_files->delete.cnt == 0) return; // exit if no chars to delete
+    /* exit if no chars to delete */
+    if (r_files->delete.cnt == 0)
+        return;
+
     sprintf (tmp1, "%d", r_files->delete.cnt);
     sprintf (tmp2, "%d", r_files->delete.pos);
+
     string_process_filename (string_delete_chars,
                              r_files->names.new[i],
                              tmp1, tmp2,
@@ -575,8 +607,11 @@ name_insert_string (RFiles        *r_files,
 
     memset (tmp, 0, sizeof (tmp)); // zeroing tmp
 
-    if (strcmp (r_files->insert.text, "") == 0) return;
+    if (strcmp (r_files->insert.text, "") == 0)
+        return;
+
     sprintf (tmp, "%d", r_files->insert.pos);
+
     string_process_filename (string_insert_string,
                              r_files->names.new[i],
                              r_files->insert.text, tmp,
@@ -683,15 +718,19 @@ file_names_update_changes (RFiles *r_files)
     for (uint16_t i = 0; i < r_files->names.cnt; ++i) {
         /* clear file name */
         memset (r_files->names.new[i], 0, FN_LEN+1);
+
         /* set old name as tooltip */
         gtk_widget_set_tooltip_text (r_files->entry[i], r_files->names.org[i]);
+
         /* copy original name to new to process */
         strcpy (r_files->names.new[i], r_files->names.org[i]);
+
         name_to_upcase_lowercase (r_files, i);
         name_spaces_underscores (r_files, i);
         name_delete_chars (r_files, i);
         name_replace_strings (r_files, i);
         name_insert_string (r_files, i);
+
         entry_check_and_update (r_files->entry[i], r_files->names.new[i]);
     }
 }
@@ -712,6 +751,7 @@ get_radio_active (GtkRadioButton *radiob)
     GSList         *tmp_list = NULL; // get RadioButton group list
 
     tmp_list = gtk_radio_button_get_group (radiob);
+
     while (tmp_list != NULL) {
         ++i;
         tmp_butt = tmp_list->data; // getting current list value (RadioButton)
@@ -791,12 +831,14 @@ event_click_rename (GtkWidget *widget,
         if (ui_renamed != REN_OK && ui_renamed != REN_NC) {
             /* Revert old file names to new */
             strcpy (r_files->names.new[i], r_files->names.org[i]);
+
             /* Update file name in entry */
             entry_check_and_update (r_files->entry[i],
                                     r_files->names.new[i]);
         }
     }
     printf ("Renamed %d files of %d\n", ui_ren_count, r_files->names.cnt);
+
     /* exit application if "Exit after rename" checkbox was selected */
     if (r_files->renexit)
         event_close (widget, NULL);
@@ -819,6 +861,7 @@ event_insert_pos_changed (GtkSpinButton *sp_button,
                           RFiles        *r_files)
 {
     r_files->insert.pos = gtk_spin_button_get_value_as_int (sp_button);
+
     if (strcmp (r_files->insert.text, "") != 0)
         file_names_update_changes (r_files);
 }
@@ -840,8 +883,11 @@ event_insert_string_entry_changed (GtkWidget *widget,
     const char *s_en = NULL;
 
     s_en = gtk_entry_get_text (GTK_ENTRY (widget));
+
     memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
+
     strncpy (r_files->insert.text, s_en, get_valid_length (s_en, FN_LEN));
+
     file_names_update_changes (r_files);
 }
 /*----------------------------------------------------------------------------*/
@@ -860,6 +906,7 @@ event_delete_cnt_changed (GtkSpinButton *sp_button,
                           RFiles        *r_files)
 {
     r_files->delete.cnt = gtk_spin_button_get_value_as_int (sp_button);
+
     file_names_update_changes (r_files);
 }
 /*----------------------------------------------------------------------------*/
@@ -878,6 +925,7 @@ event_delete_pos_changed (GtkSpinButton *sp_button,
                           RFiles        *r_files)
 {
     r_files->delete.pos = gtk_spin_button_get_value_as_int (sp_button);
+
     if (r_files->delete.cnt > 0)
         file_names_update_changes (r_files);
 }
@@ -941,9 +989,12 @@ event_replace_from_entry_changed (GtkWidget *widget,
                                   RFiles    *r_files)
 {
     const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
+
     strncpy (r_files->replace.from,
             s_en, get_valid_length (s_en, FN_LEN));
+
     file_names_update_changes (r_files);
 }
 /*----------------------------------------------------------------------------*/
@@ -962,8 +1013,11 @@ event_replace_to_entry_changed (GtkWidget *widget,
                                 RFiles    *r_files)
 {
     const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+
     memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
+
     strncpy (r_files->replace.to, s_en, get_valid_length (s_en, FN_LEN));
+
     if (strcmp (r_files->replace.from, "") != 0)
         file_names_update_changes (r_files);
 }
@@ -1025,9 +1079,11 @@ event_win_key_press (GtkWidget   *widget,
     /* Catch Esc key in main window and exit */
     if (event->keyval == GDK_KEY_Escape)
         event_close (widget, NULL);
+
     /* Catch Enter and preform rename */
     if (event->keyval == GDK_KEY_Return) {
         RFiles *r_files = user_data;
+
         event_click_rename (widget, r_files);
     }
     return FALSE;
@@ -1050,18 +1106,22 @@ create_upcase_lowercase_box (GtkWidget **gw_container,
 
     gw_ncc = gtk_radio_button_new_with_label (NULL, "No change");
     gw_lcc = gtk_radio_button_new_with_label_from_widget (
-            GTK_RADIO_BUTTON (gw_ncc), "To lowercase");
+             GTK_RADIO_BUTTON (gw_ncc), "To lowercase");
     gw_upc = gtk_radio_button_new_with_label_from_widget (
-            GTK_RADIO_BUTTON (gw_ncc), "To uppercase");
+             GTK_RADIO_BUTTON (gw_ncc), "To uppercase");
+
     g_signal_connect (G_OBJECT(gw_ncc),
             "toggled", G_CALLBACK (event_case_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_lcc),
             "toggled", G_CALLBACK (event_case_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_upc),
             "toggled", G_CALLBACK (event_case_radio_active), r_files);
+
     /* To uppercase lowercase box */
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_ncc, 0, 0, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_lcc, gw_ncc, GTK_POS_BOTTOM, 1, 1);
@@ -1086,19 +1146,23 @@ create_spaces_to_underscores_box (GtkWidget **gw_container,
     GtkWidget *gw_utosp;   // Underscore to space radio button
 
     gw_sptounc = gtk_radio_button_new_with_label (NULL, "No change");
-    gw_sptou = gtk_radio_button_new_with_label_from_widget (
-            GTK_RADIO_BUTTON (gw_sptounc), "Space to underscore");
-    gw_utosp = gtk_radio_button_new_with_label_from_widget(
-            GTK_RADIO_BUTTON (gw_sptounc), "Underscore to space");
+    gw_sptou   = gtk_radio_button_new_with_label_from_widget (
+                 GTK_RADIO_BUTTON (gw_sptounc), "Space to underscore");
+    gw_utosp   = gtk_radio_button_new_with_label_from_widget(
+                 GTK_RADIO_BUTTON (gw_sptounc), "Underscore to space");
+
     g_signal_connect (G_OBJECT (gw_sptounc),
             "toggled", G_CALLBACK (event_spaces_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_sptou),
             "toggled", G_CALLBACK (event_spaces_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_utosp),
             "toggled", G_CALLBACK (event_spaces_radio_active), r_files);
+
     /* Space to underscores box */
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_sptounc, 0, 0, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_sptou, gw_sptounc, GTK_POS_BOTTOM, 1, 1);
@@ -1123,19 +1187,23 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
     GtkWidget *gw_appe;  // Apply to extension only radio button
 
     gw_appne = gtk_radio_button_new_with_label (NULL, "Apply to name and ext");
-    gw_appn = gtk_radio_button_new_with_label_from_widget (
-            GTK_RADIO_BUTTON (gw_appne), "Apply to name");
-    gw_appe = gtk_radio_button_new_with_label_from_widget (
-            GTK_RADIO_BUTTON (gw_appne), "Apply to ext");
+    gw_appn  = gtk_radio_button_new_with_label_from_widget (
+               GTK_RADIO_BUTTON (gw_appne), "Apply to name");
+    gw_appe  = gtk_radio_button_new_with_label_from_widget (
+               GTK_RADIO_BUTTON (gw_appne), "Apply to ext");
+
     g_signal_connect (G_OBJECT (gw_appne),
             "toggled", G_CALLBACK (event_apply_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_appn),
             "toggled", G_CALLBACK (event_apply_radio_active), r_files);
     g_signal_connect (G_OBJECT (gw_appe),
             "toggled", G_CALLBACK (event_apply_radio_active), r_files);
+
     /* Apply to names and extensions box */
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_appne, 0, 0, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_appn, gw_appne, GTK_POS_BOTTOM, 1, 1);
@@ -1161,19 +1229,25 @@ create_replace_str_with_str_box (GtkWidget **gw_container,
     GtkWidget *gw_lab2;  // Description label
 
     gw_sfrom = gtk_entry_new ();
-    gw_sto = gtk_entry_new ();
+    gw_sto   = gtk_entry_new ();
+
     gtk_entry_set_max_length (GTK_ENTRY (gw_sfrom), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_sfrom), 6);
     gtk_entry_set_max_length (GTK_ENTRY (gw_sto), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_sto), 6);
+
     gw_lab1 = gtk_label_new ("Replace text");
     gw_lab2 = gtk_label_new ("with");
+
     g_signal_connect (G_OBJECT (gw_sfrom),
             "changed", G_CALLBACK (event_replace_from_entry_changed), r_files);
     g_signal_connect (G_OBJECT (gw_sto),
             "changed", G_CALLBACK (event_replace_to_entry_changed), r_files);
+
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_lab1, 0, 0, 3, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_sfrom, gw_lab1, GTK_POS_BOTTOM, 1, 1);
@@ -1201,19 +1275,27 @@ create_delete_chars_box (GtkWidget **gw_container,
     GtkAdjustment *gw_del_adj_cnt; // Adjustment for spin button
     GtkAdjustment *gw_del_adj_pos; // Adjustment for spin button
 
-    gw_lab = gtk_label_new ("Delete text:");
+    gw_lab         = gtk_label_new ("Delete text:");
     gw_del_adj_cnt = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
-    gw_del_cnt = gtk_spin_button_new (gw_del_adj_cnt, 1.0, 0);
+    gw_del_cnt     = gtk_spin_button_new (gw_del_adj_cnt, 1.0, 0);
+
     gtk_widget_set_tooltip_text (gw_del_cnt, "Count");
+
     gw_del_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+
     gw_del_pos = gtk_spin_button_new (gw_del_adj_pos, 1.0, 0);
+
     gtk_widget_set_tooltip_text (gw_del_pos, "At position");
+
     g_signal_connect (G_OBJECT (gw_del_cnt),
             "value-changed", G_CALLBACK (event_delete_cnt_changed), r_files);
     g_signal_connect (G_OBJECT (gw_del_pos),
             "value-changed", G_CALLBACK (event_delete_pos_changed), r_files);
+
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_lab, 0, 0, 2, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_del_cnt, gw_lab, GTK_POS_BOTTOM, 1, 1);
@@ -1240,18 +1322,24 @@ create_insert_string_box (GtkWidget **gw_container,
 
     gw_lab = gtk_label_new ("Insert text:");
     gw_ins_entry = gtk_entry_new ();
+
     gtk_entry_set_max_length (GTK_ENTRY (gw_ins_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ins_entry), 6);
+
     gw_ins_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_ins_pos = gtk_spin_button_new (gw_ins_adj_pos, 1.0, 0);
+
     gtk_widget_set_tooltip_text (gw_ins_pos, "At position");
 
     g_signal_connect (G_OBJECT (gw_ins_pos),
             "value-changed", G_CALLBACK (event_insert_pos_changed), r_files);
     g_signal_connect (G_OBJECT (gw_ins_entry),
             "changed", G_CALLBACK (event_insert_string_entry_changed), r_files);
+
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_lab, 0, 0, 2, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_ins_entry, gw_lab, GTK_POS_BOTTOM, 1, 1);
@@ -1277,16 +1365,23 @@ create_rename_close_exit_box (GtkWidget **gw_container,
 
     gw_but_ok = gtk_button_new_with_label ("Rename");
     gw_but_cc = gtk_button_new_with_label ("Close");
+
     g_signal_connect (G_OBJECT (gw_but_ok),
             "clicked", G_CALLBACK (event_click_rename), r_files);
     g_signal_connect (G_OBJECT (gw_but_cc),
             "clicked", G_CALLBACK (event_close), NULL);
+
     gw_renexit = gtk_check_button_new_with_label ("Exit after rename");
+
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_renexit), TRUE);
+
     g_signal_connect (G_OBJECT (gw_renexit),
             "toggled", G_CALLBACK (event_toggle_rename_exit), r_files);
+
     *gw_container = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
     gtk_grid_attach (GTK_GRID (*gw_container), gw_but_ok, 0, 0, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_but_cc, gw_but_ok, GTK_POS_RIGHT, 1, 1);
@@ -1324,10 +1419,14 @@ create_file_name_entries (GFile     **files,
     r_files->entry = g_malloc (n_files * sizeof (GtkWidget*));
     r_files->names.org = g_malloc (n_files * sizeof (char*));
     r_files->names.new = g_malloc (n_files * sizeof (char*));
+
     /* Create box for file name entries */
     gw_entry_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
+
     for (int i = 0; i < n_files; ++i) {
+
         char *ch_fname = g_file_get_basename (files[i]);
+
         if (strcmp (ch_fname, "..") == 0) {
             g_free (ch_fname);
             continue;
@@ -1338,11 +1437,14 @@ create_file_name_entries (GFile     **files,
                     (FN_LEN + 1) * sizeof (char));
             r_files->names.new[ui_cn] = g_slice_alloc0 (
                     (FN_LEN + 1) * sizeof (char));
+
             /* Copy verified file names to original and new file name string */
             strcpy (r_files->names.org[ui_cn], ch_fname);
             strcpy (r_files->names.new[ui_cn], ch_fname);
+
             /* Create entry and set max length to defined file name length */
             r_files->entry[ui_cn] = gtk_entry_new ();
+
             gtk_entry_set_max_length (GTK_ENTRY (r_files->entry[ui_cn]),
                                       FN_LEN);
             /* Set entry file names */
@@ -1357,13 +1459,17 @@ create_file_name_entries (GFile     **files,
     }
     /* Make scrollbars */
     *gw_container = gtk_scrolled_window_new (NULL, NULL);
+
     ga_h = gtk_scrolled_window_get_hadjustment(
             GTK_SCROLLED_WINDOW (*gw_container));
     ga_v = gtk_scrolled_window_get_vadjustment(
             GTK_SCROLLED_WINDOW (*gw_container));
+
     gw_vp = gtk_viewport_new (ga_h, ga_v);
+
     gtk_container_add (GTK_CONTAINER (gw_vp), gw_entry_box);
     gtk_container_add (GTK_CONTAINER (*gw_container), gw_vp);
+
     /* If file count is smaller than passed arguments, decrease number of
      * entries, original and new file name strings */
     if (ui_cn < n_files) {
@@ -1393,12 +1499,14 @@ create_window (GtkWidget        **window,
 {
     /* Create window widget */
     *window = gtk_application_window_new (application);
+
     /* Set window properties */
     gtk_window_set_title (GTK_WINDOW (*window), APP_NAME APP_VER);
-    //gtk_window_set_title (GTK_WINDOW (*window), "Small File Renamer v1.1.3");
+
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
+
     /* Connect window events */
     g_signal_connect (G_OBJECT (*window),
             "key-press-event", G_CALLBACK (event_win_key_press), r_files);
@@ -1496,8 +1604,10 @@ open (GtkApplication  *application,
 
     /* Box for up down, underscore and apply to boxes */
     gw_udusc_box = gtk_grid_new ();
+
     gtk_grid_set_column_spacing (GTK_GRID (gw_udusc_box), 4);
     gtk_grid_set_row_spacing (GTK_GRID (gw_udusc_box), 4);
+
     gtk_grid_attach (GTK_GRID (gw_udusc_box), gw_apply_box, 0, 0, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
             gw_uplc_box, gw_apply_box, GTK_POS_RIGHT, 1, 1);
@@ -1505,6 +1615,7 @@ open (GtkApplication  *application,
             gw_undersc_box, gw_uplc_box, GTK_POS_RIGHT, 1, 1);
 
     gw_sep = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+
     gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
             gw_sep, gw_apply_box, GTK_POS_BOTTOM, 3, 1);
 
@@ -1517,6 +1628,7 @@ open (GtkApplication  *application,
 
     /* Main application widgets box */
     gw_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
+
     gtk_box_pack_start (GTK_BOX (gw_vbox),
             gtk_label_new("Enter new file / directory name"), FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (gw_vbox), 
@@ -1552,13 +1664,18 @@ main (int argc, char **argv)
 
     app = gtk_application_new ("org.nongnu.SmallFileRenamer",
                            G_APPLICATION_HANDLES_OPEN);
+
     g_signal_connect (app, "startup", G_CALLBACK (startup), &r_files);
     g_signal_connect (app, "shutdown", G_CALLBACK (shutdown), &r_files);
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
     g_signal_connect (app, "open", G_CALLBACK (open), &r_files);
+
     g_set_application_name (APP_NAME);
+
     status = g_application_run (G_APPLICATION (app), argc, argv);
+
     g_object_unref (app);
+
     return status;
 }
 /*----------------------------------------------------------------------------*/
