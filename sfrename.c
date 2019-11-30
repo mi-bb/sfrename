@@ -24,8 +24,8 @@
  *
  * Program renames files.
  *
- * @date November 29, 2019
- * @version 1.1.3
+ * @date December 1, 2019
+ * @version 1.1.4
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
@@ -42,7 +42,7 @@
 #define WIN_WIDTH  600  /**< Application window width */
 #define WIN_HEIGHT 800  /**< Application window height */
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    " v1.1.3"
+#define APP_VER    " v1.1.4"
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete text in name settings
@@ -260,8 +260,10 @@ string_replace_in (char       *src_dest,
         s_tmp[i++] = *srcdst++;
     }
     ui_vlen = get_valid_length (s_tmp, ui_max);
-    strncpy (src_dest, s_tmp, ui_vlen);
+
+    memcpy (src_dest, s_tmp, ui_vlen);
     src_dest[ui_vlen] = '\0';
+
     #ifdef DEBUG
         printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
         printf ("%ld %s\n", strlen (src_dest), src_dest);
@@ -371,9 +373,10 @@ string_insert_string (char       *s_srcdst,
         while (*sp && i < ui_max) {
             tp[i++] = *sp++;
         }
-
         ui_len = get_valid_length (s_tmp, ui_max);
-        strncpy (s_srcdst, s_tmp, ui_len);
+
+        memcpy (s_srcdst, s_tmp, ui_len);
+        s_srcdst[ui_len] = '\0';
 
         #ifdef DEBUG
             printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
@@ -408,7 +411,7 @@ string_to_lower (char       *s_srcdst,
 
         ui_len = get_valid_length (s_tt, ui_max);
 
-        strncpy (s_srcdst, s_tt, ui_len);
+        memcpy (s_srcdst, s_tt, ui_len);
 
         #ifdef DEBUG
             printf ("\n%ld %s\n", ui_len, s_tt);
@@ -445,7 +448,7 @@ string_to_upper (char       *s_srcdst,
 
         ui_len = get_valid_length (s_tt, ui_max);
 
-        strncpy (s_srcdst, s_tt, ui_len);
+        memcpy (s_srcdst, s_tt, ui_len);
 
         #ifdef DEBUG
             printf ("\n%ld %s\n", ui_len, s_tt);
@@ -480,7 +483,7 @@ string_extract_name_ext (const char *s_name_ext,
         strcpy (s_name, s_name_ext); 
     else { // should be file name with ext
         strcpy (s_ext, pn); // copy extension to f_ext
-        strncpy (s_name, s_name_ext, pn - s_name_ext); // copy name to f_name
+        memcpy (s_name, s_name_ext, pn - s_name_ext); // copy name to f_name
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -498,23 +501,23 @@ string_combine_name_ext (char *s_name_ext,
                          char *s_name,
                          char *s_ext)
 {
-    size_t       ui_len = 0;
-    const size_t ui_max = FN_LEN - strlen(s_ext);
+    size_t       ui_len  = 0;
+    const size_t ui_elen = strlen (s_ext);
+    const size_t ui_max  = FN_LEN - ui_elen;
 
     memset (s_name_ext, 0, FN_LEN + 1);
+    ui_len = get_valid_length (s_name, ui_max);
 
-    if (s_ext != NULL && strcmp (s_ext, "") != 0) { // estenstion present
+    if (s_ext != NULL && strcmp (s_ext, "") != 0) { // extension present
 
-        ui_len = get_valid_length (s_name, ui_max);
-
-        strncpy (s_name_ext, s_name, ui_len);
-        strcat (s_name_ext, s_ext); // append extension to source/result string
+        memcpy (s_name_ext, s_name, ui_len);
+        memcpy (s_name_ext+ui_len, s_ext, ui_elen);
     }
     else { // no extenstion
-        strncpy (s_name_ext, s_name, get_valid_length (s_name, FN_LEN));
+        memcpy (s_name_ext, s_name, ui_len);
     }
     #ifdef DEBUG
-        printf ("%ld %s\n", strlen (s_name_ext), s_name_ext);
+        printf ("f %s e %s \n", s_name, s_ext);
     #endif
 }
 /*----------------------------------------------------------------------------*/
@@ -538,15 +541,15 @@ string_process_filename (void          (*fun) (char*, const char*, const char*),
                          const char     *s_to,
                          const uint8_t   ne)
 {
-    char f_name[FN_LEN + 1]; // temp name
-    char f_ext[50];          // lets hope there are no larger extensions
+    char f_name [FN_LEN + 1]; // temp name
+    char f_ext  [FN_LEN + 1]; // temp extension
 
     if (ne == 2)
         fun (src_dst, s_fr, s_to); // change text in name and ext
     else { // change text in name or ext
 
-        memset (f_name, 0, sizeof (f_name)); // zeroing file name
-        memset (f_ext,  0, sizeof (f_ext)); // zeroing file ext
+        memset (f_name, 0, sizeof (f_name));
+        memset (f_ext,  0, sizeof (f_ext));
 
         /* get name and ext to separate strings */
         string_extract_name_ext (src_dst, f_name, f_ext);
@@ -571,8 +574,8 @@ static void
 name_delete_chars (RFiles        *r_files,
                    const uint16_t i)
 {
-    char tmp1[10]; // temp value to pass to function
-    char tmp2[10]; // temp value to pass to function
+    char tmp1 [10]; // temp value to pass to function
+    char tmp2 [10]; // temp value to pass to function
 
     memset (tmp1, 0, sizeof (tmp1)); // zeroing tmp1
     memset (tmp2, 0, sizeof (tmp2)); // zeroing tmp2
@@ -603,7 +606,7 @@ static void
 name_insert_string (RFiles        *r_files,
                     const uint16_t i)
 {
-    char tmp[10]; // temp value to pass to function
+    char tmp [10]; // temp value to pass to function
 
     memset (tmp, 0, sizeof (tmp)); // zeroing tmp
 
@@ -886,7 +889,7 @@ event_insert_string_entry_changed (GtkWidget *widget,
 
     memset (r_files->insert.text, 0, sizeof (r_files->insert.text));
 
-    strncpy (r_files->insert.text, s_en, get_valid_length (s_en, FN_LEN));
+    memcpy (r_files->insert.text, s_en, get_valid_length (s_en, FN_LEN));
 
     file_names_update_changes (r_files);
 }
@@ -992,7 +995,7 @@ event_replace_from_entry_changed (GtkWidget *widget,
 
     memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
 
-    strncpy (r_files->replace.from,
+    memcpy (r_files->replace.from,
             s_en, get_valid_length (s_en, FN_LEN));
 
     file_names_update_changes (r_files);
@@ -1016,7 +1019,7 @@ event_replace_to_entry_changed (GtkWidget *widget,
 
     memset (r_files->replace.to, 0, sizeof (r_files->replace.to));
 
-    strncpy (r_files->replace.to, s_en, get_valid_length (s_en, FN_LEN));
+    memcpy (r_files->replace.to, s_en, get_valid_length (s_en, FN_LEN));
 
     if (strcmp (r_files->replace.from, "") != 0)
         file_names_update_changes (r_files);
