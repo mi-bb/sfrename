@@ -497,9 +497,9 @@ string_extract_name_ext (const char *s_name_ext,
  * @return     none
  */
 static void
-string_combine_name_ext (char *s_name_ext,
-                         char *s_name,
-                         char *s_ext)
+string_combine_name_ext (char       *s_name_ext,
+                         const char *s_name,
+                         const char *s_ext)
 {
     size_t       ui_len  = 0;
     const size_t ui_elen = strlen (s_ext);
