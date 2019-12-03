@@ -14,7 +14,7 @@ CONTENTS OF THIS FILE
 About
 ------
 
-Small File Renamer is a program for renaming files and directories.
+Small File Renamer is an application for renaming files and directories.
 
 Program works in GNU/Linux.
 
@@ -49,7 +49,7 @@ Requirements
  * GTK+ 3 (3.22.30)
  * GLib (2.27)
 
-Program may work in previous versions, I just wrote on which I was compiling
+Program may work with previous versions, I just wrote on which I was compiling
 this program and there were no problems.
 
 
@@ -62,12 +62,18 @@ Unpack archive, go to sources directory and type:
 
 File names should be passed to program as arguments, example of use:
 
-sfrename filename1.ext filename2.ext
+    sfrename filename1.ext filename2.ext
+
+or
+
+    sfrename `ls`
+
+to rename all files and directories in current directory.
 
 I made this program to use it with Midnight Commander to rename files and
 directories.
-To use it in MC you can make a menu entry, that will run this program with
-selected files and directories.
+To use it in MC you can make a menu entry, that will pass selected files
+and directories to this program.
 
 Example use with MC:
 

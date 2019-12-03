@@ -24,8 +24,8 @@
  *
  * Program renames files.
  *
- * @date December 1, 2019
- * @version 1.1.4
+ * @date December 3, 2019
+ * @version 1.1.5
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
@@ -42,7 +42,7 @@
 #define WIN_WIDTH  600  /**< Application window width */
 #define WIN_HEIGHT 800  /**< Application window height */
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    " v1.1.4"
+#define APP_VER    " v1.1.5"
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete text in name settings
@@ -53,13 +53,13 @@ RDelete {
     uint8_t   pos;               /**< Delete chars starting position */
 } RDelete;
 /**
- * @brief  Insert text in name settings
+ * @brief  Insert / Overwrite text in name settings
  */
 typedef struct
-RInsert {
-    char      text [FN_LEN + 1]; /**< String to insert in file name */
+RInsOvr {
+    char      text [FN_LEN + 1]; /**< String to insert / Overwrite file name */
     uint8_t   pos;               /**< Position to put string */
-} RInsert;
+} RInsOvr;
 /**
  * @brief  Replace strings in name settings
  */
@@ -68,6 +68,15 @@ RReplace {
     char      from [FN_LEN + 1]; /**< Replace from string */
     char      to   [FN_LEN + 1]; /**< Replace to string */
 } RReplace;
+/**
+ * @brief  Number names settigns
+ */
+typedef struct
+RNumber {
+    uint8_t     opt;             /**< Number names or not */
+    uint32_t    start;           /**< Start numbering from */
+    uint8_t     pos;             /**< Number position in string */
+} RNumber;
 /**
  * @brief  File names buffer and entries
  */
@@ -85,19 +94,34 @@ RFiles {
     GtkWidget **entry;           /**< Entries with file names */
     RFnames     names;           /**< File names, old, new, entries */
     RDelete     delete;          /**< Delete chars properties */
-    RInsert     insert;          /**< Insert text properties */
+    RInsOvr     insert;          /**< Insert text properties */
+    RInsOvr     overwrite;       /**< Overwrite text properties */
     RReplace    replace;         /**< Replace string with string settings */
-    uint8_t     uplo;            /**< Upper/lower case option */
-    uint8_t     spaces;          /**< Spaces/underscores option */
-    uint8_t     applyto;         /**< Apply to file names/ext or both option */
+    RNumber     number;          /**< Numbering names settings */
+    int8_t      uplo;            /**< Upper/lower case option */
+    int8_t      spaces;          /**< Spaces/underscores option */
+    int8_t      applyto;         /**< Apply to file names/ext or both option */
     uint8_t     renexit;         /**< Exit after rename option */
 } RFiles;
+/** 
+ * @brief Structure with data to string functions
+ */ 
+typedef struct
+ProcessData {
+    const char   *s_str1;        /**< Input string */
+    const char   *s_str2;        /**< Input string */
+    size_t        ul_pos;        /**< Position to insert/overwrite/delete */
+    size_t        ul_cnt;        /**< Character count */
+    unsigned int  i_no;          /**< Number */
+    unsigned int  i_start;       /**< Start numbering value */
+    unsigned int  i_max;         /**< Maximum numbering range */
+} ProcessData;
 /*----------------------------------------------------------------------------*/
 enum {
-    REN_OK,         /**< File renamed */
-    REN_NOT_REN,    /**< Could not rename */
-    REN_EXISTS,     /**< File already exists */
-    REN_NC          /**< No change */
+    REN_OK,                      /**< File renamed */
+    REN_NOT_REN,                 /**< Could not rename */
+    REN_EXISTS,                  /**< File already exists */
+    REN_NC                       /**< No change */
 };
 /*----------------------------------------------------------------------------*/
 /**
@@ -110,21 +134,26 @@ static void
 rfiles_init (RFiles *r_files)
 {
     /* Setting file list properties */
-    r_files->uplo       = 2;    // upper/lower case setting
-    r_files->spaces     = 2;    // spaces/underscores setting
-    r_files->applyto    = 2;    // apply to names/ext/both setting
-    r_files->renexit    = 1;    // exit after rename setting
-    r_files->delete.cnt = 0;    // chars to delete
-    r_files->delete.pos = 0;    // delete starting at pos
-    r_files->insert.pos = 0;    // insert string at pos
-    r_files->names.cnt  = 0;    // names count
-    r_files->entry      = NULL; // entry list
-    r_files->names.org  = NULL; // org names list
-    r_files->names.new  = NULL; // new names list
+    r_files->uplo          = 2;    // upper/lower case setting
+    r_files->spaces        = 2;    // spaces/underscores setting
+    r_files->applyto       = 2;    // apply to names/ext/both setting
+    r_files->renexit       = 1;    // exit after rename setting
+    r_files->delete.cnt    = 0;    // chars to delete
+    r_files->delete.pos    = 0;    // delete starting at pos
+    r_files->insert.pos    = 0;    // insert string at pos
+    r_files->overwrite.pos = 0;    // overwrite string at pos
+    r_files->names.cnt     = 0;    // names count
+    r_files->number.opt    = 0;    // numbering names opt
+    r_files->number.start  = 0;    // numbering starts from
+    r_files->number.pos    = 0;    // number position in string
+    r_files->entry         = NULL; // entry list
+    r_files->names.org     = NULL; // org names list
+    r_files->names.new     = NULL; // new names list
     /* clear replace from and to strings */
-    memset (r_files->replace.from, 0, sizeof (r_files->replace.from));
-    memset (r_files->replace.to,   0, sizeof (r_files->replace.to));
-    memset (r_files->insert.text,  0, sizeof (r_files->insert.text));
+    memset (r_files->replace.from,   0, sizeof (r_files->replace.from));
+    memset (r_files->replace.to,     0, sizeof (r_files->replace.to));
+    memset (r_files->insert.text,    0, sizeof (r_files->insert.text));
+    memset (r_files->overwrite.text, 0, sizeof (r_files->overwrite.text));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -142,8 +171,10 @@ free_stuff (RFiles *r_files)
     }
     if (r_files->names.new != NULL)
         g_free (r_files->names.new);
+
     if (r_files->names.org != NULL)
         g_free (r_files->names.org);
+
     if (r_files->entry != NULL)
         g_free (r_files->entry);
 }
@@ -203,7 +234,7 @@ get_valid_length (const char   *s_str,
     if (ui_len > ui_max)
         ui_len = ui_max;
 
-    while (!g_utf8_validate (s_str, ui_len, NULL))
+    while (!g_utf8_validate (s_str, (long int) ui_len, NULL))
         ui_len--;
 
     return ui_len;
@@ -212,210 +243,361 @@ get_valid_length (const char   *s_str,
 /** 
  * @brief  Replace one string with another in a given src_dest string.
  *
- * Function searches in src_dest string for s_fr and replaces it with s_to
- * string. The final result is copied into src_dest string.
+ * Function searches in s_src_dst string for s_fr and replaces it with s_to
+ * string. The final result is copied into s_src_dst string.
  *
- * @param[in,out] src_dest Pointer to source and destination string to change
- * @param[in]     s_fr     Pointer to string with "change from" text
- * @param[in]     s_to     Pointer to string with "change to" text
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */ 
 static void
-string_replace_in (char       *src_dest,
-                   const char *s_fr,
-                   const char *s_to)
+string_replace_in (char        *s_src_dst,
+                   ProcessData *pd_data)
 {
-    char          s_tmp [FN_LEN+1];    // temp file name
-    const size_t  ui_max   = FN_LEN;   // max length of name
-    const char   *s_to_p   = NULL;     // pointer to s_to
-    char         *srcdst   = src_dest; // copy src_dest pointer
-    char         *pn       = NULL;     // find string pointer
-    size_t        ui_vlen  = 0;        // valid name length
+    char          s_tmp [FN_LEN+1];  // temp file name
+    const size_t  ul_max   = FN_LEN; // max length of name
+    const char   *s_fr     = NULL;   // "replace from" string
+    const char   *s_to     = NULL;   // "replace to" string
+    const char   *tp       = NULL;   // pointer to s_to
+    char         *sp       = NULL;   // copy src_dest pointer
+    char         *fp       = NULL;   // find string pointer
+    size_t        ul_vlen  = 0;      // valid name length
     uint16_t      i        = 0;
-    size_t        ui_frlen = 0;        // rename from length
+    size_t        ul_frlen = 0;      // rename from length
 
-    memset (s_tmp, 0, sizeof (s_tmp)); // zeroing file name
+    memset (s_tmp, 0, sizeof (s_tmp));
+    
+    s_fr = pd_data->s_str1;
+    s_to = pd_data->s_str2;
 
-    pn = strstr (srcdst, s_fr);
-    if (pn == NULL)
+    if (s_src_dst == NULL || s_fr == NULL || s_to == NULL)
+        return;
+
+    sp = s_src_dst;
+    fp = strstr (sp, s_fr);
+
+    if (fp == NULL)
         return; 
 
-    ui_frlen = strlen (s_fr);
+    ul_frlen = strlen (s_fr);
 
-    while (pn != NULL) {
+    while (fp != NULL) {
 
-        s_to_p = s_to;
+        tp = s_to;
 
-        while (srcdst != pn && i < FN_LEN) {
-            s_tmp[i++] = *srcdst++;
+        while (sp != fp && i < FN_LEN) {
+            s_tmp[i++] = *sp++;
         }
-        while (*s_to_p && i < FN_LEN) {
-            s_tmp[i++] = *s_to_p++;
+
+        while (*tp && i < FN_LEN) {
+            s_tmp[i++] = *tp++;
         }
+
         /* change source pointer to "after found" */
-        srcdst = pn + ui_frlen; 
-        pn = strstr (srcdst, s_fr);
+        sp = fp + ul_frlen; 
+        fp = strstr (sp, s_fr);
     }
-    while (*srcdst && i < FN_LEN) {
-        s_tmp[i++] = *srcdst++;
+    while (*sp && i < FN_LEN) {
+        s_tmp[i++] = *sp++;
     }
-    ui_vlen = get_valid_length (s_tmp, ui_max);
 
-    memcpy (src_dest, s_tmp, ui_vlen);
-    src_dest[ui_vlen] = '\0';
+    ul_vlen = get_valid_length (s_tmp, ul_max);
+
+    memcpy (s_src_dst, s_tmp, ul_vlen);
+    s_src_dst[ul_vlen] = '\0';
 
     #ifdef DEBUG
         printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
-        printf ("%ld %s\n", strlen (src_dest), src_dest);
+        printf ("%ld %s\n", strlen (s_src_dst), s_src_dst);
     #endif
 }
 /*----------------------------------------------------------------------------*/
 /** 
  * @brief  Detele chars in string.
  *
- * @param[in,out] src_dst Pointer to source and destination string to change
- * @param[in]     ch_cnt  Number of chars to delete
- * @param[in]     ch_pos  Delete starting position
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */ 
 static void
-string_delete_chars (char       *src_dst,
-                     const char *ch_cnt,
-                     const char *ch_pos)
+string_delete_chars (char        *s_src_dst,
+                     ProcessData *pd_data)
 {
-    size_t  i_cnt  = 0;    // Delete chars count
-    size_t  i_pos  = 0;    // Delete start position
-    size_t  i_len  = 0;    // Length of text to process
-    size_t  i_olen = 0;    // Length of text before processing
-    char   *ch_po  = NULL; // Pointer to delete start position
-    char   *ch_cn  = NULL; // Pointer to position after deleted chars
+    size_t  ul_cnt  = 0;    // Delete chars count
+    size_t  ul_pos  = 0;    // Delete start position
+    size_t  ul_len  = 0;    // Length of text to process
+    size_t  ul_olen = 0;    // Length of text before processing
+    char   *ch_po   = NULL; // Pointer to delete start position
+    char   *ch_cn   = NULL; // Pointer to position after deleted chars
 
-    i_cnt = (size_t) atoi (ch_cnt);
-    i_pos = (size_t) atoi (ch_pos);
-    i_len = strlen (src_dst);
+    ul_cnt = pd_data->ul_cnt;
+    ul_pos = pd_data->ul_pos;
+    ul_len = strlen (s_src_dst);
 
-    if (i_cnt == 0)
+    if (ul_cnt == 0)
         return;
 
-    if (g_utf8_validate (src_dst, -1, NULL)) {
+    if (g_utf8_validate (s_src_dst, -1, NULL)) {
 
-        i_olen = i_len;
-        i_len = (size_t) g_utf8_strlen (src_dst, -1);
+        ul_olen = ul_len;
+        ul_len = (size_t) g_utf8_strlen (s_src_dst, -1);
 
-        if (i_cnt > i_len)
-            i_cnt = i_len;
-        if (i_pos > i_len)
-            i_pos = i_len;
+        if (ul_cnt > ul_len)
+            ul_cnt = ul_len;
+        if (ul_pos > ul_len)
+            ul_pos = ul_len;
 
-        if (i_pos + i_cnt > i_len) {
-            if (i_pos == i_len)
-                i_pos = i_len - i_cnt;
+        if (ul_pos + ul_cnt > ul_len) {
+            if (ul_pos == ul_len)
+                ul_pos = ul_len - ul_cnt;
             else
-                i_cnt = i_len - i_pos;
+                ul_cnt = ul_len - ul_pos;
         }
-        ch_po = g_utf8_offset_to_pointer (src_dst, i_pos);
-        ch_cn = g_utf8_offset_to_pointer (src_dst, i_pos + i_cnt);
+        ch_po = g_utf8_offset_to_pointer (s_src_dst, (glong) ul_pos);
+        ch_cn = g_utf8_offset_to_pointer (s_src_dst, (glong) (ul_pos + ul_cnt));
 
-        memmove (ch_po, ch_cn, i_olen - i_pos - (ch_cn - ch_po) + 1);
+        memmove (ch_po, ch_cn, ul_olen - ul_pos - (size_t) (ch_cn - ch_po) + 1);
     }
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string to existing string at specified position.
  *
- * @param[in,out] s_dst  Pointer to source and destination string to change
- * @param[in]     s_src  String to insert
- * @param[in]     ch_pos Position to insert the string
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
 static void
-string_insert_string (char       *s_srcdst,
-                      const char *s_ins,
-                      const char *ch_pos)
+string_insert_string (char        *s_src_dst,
+                      ProcessData *pd_data)
 {
     char          s_tmp [FN_LEN+1];     // Temp String
-    size_t        ui_pos     = 0;       // Text insert position 
-    size_t        ui_len     = 0;       // Length of text
-    const size_t  ui_max     = FN_LEN;  // Max string length
+    size_t        ul_pos     = 0;       // Text insert position 
+    size_t        ul_len     = 0;       // Length of text
+    const size_t  ul_max     = FN_LEN;  // Max string length
+    const char   *s_ins      = NULL;    // Text to insert
     const char   *x          = NULL;    // Insert text pointer
     char         *tp         = NULL;    // Temp string pointer
     const char   *sp         = NULL;    // Source string pointer
     const char   *ip         = NULL;    // Insert string pointer
-    size_t        ui_slen_u8 = 0;       // Length of unicode text
+    size_t        ul_slen_u8 = 0;       // Length of unicode text
     size_t        i          = 0;
 
-    if (s_srcdst == NULL || s_ins == NULL || ch_pos == NULL)
+    s_ins = pd_data->s_str1;
+
+    if (s_src_dst == NULL || s_ins == NULL)
         return;
 
-    ui_pos     = (size_t) atoi (ch_pos);
-    ui_slen_u8 = (size_t) g_utf8_strlen (s_srcdst, -1);
+    ul_pos     = pd_data->ul_pos;
+    ul_slen_u8 = (size_t) g_utf8_strlen (s_src_dst, -1);
 
-    sp = s_srcdst;
+    sp = s_src_dst;
     tp = s_tmp;
     ip = s_ins;
 
     memset (s_tmp, 0, sizeof (s_tmp));
 
-    if (g_utf8_validate (s_srcdst, -1, NULL) && 
+    if (g_utf8_validate (s_src_dst, -1, NULL) && 
         g_utf8_validate (s_ins, -1, NULL)) {
 
-        if (ui_pos > ui_slen_u8)
-            ui_pos = ui_slen_u8;
+        if (ul_pos > ul_slen_u8)
+            ul_pos = ul_slen_u8;
 
-        x = g_utf8_offset_to_pointer (s_srcdst, ui_pos);
+        x = g_utf8_offset_to_pointer (s_src_dst, (glong) ul_pos);
 
         while (sp != x) {
             tp[i++] = *sp++;
         }
-        while (*ip && i < ui_max) {
+
+        while (*ip && i < ul_max) {
             tp[i++] = *ip++;
         }
-        while (*sp && i < ui_max) {
+
+        while (*sp && i < ul_max) {
             tp[i++] = *sp++;
         }
-        ui_len = get_valid_length (s_tmp, ui_max);
 
-        memcpy (s_srcdst, s_tmp, ui_len);
-        s_srcdst[ui_len] = '\0';
+        ul_len = get_valid_length (s_tmp, ul_max);
+
+        memcpy (s_src_dst, s_tmp, ul_len);
+        s_src_dst[ul_len] = '\0';
 
         #ifdef DEBUG
             printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
-            printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
+            printf ("%ld %s\n", strlen (s_src_dst), s_src_dst);
         #endif
     }
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Convert all chars in a given string to lower case.
+ * @brief  Overwrite string in existing string at specified position.
  *
- * @param[in,out] src_dst Pointer to str with text to change
- * @param         unused1 Only for compatibility with process_filename function
- * @param         unused2 Only for compatibility with process_filename function
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
 static void
-string_to_lower (char       *s_srcdst,
-                 const char *unused1,
-                 const char *unused2)
+string_overwrite_string (char        *s_src_dst,
+                         ProcessData *pd_data)
 {
-    char         *s_tt   = NULL;   // temp string
-    const size_t  ui_max = FN_LEN; // Max string length
-    size_t        ui_len  = 0;     // Length of name string
+    char          s_tmp [FN_LEN+1];     // Temp String
+    size_t        ul_pos     = 0;       // Text insert position 
+    size_t        ul_len     = 0;       // Length of text
+    long          l_ilen     = 0;       // Length of overwrite text
+    const size_t  ul_max     = FN_LEN;  // Max string length
+    const char   *s_ins      = NULL;    // Overwrite text
+    const char   *x          = NULL;    // Overwrite start pointer
+    char         *tp         = NULL;    // Temp string pointer
+    const char   *sp         = NULL;    // Source string pointer
+    const char   *ip         = NULL;    // Insert string pointer
+    size_t        ul_slen_u8 = 0;       // Length of unicode text
+    size_t        i          = 0;
 
-    if (s_srcdst == NULL)
+    s_ins = pd_data->s_str1;
+
+    if (s_src_dst == NULL || s_ins == NULL)
         return;
 
-    if (g_utf8_validate (s_srcdst, -1, NULL)) {
+    ul_pos     = pd_data->ul_pos;
+    ul_slen_u8 = (size_t) g_utf8_strlen (s_src_dst, -1);
+    l_ilen     = g_utf8_strlen (s_ins, -1);
 
-        s_tt = g_utf8_strdown (s_srcdst, -1);
+    sp = s_src_dst;
+    tp = s_tmp;
+    ip = s_ins;
 
-        ui_len = get_valid_length (s_tt, ui_max);
+    memset (s_tmp, 0, sizeof (s_tmp));
 
-        memcpy (s_srcdst, s_tt, ui_len);
+    if (g_utf8_validate (s_src_dst, -1, NULL) && 
+        g_utf8_validate (s_ins, -1, NULL)) {
+
+        if (ul_pos + (size_t) l_ilen > ul_slen_u8) {
+            if (l_ilen > (long) ul_slen_u8)
+                ul_pos = 0;
+            else
+                ul_pos = ul_slen_u8 - (size_t) l_ilen;
+        }
+
+        x = g_utf8_offset_to_pointer (s_src_dst, (glong) ul_pos);
+
+        while (sp != x) {
+            tp[i++] = *sp++;
+        }
+
+        while (*ip && i < ul_max) {
+            tp[i++] = *ip++;
+        }
+
+        if (g_utf8_strlen (sp, -1) > l_ilen) {
+
+            x = g_utf8_offset_to_pointer (sp, l_ilen);
+
+            while (*x && i < ul_max) {
+                tp[i++] = *x++;
+            }
+        }
+
+        ul_len = get_valid_length (s_tmp, ul_max);
+
+        memcpy (s_src_dst, s_tmp, ul_len);
+        s_src_dst[ul_len] = '\0';
 
         #ifdef DEBUG
-            printf ("\n%ld %s\n", ui_len, s_tt);
-            printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
+            printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
+            printf ("%ld %s\n", strlen (s_src_dst), s_src_dst);
+        #endif
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Add number to string.
+ *
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
+ * @return        none
+ */
+static void
+string_add_number (char        *s_src_dst,
+                   ProcessData *pd_data)
+{
+    char         s_no     [20];  // Temp string for number
+    char         s_tmp    [20];  // Temp string
+    unsigned int ui_no    = 0;   // Number to insert
+    unsigned int ui_st    = 0;   // Start numbering position
+    unsigned int ui_mx    = 0;   // Max number range
+    unsigned int ui_z     = 0;   // How many zeros should be added
+    unsigned int ui_t     = 0;   // Temp value
+    ProcessData  pd_data2 = { NULL, NULL, 0, 0, 0, 0, 0 };
+
+    memset (s_no,  0, sizeof (s_no));
+    memset (s_tmp, 0, sizeof (s_tmp));
+
+    ui_no = pd_data->i_no;
+    ui_st = pd_data->i_start;
+    ui_mx = pd_data->i_max;
+
+    ui_no += ui_st;
+    ui_mx += ui_st;
+
+    ui_z = 0;
+    ui_t = ui_mx;
+
+    while (ui_t /= 10) {
+        ui_z++;
+    }
+
+    ui_t = ui_no;
+
+    while (ui_t /= 10) {
+        ui_z--;
+    }
+
+    for (unsigned int i = 0; i < ui_z; ++i) {
+        s_no[i] = '0';
+    }
+
+    sprintf (s_tmp, "%d", ui_no);
+    strcat (s_no, s_tmp);
+
+    pd_data2.s_str1 = s_no;
+    pd_data2.ul_pos = pd_data->ul_pos;
+
+    string_insert_string (s_src_dst, &pd_data2);
+
+    #ifdef DEBUG
+        printf ("%ld %s\n", strlen (s_src_dst), s_src_dst);
+    #endif
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Convert all chars in a given string to lower case.
+ *
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
+ * @return        none
+ */
+static void
+string_to_lower (char        *s_src_dst,
+                 ProcessData *pd_data)
+{
+    char         *s_tt   = NULL;   // temp string
+    const size_t  ul_max = FN_LEN; // Max string length
+    size_t        ul_len = 0;      // Length of name string
+
+    if (s_src_dst == NULL)
+        return;
+
+    if (g_utf8_validate (s_src_dst, -1, NULL)) {
+
+        s_tt = g_utf8_strdown (s_src_dst, -1);
+
+        ul_len = get_valid_length (s_tt, ul_max);
+
+        memcpy (s_src_dst, s_tt, ul_len);
+
+        #ifdef DEBUG
+            printf ("\n%ld %s\n", ul_len, s_tt);
+            printf ("%ld %s\n", strlen (s_src_dst), s_src_dst);
         #endif
 
         g_free (s_tt);
@@ -425,34 +607,32 @@ string_to_lower (char       *s_srcdst,
 /**
  * @brief  Convert all chars in a given string to upper case.
  *
- * @param[in,out] src_dst Pointer to str with text to change
- * @param         unused1 Only for compatibility with process_filename function
- * @param         unused2 Only for compatibility with process_filename function
+ * @param[in,out] s_src_dst  Pointer to source and destination string to change
+ * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
 static void
-string_to_upper (char       *s_srcdst,
-                 const char *unused1,
-                 const char *unused2)
+string_to_upper (char        *s_src_dst,
+                 ProcessData *pd_data)
 {
     char         *s_tt   = NULL;   // temp string
-    const size_t  ui_max = FN_LEN; // Max string length
-    size_t        ui_len = 0;      // Length of name string
+    const size_t  ul_max = FN_LEN; // Max string length
+    size_t        ul_len = 0;      // Length of name string
 
-    if (s_srcdst == NULL)
+    if (s_src_dst == NULL)
         return;
 
-    if (g_utf8_validate (s_srcdst, -1, NULL)) {
+    if (g_utf8_validate (s_src_dst, -1, NULL)) {
 
-        s_tt = g_utf8_strup(s_srcdst, -1);
+        s_tt = g_utf8_strup(s_src_dst, -1);
 
-        ui_len = get_valid_length (s_tt, ui_max);
+        ul_len = get_valid_length (s_tt, ul_max);
 
-        memcpy (s_srcdst, s_tt, ui_len);
+        memcpy (s_src_dst, s_tt, ul_len);
 
         #ifdef DEBUG
-            printf ("\n%ld %s\n", ui_len, s_tt);
-            printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
+            printf ("\n%ld %s\n", ul_len, s_tt);
+            printf ("%ld %s\n", strlen (s_src_dst), s_src_dst);
         #endif
 
         g_free (s_tt);
@@ -465,10 +645,10 @@ string_to_upper (char       *s_srcdst,
  * Function finds file extension by searching for a first from right comma sign
  * and copy what's left before it to name and right after comma to ext.
  *
- * @param[in]  f_name_ext Pointer to string containing file name with extension
+ * @param[in]  s_name_ext Pointer to string containing file name with extension
  *                        to process
- * @param[out] f_name     Destination pointer to file name only string
- * @param[out] f_ext      Destination pointer to file extension string
+ * @param[out] s_name     Destination pointer to file name only string
+ * @param[out] s_ext      Destination pointer to file extension string
  * @return     none
  */
 static void
@@ -479,8 +659,9 @@ string_extract_name_ext (const char *s_name_ext,
     const char *pn = strrchr (s_name_ext, '.'); // find first dot from right
 
     /* if file is hidden or has no ext copy whole src name as f_name */
-    if ((pn == NULL) || (pn == s_name_ext))
+    if ((pn == NULL) || (pn == s_name_ext)) {
         strcpy (s_name, s_name_ext); 
+    }
     else { // should be file name with ext
         strcpy (s_ext, pn); // copy extension to f_ext
         memcpy (s_name, s_name_ext, pn - s_name_ext); // copy name to f_name
@@ -490,10 +671,10 @@ string_extract_name_ext (const char *s_name_ext,
 /**
  * @brief  Join file name with its extension.
  *
- * @param[out] f_name_ext Pointer to string where file name and extension will
+ * @param[out] s_name_ext Pointer to string where file name and extension will
  *                        be written
- * @param[in]  f_name     Destination pointer to file name string
- * @param[in]  f_ext      Destination pointer to file extension string
+ * @param[in]  s_name     Destination pointer to file name string
+ * @param[in]  s_ext      Destination pointer to file extension string
  * @return     none
  */
 static void
@@ -501,20 +682,21 @@ string_combine_name_ext (char       *s_name_ext,
                          const char *s_name,
                          const char *s_ext)
 {
-    size_t       ui_len  = 0;
-    const size_t ui_elen = strlen (s_ext);
-    const size_t ui_max  = FN_LEN - ui_elen;
+    size_t       ul_len  = 0;
+    const size_t ul_elen = strlen (s_ext);
+    const size_t ul_max  = FN_LEN - ul_elen;
 
     memset (s_name_ext, 0, FN_LEN + 1);
-    ui_len = get_valid_length (s_name, ui_max);
+
+    ul_len = get_valid_length (s_name, ul_max);
 
     if (s_ext != NULL && strcmp (s_ext, "") != 0) { // extension present
 
-        memcpy (s_name_ext, s_name, ui_len);
-        memcpy (s_name_ext+ui_len, s_ext, ui_elen);
+        memcpy (s_name_ext, s_name, ul_len);
+        memcpy (s_name_ext + ul_len, s_ext, ul_elen);
     }
     else { // no extenstion
-        memcpy (s_name_ext, s_name, ui_len);
+        memcpy (s_name_ext, s_name, ul_len);
     }
     #ifdef DEBUG
         printf ("f %s e %s \n", s_name, s_ext);
@@ -527,37 +709,35 @@ string_combine_name_ext (char       *s_name_ext,
  * Function checks whether it should perform change whole file name, its name
  * or ext and and calls on it passed as value "fun" function.
  *
- * @param[in]     fun     Pointer to a string change function 
- * @param[in,out] src_dst Pointer to processed string
- * @param[in]     s_fr    Pointer to string with "change from" text
- * @param[in]     s_to    Pointer to string with "change to" text
- * @param[in]     ne      Value tells to change file name, ext or both
+ * @param[in]     fun       Pointer to a string change function 
+ * @param[in,out] s_src_dst Pointer to processed string
+ * @param[in]     pd_data   ProcessData object with process values
+ * @param[in]     ne        Value tells to change file name, ext or both
  * @return        none
  */
 static void
-string_process_filename (void          (*fun) (char*, const char*, const char*),
-                         char           *src_dst,
-                         const char     *s_fr,
-                         const char     *s_to,
-                         const uint8_t   ne)
+string_process_filename (void          (*fun) (char*, ProcessData*),
+                         char           *s_src_dst,
+                         ProcessData    *pd_data,
+                         const int8_t    ne)
 {
     char f_name [FN_LEN + 1]; // temp name
     char f_ext  [FN_LEN + 1]; // temp extension
 
     if (ne == 2)
-        fun (src_dst, s_fr, s_to); // change text in name and ext
+        fun (s_src_dst, pd_data); // change text in name and ext
     else { // change text in name or ext
 
         memset (f_name, 0, sizeof (f_name));
         memset (f_ext,  0, sizeof (f_ext));
 
         /* get name and ext to separate strings */
-        string_extract_name_ext (src_dst, f_name, f_ext);
+        string_extract_name_ext (s_src_dst, f_name, f_ext);
 
-        if (ne == 1) fun (f_name, s_fr, s_to); // change name only
-        if (ne == 0) fun (f_ext,  s_fr, s_to); // change ext only
+        if (ne == 1) fun (f_name, pd_data); // change name only
+        if (ne == 0) fun (f_ext,  pd_data); // change ext only
 
-        string_combine_name_ext (src_dst, f_name, f_ext); // join name and ext
+        string_combine_name_ext (s_src_dst, f_name, f_ext); // join name and ext
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -574,29 +754,30 @@ static void
 name_delete_chars (RFiles        *r_files,
                    const uint16_t i)
 {
-    char tmp1 [10]; // temp value to pass to function
-    char tmp2 [10]; // temp value to pass to function
-
-    memset (tmp1, 0, sizeof (tmp1)); // zeroing tmp1
-    memset (tmp2, 0, sizeof (tmp2)); // zeroing tmp2
+    ProcessData pd_data = {
+        NULL,
+        NULL,
+        r_files->delete.pos,
+        r_files->delete.cnt,
+        0,
+        0,
+        0
+    };
 
     /* exit if no chars to delete */
     if (r_files->delete.cnt == 0)
         return;
 
-    sprintf (tmp1, "%d", r_files->delete.cnt);
-    sprintf (tmp2, "%d", r_files->delete.pos);
-
     string_process_filename (string_delete_chars,
                              r_files->names.new[i],
-                             tmp1, tmp2,
+                             &pd_data,
                              r_files->applyto);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string in specified file name at some position.
  *
- * Prepares data and calls insert string into string function.
+ * Prepares data and calls insert string in string function.
  *
  * @param[in,out] r_files Pointer to RFiles with all file names and settings
  * @param[in]     i       Index of file name to change
@@ -606,19 +787,86 @@ static void
 name_insert_string (RFiles        *r_files,
                     const uint16_t i)
 {
-    char tmp [10]; // temp value to pass to function
-
-    memset (tmp, 0, sizeof (tmp)); // zeroing tmp
+    ProcessData pd_data = {
+        r_files->insert.text,
+        NULL,
+        r_files->insert.pos,
+        0,
+        0,
+        0,
+        0
+    };
 
     if (strcmp (r_files->insert.text, "") == 0)
         return;
 
-    sprintf (tmp, "%d", r_files->insert.pos);
-
     string_process_filename (string_insert_string,
                              r_files->names.new[i],
-                             r_files->insert.text, tmp,
+                             &pd_data,
                              r_files->applyto);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Overwrite string in specified file name at some position.
+ *
+ * Prepares data and calls overwrite string in string function.
+ *
+ * @param[in,out] r_files Pointer to RFiles with all file names and settings
+ * @param[in]     i       Index of file name to change
+ * @return        none
+ */
+static void
+name_overwrite_string (RFiles        *r_files,
+                       const uint16_t i)
+{
+    ProcessData pd_data = {
+        r_files->overwrite.text,
+        NULL,
+        r_files->overwrite.pos,
+        0,
+        0,
+        0,
+        0
+    };
+
+    if (strcmp (r_files->overwrite.text, "") == 0)
+        return;
+
+    string_process_filename (string_overwrite_string,
+                             r_files->names.new[i],
+                             &pd_data,
+                             r_files->applyto);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Number file names.
+ *
+ * Prepares data and calls numbering string function.
+ *
+ * @param[in,out] r_files Pointer to RFiles with all file names and settings
+ * @param[in]     i       Index of file name to change
+ * @return        none
+ */
+static void
+name_number_string (RFiles        *r_files,
+                    const uint16_t i)
+{
+    ProcessData pd_data = {
+        NULL,
+        NULL,
+        r_files->number.pos,
+        0,
+        i,
+        r_files->number.start,
+        (unsigned int) r_files->names.cnt - 1
+    };
+
+    if (r_files->number.opt) {
+        string_process_filename (string_add_number,
+                                 r_files->names.new[i],
+                                 &pd_data,
+                                 r_files->applyto);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -632,18 +880,23 @@ static void
 name_to_upcase_lowercase (RFiles        *r_files,
                           const uint16_t i)
 {
+    ProcessData pd_data = { NULL, NULL, 0, 0, 0, 0, 0 };
+
     /* to uppercase */
-    if (r_files->uplo == 0)
+    if (r_files->uplo == 0) {
         string_process_filename (string_to_upper,
                                  r_files->names.new[i],
-                                 NULL, NULL,
+                                 &pd_data,
                                  r_files->applyto);
+    }
+
     /* to lowercase */
-    if (r_files->uplo == 1)
+    if (r_files->uplo == 1) {
         string_process_filename (string_to_lower,
                                  r_files->names.new[i],
-                                 NULL, NULL,
+                                 &pd_data,
                                  r_files->applyto);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -658,18 +911,26 @@ static void
 name_spaces_underscores (RFiles        *r_files,
                          const uint16_t i)
 {
+    ProcessData  pd_data = { " ", "_", 0, 0, 0, 0, 0 };
+    const char  *s_t     = NULL;
+
     /* underscores to spaces */
-    if (r_files->spaces == 0)
+    if (r_files->spaces == 0) {
+        s_t = pd_data.s_str1;
+        pd_data.s_str1 = pd_data.s_str2;
+        pd_data.s_str2 = s_t;
         string_process_filename (string_replace_in,
                                  r_files->names.new[i],
-                                 "_", " ",
+                                 &pd_data,
                                  r_files->applyto);
+    }
     /* spaces to underscores */
-    if (r_files->spaces == 1) 
+    if (r_files->spaces == 1) {
         string_process_filename (string_replace_in,
                                  r_files->names.new[i],
-                                 " ", "_",
+                                 &pd_data,
                                  r_files->applyto);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -684,11 +945,22 @@ static void
 name_replace_strings (RFiles        *r_files,
                       const uint16_t i)
 {
-    if (strcmp (r_files->replace.from, "") != 0)
+    ProcessData pd_data = {
+        r_files->replace.from,
+        r_files->replace.to,
+        0,
+        0,
+        0,
+        0,
+        0
+    };
+
+    if (strcmp (r_files->replace.from, "") != 0) {
         string_process_filename (string_replace_in,
                                  r_files->names.new[i],
-                                 r_files->replace.from, r_files->replace.to,
+                                 &pd_data,
                                  r_files->applyto);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -733,6 +1005,8 @@ file_names_update_changes (RFiles *r_files)
         name_delete_chars (r_files, i);
         name_replace_strings (r_files, i);
         name_insert_string (r_files, i);
+        name_overwrite_string (r_files, i);
+        name_number_string (r_files, i);
 
         entry_check_and_update (r_files->entry[i], r_files->names.new[i]);
     }
@@ -863,7 +1137,8 @@ static void
 event_insert_pos_changed (GtkSpinButton *sp_button,
                           RFiles        *r_files)
 {
-    r_files->insert.pos = gtk_spin_button_get_value_as_int (sp_button);
+    r_files->insert.pos =
+        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
 
     if (strcmp (r_files->insert.text, "") != 0)
         file_names_update_changes (r_files);
@@ -872,7 +1147,7 @@ event_insert_pos_changed (GtkSpinButton *sp_button,
 /**
  * @brief  Insert string text in Entry changed.
  *
- * Copies string to insert into file name to RFiles and calls to update file
+ * Copies string to insert to RFiles and calls to update file
  * name changes.
  *
  * @param[in]     widget    Pointer to Entry widget
@@ -895,6 +1170,52 @@ event_insert_string_entry_changed (GtkWidget *widget,
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Overwrite string text position in SpinButton changed.
+ *
+ * Copies SpinButton value to RFiles and calls to update file name changes if
+ * overwrite string text is not empty.
+ *
+ * @param[in]     sp_button Pointer to SpinButton widget
+ * @param[in,out] r_files   Pointer to RFiles with all file names and settings
+ * @return        none
+ */
+static void
+event_overwrite_pos_changed (GtkSpinButton *sp_button,
+                             RFiles        *r_files)
+{
+    r_files->overwrite.pos =
+        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+
+    if (strcmp (r_files->overwrite.text, "") != 0)
+        file_names_update_changes (r_files);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Overwrite string text in Entry changed.
+ *
+ * Copies string to overwrite to RFiles and calls to update file
+ * name changes.
+ *
+ * @param[in]     widget    Pointer to Entry widget
+ * @param[in,out] r_files   Pointer to RFiles with all file names and settings
+ * @return        none
+ */
+static void
+event_overwrite_string_entry_changed (GtkWidget *widget,
+                                      RFiles    *r_files)
+{
+    const char *s_en = NULL;
+
+    s_en = gtk_entry_get_text (GTK_ENTRY (widget));
+
+    memset (r_files->overwrite.text, 0, sizeof (r_files->overwrite.text));
+
+    memcpy (r_files->overwrite.text, s_en, get_valid_length (s_en, FN_LEN));
+
+    file_names_update_changes (r_files);
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Delete char number of chars to delete in SpinButton changed.
  *
  * Reads SpinButon value of chars to delete and calls to update file name
@@ -908,7 +1229,8 @@ static void
 event_delete_cnt_changed (GtkSpinButton *sp_button,
                           RFiles        *r_files)
 {
-    r_files->delete.cnt = gtk_spin_button_get_value_as_int (sp_button);
+    r_files->delete.cnt =
+        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
 
     file_names_update_changes (r_files);
 }
@@ -927,7 +1249,8 @@ static void
 event_delete_pos_changed (GtkSpinButton *sp_button,
                           RFiles        *r_files)
 {
-    r_files->delete.pos = gtk_spin_button_get_value_as_int (sp_button);
+    r_files->delete.pos =
+        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
 
     if (r_files->delete.cnt > 0)
         file_names_update_changes (r_files);
@@ -1048,6 +1371,58 @@ event_apply_radio_active (GtkRadioButton *radiob,
 
         file_names_update_changes (r_files);
     }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Number names CheckBox state changed.
+ *
+ * @param[out] r_files Pointer to RFiles with all file names and settings
+ * @param[in]  toggleb Pointer to ToggleButton
+ * @return     none
+ */
+static void
+event_toggle_number_names (GtkToggleButton *toggleb,
+                           RFiles          *r_files)
+{
+    r_files->number.opt = (uint8_t) gtk_toggle_button_get_active (toggleb);
+
+    file_names_update_changes (r_files);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Numbering strings start value in SpinButton changed.
+ *
+ * @param[in]     sp_button Pointer to SpinButton
+ * @param[in,out] r_files   Pointer to RFiles with all file names and settings
+ * @return        none
+ */
+static void
+event_number_start_changed (GtkSpinButton *sp_button,
+                            RFiles        *r_files)
+{
+    r_files->number.start = 
+        (uint32_t) gtk_spin_button_get_value_as_int (sp_button);
+
+    if (r_files->number.opt)
+        file_names_update_changes (r_files);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Numbering strings position in string SpinButton changed.
+ *
+ * @param[in]     sp_button Pointer to SpinButton
+ * @param[in,out] r_files   Pointer to RFiles with all file names and settings
+ * @return        none
+ */
+static void
+event_number_pos_changed (GtkSpinButton *sp_button,
+                            RFiles        *r_files)
+{
+    r_files->number.pos =
+        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+
+    if (r_files->number.opt)
+        file_names_update_changes (r_files);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1307,7 +1682,7 @@ create_delete_chars_box (GtkWidget **gw_container,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Creates container with widgets to insert string into file name.
+ * @brief  Creates container with widgets to insert string in file name.
  *
  * @param[out]    gw_container Pointer to container pointer
  * @param[in,out] r_files      Pointer to RFiles with all file names and
@@ -1348,6 +1723,100 @@ create_insert_string_box (GtkWidget **gw_container,
             gw_ins_entry, gw_lab, GTK_POS_BOTTOM, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_ins_pos, gw_ins_entry, GTK_POS_RIGHT, 1, 1);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Creates container with widgets to overwrite string in file name.
+ *
+ * @param[out]    gw_container Pointer to container pointer
+ * @param[in,out] r_files      Pointer to RFiles with all file names and
+ *                             settings
+ * @return        none
+ */
+static void
+create_overwrite_string_box (GtkWidget **gw_container,
+                             RFiles     *r_files)
+{
+    GtkWidget     *gw_lab;         // Description label
+    GtkWidget     *gw_ovr_entry;   // Insert text entry
+    GtkWidget     *gw_ovr_pos;     // Insert text position spin button
+    GtkAdjustment *gw_ovr_adj_pos; // Adjustment for spin button
+
+    gw_lab = gtk_label_new ("Overwrite text:");
+    gw_ovr_entry = gtk_entry_new ();
+
+    gtk_entry_set_max_length (GTK_ENTRY (gw_ovr_entry), FN_LEN);
+    gtk_entry_set_width_chars (GTK_ENTRY (gw_ovr_entry), 6);
+
+    gw_ovr_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_ovr_pos = gtk_spin_button_new (gw_ovr_adj_pos, 1.0, 0);
+
+    gtk_widget_set_tooltip_text (gw_ovr_pos, "At position");
+
+    g_signal_connect (G_OBJECT (gw_ovr_pos),
+            "value-changed", G_CALLBACK (event_overwrite_pos_changed), r_files);
+    g_signal_connect (G_OBJECT (gw_ovr_entry),
+            "changed", G_CALLBACK (event_overwrite_string_entry_changed),
+                                   r_files);
+
+    *gw_container = gtk_grid_new ();
+
+    gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
+    gtk_grid_attach (GTK_GRID (*gw_container), gw_lab, 0, 0, 2, 1);
+    gtk_grid_attach_next_to (GTK_GRID (*gw_container),
+            gw_ovr_entry, gw_lab, GTK_POS_BOTTOM, 1, 1);
+    gtk_grid_attach_next_to (GTK_GRID (*gw_container),
+            gw_ovr_pos, gw_ovr_entry, GTK_POS_RIGHT, 1, 1);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Creates container with widgets to number file names.
+ *
+ * @param[out]    gw_container Pointer to container pointer
+ * @param[in,out] r_files      Pointer to RFiles with all file names and
+ *                             settings
+ * @return        none
+ */
+static void
+create_number_string_box (GtkWidget **gw_container,
+                          RFiles     *r_files)
+{
+    GtkWidget     *gw_check;       // Number names checkbox
+    GtkWidget     *gw_num_start_spin;     // Numbering start spin button
+    GtkAdjustment *gw_num_start_spin_adj; // Adjustment for spin button
+    GtkWidget     *gw_num_pos_spin;     // Numbering start spin button
+    GtkAdjustment *gw_num_pos_spin_adj; // Adjustment for spin button
+
+
+    gw_check = gtk_check_button_new_with_label ("Number files");
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_check), FALSE);
+
+    gw_num_start_spin_adj = gtk_adjustment_new (0.0, 0.0, 1000, 1.0, 5.0, 0.0);
+    gw_num_start_spin = gtk_spin_button_new (gw_num_start_spin_adj, 1.0, 0);
+
+    gw_num_pos_spin_adj = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_num_pos_spin = gtk_spin_button_new (gw_num_pos_spin_adj, 1.0, 0);
+
+    gtk_widget_set_tooltip_text (gw_num_start_spin, "Start numbering from");
+    gtk_widget_set_tooltip_text (gw_num_pos_spin, "Number posistion in name");
+
+    g_signal_connect (G_OBJECT (gw_num_start_spin),
+            "value-changed", G_CALLBACK (event_number_start_changed), r_files);
+    g_signal_connect (G_OBJECT (gw_num_pos_spin),
+            "value-changed", G_CALLBACK (event_number_pos_changed), r_files);
+    g_signal_connect (G_OBJECT (gw_check),
+            "toggled", G_CALLBACK (event_toggle_number_names), r_files);
+
+    *gw_container = gtk_grid_new ();
+
+    gtk_grid_set_column_spacing (GTK_GRID (*gw_container), 4);
+
+    gtk_grid_attach (GTK_GRID (*gw_container), gw_check, 0, 0, 2, 1);
+    gtk_grid_attach_next_to (GTK_GRID (*gw_container),
+            gw_num_start_spin, gw_check, GTK_POS_BOTTOM, 1, 1);
+    gtk_grid_attach_next_to (GTK_GRID (*gw_container),
+            gw_num_pos_spin, gw_num_start_spin, GTK_POS_RIGHT, 1, 1);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1419,9 +1888,9 @@ create_file_name_entries (GFile     **files,
     uint16_t       ui_cn = 0;    // File names count
 
     /* Allocate memory for pointers to entries and file name strings */
-    r_files->entry = g_malloc (n_files * sizeof (GtkWidget*));
-    r_files->names.org = g_malloc (n_files * sizeof (char*));
-    r_files->names.new = g_malloc (n_files * sizeof (char*));
+    r_files->entry     = g_malloc ((size_t) n_files * sizeof (GtkWidget*));
+    r_files->names.org = g_malloc ((size_t) n_files * sizeof (char*));
+    r_files->names.new = g_malloc ((size_t) n_files * sizeof (char*));
 
     /* Create box for file name entries */
     gw_entry_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
@@ -1583,6 +2052,8 @@ open (GtkApplication  *application,
     GtkWidget *gw_replace_str_box; // Replace text widget
     GtkWidget *gw_del_str_box;     // Delete text widget
     GtkWidget *gw_ins_str_box;     // Insert text widget
+    GtkWidget *gw_ovr_str_box;     // Overwrite text widget
+    GtkWidget *gw_number_box;      // Number names widget
     GtkWidget *gw_apply_box;       // Apply to names / extenstions widget
     GtkWidget *gw_udusc_box;       // Widget to pack all settings
     GtkWidget *gw_okcl_box;        // Rename / Close widget
@@ -1602,6 +2073,9 @@ open (GtkApplication  *application,
     create_replace_str_with_str_box (&gw_replace_str_box, r_files);
     create_delete_chars_box (&gw_del_str_box, r_files);
     create_insert_string_box (&gw_ins_str_box, r_files);
+    create_overwrite_string_box (&gw_ovr_str_box, r_files);
+    create_number_string_box (&gw_number_box, r_files);
+
     /* OK, Close box */
     create_rename_close_exit_box (&gw_okcl_box, r_files);
 
@@ -1619,15 +2093,21 @@ open (GtkApplication  *application,
 
     gw_sep = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
 
-    gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
-            gw_sep, gw_apply_box, GTK_POS_BOTTOM, 3, 1);
+    gtk_grid_attach (GTK_GRID (gw_udusc_box), gw_sep, 0, 1, 3, 1);
 
-    gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
-            gw_replace_str_box, gw_sep, GTK_POS_BOTTOM, 1, 1);
+    gtk_grid_attach (GTK_GRID (gw_udusc_box), gw_replace_str_box, 0, 2, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
             gw_ins_str_box, gw_replace_str_box, GTK_POS_RIGHT, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
             gw_del_str_box, gw_ins_str_box, GTK_POS_RIGHT, 1, 1);
+
+    gw_sep = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
+
+    gtk_grid_attach (GTK_GRID (gw_udusc_box), gw_sep, 0, 3, 3, 1);
+
+    gtk_grid_attach (GTK_GRID (gw_udusc_box), gw_ovr_str_box, 1, 4, 1, 1);
+    gtk_grid_attach_next_to (GTK_GRID (gw_udusc_box),
+            gw_number_box, gw_ovr_str_box, GTK_POS_RIGHT, 1, 1);
 
     /* Main application widgets box */
     gw_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
