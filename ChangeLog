@@ -1,0 +1,102 @@
+Copyright (C) 2019 Michal Babik
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+2019-12-09  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c: Renamed some values for better readability.
+	* sfrfn.c: New file for string modify functions.
+	* sfrfn.h: New file for string modify functions.
+	* sfrename.c (get_valid_length, string_replace_in, string_delete_chars,
+	  string_insert_string, string_overwrite_string, string_add_number,
+	  string_to_lower, string_to_upper, string_extract_name_ext,
+	  string_combine_name_ext, string_process_filename): Functions moved to
+	  strfn.c.
+	* namefn.c: New file for functions to modify file name strings.
+	* namefn.h: New file for functions to modify file name strings.
+	* sfrename.c (name_delete_chars, name_insert_string, name_overwrite_string,
+	  name_number_string, name_to_upcase_lowercase, name_spaces_underscores,
+	  name_replace_strings): Functions moved to namefn.c
+
+
+2019-12-07  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c (create_window): Changed app ver string passing method.
+
+2019-12-02  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c: new structure ProcessData used by functions that
+	  manupulate strings.
+	* sfrename.c (file_names_update_changes): inserted calls to functions
+	  to overwrite and number names.
+	* sfrename.c (string_overwrite_string): new function to overwrite
+	  text in string.
+	* sfrename.c (string_add_number): new function for adding numbers to
+	  string.
+	* sfrename.c (create_overwrite_string_box): new function to create
+	  widgets for string overwrite.
+	* sfrename.c (create_number_string_box): new function to create
+	  widgets for numbering strings.
+	* sfrename.c (event_overwrite_pos_changed,
+	  event_overwrite_string_entry_changed): new functions for string
+	  overwrite.
+	* sfrename.c (event_toggle_number_names, event_number_start_changed,
+	  event_number_pos_changed): new functions for string numbering.
+	* sfrename (file_names_update_changes): inserted functions to
+	    overwrite and number strings.
+
+2019-12-01  Michal Babik  <michalb1981@o2.pl>
+
+	* Small performance updates
+	* sfrename.c (string_insert_string): changed string iteration to work
+	  using index instead of pointer adding for more simple checking for
+	  end of string. Changed strncpy to memcpy.
+	* sfrename.c (many functions): strncpy changed to memcpy.
+	* sfrename.c (string_process_filename): changed size of f_ext for better
+	  compatibility with string process functions.
+
+2019-11-28  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c (string_insert_string): Little changed function to insert
+	  string in file name.
+	* sfrename.c (string_replace_in): Little changed function to replace
+	  strings in file name.
+	* sfrename.c (string_to_lower): Added string length validation.
+	* sfrename.c (string_to_upper): Added string length validation.
+
+2019-10-10  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c (free_stuff): Removed not needed print command.
+
+2019-06-13  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c: include <gio/gio.h>
+	* sfrename.c (main): Changed GTK app starting mode.
+	* sfrename.c (event_delete): Function is no longer needed, removed.
+	* sfrename.c (event_destroy): Renamed to event_close.
+	* sfrename.c (event_close, event_win_key_press): Changed app closing.
+	* sfrename.c (create_rename_close_exit_box): Changed button signal from
+	  event_destroy to event_close
+	* sfrename.c (create_file_name_entries): Changed function args.
+	  New file name getting mode.
+	* sfrename.c (create_window): New arg application.
+	  New window creating mode, removed not needed signal connections.
+	* sfrename.c (activate): New function.
+	* sfrename.c (open): New function.
+	* sfrename.c (rfiles_init): New function.
+
+2019-01-25  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c: First relase.
+

@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Michał Bąbik
+# Copyright (C) 2019 Michal Babik
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ CFLAGS = -std=gnu11 -O2
 LIBS =
 PACKAGE = $(shell pkg-config --cflags --libs gtk+-3.0)
 LDLIBS = $(shell pkg-config --libs gtk+-3.0)
-SRCS = sfrename.c
+SRCS = sfrename.c strfn.c namefn.c rendata.c
 OBJS = $(SRCS:.c=.o)
 MAIN = sfrename
 
