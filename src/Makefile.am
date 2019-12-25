@@ -1,5 +1,5 @@
 # Copyright (C) 2019 Michal Babik
-#
+# 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -9,28 +9,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
+# 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-CC = gcc
-CFLAGS = -std=gnu11 -O2
-LIBS =
-PACKAGE = $(shell pkg-config --cflags --libs gtk+-3.0)
-LDLIBS = $(shell pkg-config --libs gtk+-3.0)
-SRCS = sfrename.c strfn.c namefn.c rendata.c
-OBJS = $(SRCS:.c=.o)
-MAIN = sfrename
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-.PHONY: all clean
+bin_PROGRAMS = sfrename
+sfrename_SOURCES = sfrename.c\
+                   rendata.c rendata.h\
+                   namefn.c namefn.h\
+                   strfn.c strfn.h\
+                   defs.h
 
-all: $(MAIN)
-
-$(MAIN): $(OBJS)
-	$(CC) $(CFLAGS) $(PACKAGE) -o $(MAIN) $(OBJS) $(LDLIBS) $(LIBS)
-
-.c.o:
-	$(CC) $(CFLAGS) $(PACKAGE) -c $<  -o $@
-
-clean:
-	$(RM) *.o *~ $(MAIN)
+sfrename_CFLAGS = $(GTK_CFLAGS)
+sfrename_LDADD = $(GTK_LIBS)
 

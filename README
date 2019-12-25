@@ -50,9 +50,7 @@ Requirements
 Installation and running
 ------------------------
 
-Go to sources directory and type:
-
-    make
+For installation instructions see INSTALL file.
 
 File names should be passed to program as arguments, example of use:
 
