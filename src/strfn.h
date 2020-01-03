@@ -1,6 +1,6 @@
 /**
  * @file  strfn.h
- * @copyright Copyright (C) 2019 Michal Babik
+ * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
  *
@@ -27,17 +27,39 @@
 #include <stddef.h>
 /*----------------------------------------------------------------------------*/
 /** 
- * @brief Structure with data to string functions
+ * @struct ProcessData
+ * @brief  Structure with data to string process functions
+ *
+ * @var   ProcessData::s_str1
+ * @brief Input string
+ *
+ * @var   ProcessData::s_str2
+ * @brief Input string
+ *
+ * @var   ProcessData::ul_pos
+ * @brief Position to insert/overwrite/delete
+ *
+ * @var   ProcessData::ul_cnt
+ * @brief Character count
+ *
+ * @var   ProcessData::i_no
+ * @brief Number
+ *
+ * @var   ProcessData::i_start
+ * @brief Start numbering value
+ *
+ * @var   ProcessData::i_max
+ * @brief Maximum numbering range
  */ 
 typedef struct
 ProcessData {
-    const char   *s_str1;        /**< Input string */
-    const char   *s_str2;        /**< Input string */
-    size_t        ul_pos;        /**< Position to insert/overwrite/delete */
-    size_t        ul_cnt;        /**< Character count */
-    unsigned int  i_no;          /**< Number */
-    unsigned int  i_start;       /**< Start numbering value */
-    unsigned int  i_max;         /**< Maximum numbering range */
+    const char   *s_str1;        /* Input string */
+    const char   *s_str2;        /* Input string */
+    size_t        ul_pos;        /* Position to insert/overwrite/delete */
+    size_t        ul_cnt;        /* Character count */
+    unsigned int  i_no;          /* Number */
+    unsigned int  i_start;       /* Start numbering value */
+    unsigned int  i_max;         /* Maximum numbering range */
 } ProcessData;
 /*----------------------------------------------------------------------------*/
 /**
@@ -54,7 +76,8 @@ ProcessData {
  * @return    Length in bytes of correct chars up to ui_max value
  */
 size_t get_valid_length        (const char         *s_str,
-                                const size_t        ul_max);
+                                const size_t        ul_max)
+                                __attribute__ ((pure, nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /** 
  * @brief  Replace one string with another in a given src_dest string.
@@ -67,7 +90,8 @@ size_t get_valid_length        (const char         *s_str,
  * @return        none
  */ 
 void   string_replace_in       (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /** 
  * @brief  Detele chars in string.
@@ -77,7 +101,8 @@ void   string_replace_in       (char               *s_src_dst,
  * @return        none
  */ 
 void   string_delete_chars     (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string to existing string at specified position.
@@ -87,7 +112,8 @@ void   string_delete_chars     (char               *s_src_dst,
  * @return        none
  */
 void   string_insert_string    (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Overwrite string in existing string at specified position.
@@ -97,7 +123,8 @@ void   string_insert_string    (char               *s_src_dst,
  * @return        none
  */
 void   string_overwrite_string (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Add number to string.
@@ -107,7 +134,8 @@ void   string_overwrite_string (char               *s_src_dst,
  * @return        none
  */
 void   string_add_number       (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to lower case.
@@ -117,7 +145,8 @@ void   string_add_number       (char               *s_src_dst,
  * @return        none
  */
 void   string_to_lower         (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to upper case.
@@ -127,7 +156,8 @@ void   string_to_lower         (char               *s_src_dst,
  * @return        none
  */
 void   string_to_upper         (char               *s_src_dst,
-                                const ProcessData  *pd_data);
+                                const ProcessData  *pd_data)
+                                __attribute__ ((nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /**
  * @fn void string_extract_name_ext (const char   *s_name_ext,
@@ -157,11 +187,13 @@ void   string_to_upper         (char               *s_src_dst,
 /*----------------------------------------------------------------------------*/
 void   string_extract_name_ext (const char   *s_name_ext,
                                 char         *s_name,
-                                char         *s_ext);
+                                char         *s_ext)
+                                __attribute__ ((nonnull (1, 2, 3)));
 
 void   string_combine_name_ext (char         *s_name_ext,
                                 const char   *s_name,
-                                const char   *s_ext);
+                                const char   *s_ext)
+                                __attribute__ ((nonnull (1, 2, 3)));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Function to process file name str using a pointed function.
@@ -178,7 +210,8 @@ void   string_combine_name_ext (char         *s_name_ext,
 void   string_process_filename (void        (*fun) (char*, const ProcessData*),
                                 char         *s_src_dst,
                                 ProcessData  *pd_data,
-                                const int     ne);
+                                const int     ne)
+                                __attribute__ ((nonnull (2)));
 /*----------------------------------------------------------------------------*/
 #endif
 

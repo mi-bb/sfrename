@@ -1,6 +1,6 @@
 /**
  * @file  rendata.c
- * @copyright Copyright (C) 2019 Michal Babik
+ * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
  *
@@ -30,25 +30,25 @@
 void
 rendata_init (RenData *rd_data)
 {
-    rd_data->uplo          = 2;    // upper/lower case setting
-    rd_data->spaces        = 2;    // spaces/underscores setting
-    rd_data->applyto       = 2;    // apply to names/ext/both setting
-    rd_data->renexit       = 1;    // exit after rename setting
-    rd_data->del.cnt       = 0;    // chars to delete
-    rd_data->del.pos       = 0;    // delete starting at pos
-    rd_data->ins.pos       = 0;    // insert string at pos
-    rd_data->overwrite.pos = 0;    // overwrite string at pos
-    rd_data->names.cnt     = 0;    // names count
-    rd_data->number.opt    = 0;    // numbering names opt
-    rd_data->number.start  = 0;    // numbering starts from
-    rd_data->number.pos    = 0;    // number position in string
-    rd_data->names.s_org   = NULL; // org names list
-    rd_data->names.s_new   = NULL; // new names list
+    rd_data->uplo          = 2;    /* upper/lower case setting */
+    rd_data->spaces        = 2;    /* spaces/underscores setting */
+    rd_data->applyto       = 2;    /* apply to names/ext/both setting */
+    rd_data->renexit       = 1;    /* exit after rename setting */
+    rd_data->del.cnt       = 0;    /* chars to delete */
+    rd_data->del.pos       = 0;    /* delete starting at pos */
+    rd_data->ins.pos       = 0;    /* insert string at pos */
+    rd_data->overwrite.pos = 0;    /* overwrite string at pos */
+    rd_data->names.cnt     = 0;    /* names count */
+    rd_data->number.opt    = 0;    /* numbering names opt */
+    rd_data->number.start  = 0;    /* numbering starts from */
+    rd_data->number.pos    = 0;    /* number position in string */
+    rd_data->names.s_org   = NULL; /* org names list */
+    rd_data->names.s_new   = NULL; /* new names list */
     /* clear replace from, to, insert overwrite strings */
-    memset (rd_data->replace.s_from,   0, sizeof (rd_data->replace.s_from));
-    memset (rd_data->replace.s_to,     0, sizeof (rd_data->replace.s_to));
-    memset (rd_data->ins.s_text,       0, sizeof (rd_data->ins.s_text));
-    memset (rd_data->overwrite.s_text, 0, sizeof (rd_data->overwrite.s_text));
+    memset (rd_data->replace.s_from,   '\0', sizeof (rd_data->replace.s_from));
+    memset (rd_data->replace.s_to,     '\0', sizeof (rd_data->replace.s_to));
+    memset (rd_data->ins.s_text,       '\0', sizeof (rd_data->ins.s_text));
+    memset (rd_data->overwrite.s_text, '\0', sizeof (rd_data->overwrite.s_text));
 }
 /*----------------------------------------------------------------------------*/
 /**

@@ -5,7 +5,7 @@
  * |_____|_|_|_|__,|_|_|  |__|  |_|_|___|  |__|__|___|_|_|__,|_|_|_|___|_|  
  *                                                                          
  * @file  sfrename.c
- * @copyright Copyright (C) 2019 Michal Babik
+ * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,31 +25,38 @@
  * Program renames files.
  *
  * @date December 9, 2019
+ *
  * @version 1.1.6
+ *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <glib.h>
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 #include <gdk/gdkkeysyms.h>
-#include <gmodule.h>
 #include "strfn.h"
 #include "rendata.h"
 #include "namefn.h"
 #include "defs.h"
-
 /*----------------------------------------------------------------------------*/
 /** 
- * @brief Basic program data structure
+ * @struct RFiles
+ *
+ * @brief  Basic program data structure
+ *
+ * @var    RFiles::entry
+ * @briref List with GtkEntry widgets for file names
+ *
+ * @var    RFiles::rd_data
+ * @briref Structure with file rename data
  */ 
 typedef struct
 RFiles {
-    GtkWidget **entry;           /**< Entries with file names */
-    RenData     rd_data;         /**< Structure with file rename data */
+    GtkWidget **entry;
+    RenData     rd_data;
 } RFiles;
 
 /*----------------------------------------------------------------------------*/
@@ -142,14 +149,15 @@ file_names_update_changes (RFiles *r_files)
 {
     for (uint16_t i = 0; i < r_files->rd_data.names.cnt; ++i) {
         /* clear file name */
-        memset (r_files->rd_data.names.s_new[i], 0, FN_LEN+1);
+        memset (r_files->rd_data.names.s_new[i], '\0', FN_LEN+1);
 
         /* set old name as tooltip */
         gtk_widget_set_tooltip_text (r_files->entry[i],
                                      r_files->rd_data.names.s_org[i]);
 
         /* copy original name to new to process */
-        strcpy (r_files->rd_data.names.s_new[i], r_files->rd_data.names.s_org[i]);
+        strcpy (r_files->rd_data.names.s_new[i],
+                r_files->rd_data.names.s_org[i]);
 
         name_to_upcase_lowercase (&r_files->rd_data, i);
         name_spaces_underscores (&r_files->rd_data, i);
@@ -202,7 +210,7 @@ get_radio_active (GtkRadioButton *radiob)
  */
 static void
 event_close (GtkWidget *widget,
-             gpointer   data)
+             gpointer   data __attribute__ ((unused)))
 {
     GtkWidget *gw_toplevel = gtk_widget_get_toplevel (widget);
     gtk_widget_destroy (gw_toplevel);
@@ -318,7 +326,7 @@ event_insert_string_entry_changed (GtkWidget *widget,
 
     s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    memset (r_files->rd_data.ins.s_text, 0,
+    memset (r_files->rd_data.ins.s_text, '\0',
             sizeof (r_files->rd_data.ins.s_text));
 
     memcpy (r_files->rd_data.ins.s_text, s_en, get_valid_length (s_en, FN_LEN));
@@ -365,7 +373,7 @@ event_overwrite_string_entry_changed (GtkWidget *widget,
 
     s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    memset (r_files->rd_data.overwrite.s_text, 0,
+    memset (r_files->rd_data.overwrite.s_text, '\0',
             sizeof (r_files->rd_data.overwrite.s_text));
 
     memcpy (r_files->rd_data.overwrite.s_text, s_en,
@@ -475,7 +483,7 @@ event_replace_from_entry_changed (GtkWidget *widget,
 {
     const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
 
-    memset (r_files->rd_data.replace.s_from, 0,
+    memset (r_files->rd_data.replace.s_from, '\0',
             sizeof (r_files->rd_data.replace.s_from));
 
     memcpy (r_files->rd_data.replace.s_from,
@@ -500,7 +508,7 @@ event_replace_to_entry_changed (GtkWidget *widget,
 {
     const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
 
-    memset (r_files->rd_data.replace.s_to, 0,
+    memset (r_files->rd_data.replace.s_to, '\0',
             sizeof (r_files->rd_data.replace.s_to));
 
     memcpy (r_files->rd_data.replace.s_to, s_en, get_valid_length (s_en, FN_LEN));
@@ -1153,7 +1161,7 @@ create_window (GtkWidget        **window,
  * @return        none
  */
 static void
-startup (GtkApplication *application,
+startup (GtkApplication *application __attribute__ ((unused)),
          RFiles         *r_files)
 {
     rfiles_init (r_files);
@@ -1168,7 +1176,7 @@ startup (GtkApplication *application,
  * @return        none
  */
 static void
-shutdown (GtkApplication *application,
+shutdown (GtkApplication *application __attribute__ ((unused)),
           RFiles         *r_files)
 {
     rfiles_free (r_files);
@@ -1181,7 +1189,7 @@ shutdown (GtkApplication *application,
  * @return        none
  */
 static void
-activate (GtkApplication *application)
+activate (GtkApplication *application __attribute__ ((unused)))
 {
     printf ("No files to open\n");
 }
@@ -1201,7 +1209,7 @@ static void
 open (GtkApplication  *application,
       GFile          **files,
       int              n_files,
-      const char      *hint,
+      const char      *hint __attribute__ ((unused)),
       RFiles          *r_files)
 {
     GtkWidget *window;             // Appliation window

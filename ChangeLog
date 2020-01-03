@@ -1,4 +1,4 @@
-Copyright (C) 2019 Michal Babik
+Copyright (C) 2019-2020 Michal Babik
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,6 +12,12 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+2020-01-03  Michal Babik  <michalb1981@o2.pl>
+
+	* strfn.c (string_replace_in, string_insert_string,
+	  string_overwrite_string, ): Small updates to improve performance.
+	* Cosmetic code updates.
 
 2019-12-09  Michal Babik  <michalb1981@o2.pl>
 
@@ -28,7 +34,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	* sfrename.c (name_delete_chars, name_insert_string, name_overwrite_string,
 	  name_number_string, name_to_upcase_lowercase, name_spaces_underscores,
 	  name_replace_strings): Functions moved to namefn.c
-
 
 2019-12-07  Michal Babik  <michalb1981@o2.pl>
 
@@ -54,7 +59,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	* sfrename.c (event_toggle_number_names, event_number_start_changed,
 	  event_number_pos_changed): new functions for string numbering.
 	* sfrename (file_names_update_changes): inserted functions to
-	    overwrite and number strings.
+	  overwrite and number strings.
 
 2019-12-01  Michal Babik  <michalb1981@o2.pl>
 

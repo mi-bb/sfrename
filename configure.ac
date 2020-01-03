@@ -1,6 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-# Copyright (C) 2019 Michal Babik
+# Copyright (C) 2019-2020 Michal Babik
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.69])
-AC_INIT([sfrename], [1.1.6], [michalb1981@o2.pl], [sfrename], [https://www.nongnu.org/small-file-renamer/])
+AC_INIT([sfrename], [1.1.6], [michalb1981@o2.pl], [sfrename],\
+        [https://www.nongnu.org/small-file-renamer/])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/sfrename.c])
 AC_CONFIG_HEADERS([config.h])

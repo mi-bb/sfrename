@@ -1,6 +1,6 @@
 /**
  * @file  defs.h
- * @copyright Copyright (C) 2019 Michal Babik
+ * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
  *
@@ -24,9 +24,26 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#define FN_LEN     255  /**< Maximum chars in file name string */
-#define WIN_WIDTH  600  /**< Application window width */
-#define WIN_HEIGHT 800  /**< Application window height */
+/**
+ * @def   FN_LEN
+ * @brief Maximum chars in file name string
+ *
+ * @def   WIN_WIDTH
+ * @brief Application window width
+ *
+ * @def   WIN_HEIGHT
+ * @brief Application window height
+ *
+ * @def   APP_NAME
+ * @brief Application name string
+ *
+ * @def   APP_VER
+ * @brief Application version string
+ *
+ */
+#define FN_LEN     255
+#define WIN_WIDTH  600
+#define WIN_HEIGHT 800
 #define APP_NAME   "Small File Renamer"
 #define APP_VER    "1.1.6"
 

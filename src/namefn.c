@@ -1,6 +1,6 @@
 /**
  * @file  namefn.c
- * @copyright Copyright (C) 2019 Michal Babik
+ * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
  *

@@ -1,6 +1,6 @@
 /**
  * @file  rendata.h
- * @copyright Copyright (C) 2019 Michal Babik
+ * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
  *
@@ -28,62 +28,135 @@
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Delete text in name settings
+ * @struct RDelete
+ * @brief  Delete text in name string settings
+ *
+ * @var   RDelete::cnt
+ * @brief Delete chars count
+ *
+ * @var   RDelete::pos
+ * @brief Delete chars starting position
  */
 typedef struct
 RDelete {
-    uint8_t   cnt;                 /**< Delete chars count */
-    uint8_t   pos;                 /**< Delete chars starting position */
+    uint8_t   cnt;
+    uint8_t   pos;
 } RDelete;
+/*----------------------------------------------------------------------------*/
 /**
+ * @struct RInsOvr
  * @brief  Insert / Overwrite text in name settings
+ *
+ * @var   RInsOvr::s_text
+ * @brief String to insert / Overwrite name
+ *
+ * @var   RInsOvr::pos
+ * @brief Position to put string
  */
 typedef struct
 RInsOvr {
-    char      s_text [FN_LEN + 1]; /**< String to insert / Overwrite name */
-    uint8_t   pos;                 /**< Position to put string */
+    char      s_text [FN_LEN + 1];
+    uint8_t   pos;
 } RInsOvr;
+/*----------------------------------------------------------------------------*/
 /**
+ * @struct RReplace
  * @brief  Replace strings in name settings
+ *
+ * @var   RReplace::s_from
+ * @brief Replace from string
+ *
+ * @var   RReplace::s_to
+ * @brief Replace to string
  */
 typedef struct
 RReplace {
-    char      s_from [FN_LEN + 1]; /**< Replace from string */
-    char      s_to   [FN_LEN + 1]; /**< Replace to string */
+    char      s_from [FN_LEN + 1];
+    char      s_to   [FN_LEN + 1];
 } RReplace;
+/*----------------------------------------------------------------------------*/
 /**
+ * @struct RNumber
  * @brief  Number names settigns
+ *
+ * @var   RNumber::opt
+ * @brief If opt is 0 numbering is disabled, if opt is not 0 it is enabled
+ *
+ * @var   RNumber::start
+ * @brief Start numbering from value start
+ *
+ * @var   RNumber::pos
+ * @brief Number position in string
  */
 typedef struct
 RNumber {
-    uint8_t   opt;                 /**< Number names or not */
-    uint32_t  start;               /**< Start numbering from */
-    uint8_t   pos;                 /**< Number position in string */
+    uint8_t   opt;
+    uint32_t  start;
+    uint8_t   pos;
 } RNumber;
+/*----------------------------------------------------------------------------*/
 /**
+ * @struct RFnames
  * @brief  File names buffer and entries
+ *
+ * @var   RFnames::cnt
+ * @brief Count of file names
+ *
+ * @var   RFnames::s_new
+ * @brief Strings with new file names
+ *
+ * @var   RFnames::s_org
+ * @brief Strings with original file names
  */
 typedef struct
 RFnames {
-    int       cnt;                 /**< Count of file names */
-    char    **s_new;               /**< New file names buffer */
-    char    **s_org;               /**< Original file names buffer */
+    int       cnt;
+    char    **s_new;
+    char    **s_org;
 } RFnames;
+/*----------------------------------------------------------------------------*/
 /** 
- * @brief Rename data structure
+ * @struct RenData
+ *
+ * @brief  Rename data structure
+ *
+ * Structure with information gathered from application widgets,
+ * passed to file name process functions and later used to update
+ * widgets data.
+ *
+ * @var   RenData::names
+ * @brief File names, old, new, entries
+ * @var   RenData::del
+ * @brief Delete chars properties
+ * @var   RenData::ins
+ * @brief Insert text properties
+ * @var   RenData::overwrite
+ * @brief Overwrite text properties
+ * @var   RenData::replace
+ * @brief Replace string with string settings
+ * @var   RenData::number
+ * @brief Numbering names settings
+ * @var   RenData::uplo
+ * @brief Upper/lower case option
+ * @var   RenData::spaces
+ * @brief Spaces/underscores option
+ * @var   RenData::applyto
+ * @brief Apply to file names/ext or both option
+ * @var   RenData::renexit
+ * @brief Exit after rename option
  */ 
 typedef struct
 RenData {
-    RFnames   names;           /**< File names, old, new, entries */
-    RDelete   del;             /**< Delete chars properties */
-    RInsOvr   ins;             /**< Insert text properties */
-    RInsOvr   overwrite;       /**< Overwrite text properties */
-    RReplace  replace;         /**< Replace string with string settings */
-    RNumber   number;          /**< Numbering names settings */
-    int8_t    uplo;            /**< Upper/lower case option */
-    int8_t    spaces;          /**< Spaces/underscores option */
-    int8_t    applyto;         /**< Apply to file names/ext or both option */
-    int8_t    renexit;         /**< Exit after rename option */
+    RFnames   names;           /* File names, old, new, entries */
+    RDelete   del;             /* Delete chars properties */
+    RInsOvr   ins;             /* Insert text properties */
+    RInsOvr   overwrite;       /* Overwrite text properties */
+    RReplace  replace;         /* Replace string with string settings */
+    RNumber   number;          /* Numbering names settings */
+    int8_t    uplo;            /* Upper/lower case option */
+    int8_t    spaces;          /* Spaces/underscores option */
+    int8_t    applyto;         /* Apply to file names/ext or both option */
+    int8_t    renexit;         /* Exit after rename option */
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**

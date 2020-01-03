@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Michal Babik
+# Copyright (C) 2019-2020 Michal Babik
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,6 @@ sfrename_SOURCES = sfrename.c\
                    strfn.c strfn.h\
                    defs.h
 
-sfrename_CFLAGS = $(GTK_CFLAGS)
+sfrename_CFLAGS = $(GTK_CFLAGS) -DG_DISABLE_DEPRECATED
 sfrename_LDADD = $(GTK_LIBS)
 
