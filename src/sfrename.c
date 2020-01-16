@@ -278,7 +278,8 @@ event_click_rename (GtkWidget *widget,
                                     r_files->rd_data.names.s_new[i]);
         }
     }
-    printf ("Renamed %d files of %d\n", ui_ren_count, r_files->rd_data.names.cnt);
+    printf ("Renamed %d files of %d\n",
+            ui_ren_count, r_files->rd_data.names.cnt);
 
     /* exit application if "Exit after rename" checkbox was selected */
     if (r_files->rd_data.renexit)
@@ -511,15 +512,16 @@ event_replace_to_entry_changed (GtkWidget *widget,
     memset (r_files->rd_data.replace.s_to, '\0',
             sizeof (r_files->rd_data.replace.s_to));
 
-    memcpy (r_files->rd_data.replace.s_to, s_en, get_valid_length (s_en, FN_LEN));
+    memcpy (r_files->rd_data.replace.s_to, s_en,
+            get_valid_length (s_en, FN_LEN));
 
     if (strcmp (r_files->rd_data.replace.s_from, "") != 0)
         file_names_update_changes (r_files);
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Changed state of RadioButton responsible for applying changes to file
- *         name, file extension or both.
+ * @brief  Changed state of RadioButton responsible for applying changes to
+ *         file name, file extension or both.
  *
  * Reads which RadioButton is selected, rename files in file name buffer,
  * check for strings replacement and update entries if needed.
@@ -553,7 +555,8 @@ static void
 event_toggle_number_names (GtkToggleButton *toggleb,
                            RFiles          *r_files)
 {
-    r_files->rd_data.number.opt = (uint8_t) gtk_toggle_button_get_active (toggleb);
+    r_files->rd_data.number.opt =
+        (uint8_t) gtk_toggle_button_get_active (toggleb);
 
     file_names_update_changes (r_files);
 }

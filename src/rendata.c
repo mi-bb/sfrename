@@ -48,7 +48,8 @@ rendata_init (RenData *rd_data)
     memset (rd_data->replace.s_from,   '\0', sizeof (rd_data->replace.s_from));
     memset (rd_data->replace.s_to,     '\0', sizeof (rd_data->replace.s_to));
     memset (rd_data->ins.s_text,       '\0', sizeof (rd_data->ins.s_text));
-    memset (rd_data->overwrite.s_text, '\0', sizeof (rd_data->overwrite.s_text));
+    memset (rd_data->overwrite.s_text, '\0',
+            sizeof (rd_data->overwrite.s_text));
 }
 /*----------------------------------------------------------------------------*/
 /**
