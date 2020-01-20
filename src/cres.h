@@ -1,6 +1,8 @@
 /**
- * @file  defs.h
- * @copyright Copyright (C) 2019-2020 Michal Babik
+ * @file  cres.h
+ * @copyright Copyright (C) 2019 Michał Bąbik
+ *
+ * This file is part of Wall Changer.
  *
  * This file is part of Small File Renamer.
  *
@@ -17,42 +19,25 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  Defines
+ * @brief  Function to create / resize dynamic array
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-#ifndef DEFS_H
-#define DEFS_H
+#ifndef CRES_H
+#define CRES_H
+#include <stddef.h>
 /*----------------------------------------------------------------------------*/
 /**
- * @def   FN_LEN
- * @brief Maximum chars in file name string
+ * @brief  Create or resize dynamic array
  *
- * @def   WIN_WIDTH
- * @brief Application window width
- *
- * @def   WIN_HEIGHT
- * @brief Application window height
- *
- * @def   APP_NAME
- * @brief Application name string
- *
- * @def   APP_VER
- * @brief Application version string
- *
+ * @param[out] v_ptr    Pointer to data to create or resize
+ * @param[in]  ul_num   Number of elements to allocate
+ * @param[in]  ul_size  Size of each element
+ * @return     Result of operation
  */
-#define FN_LEN     255
-#define WIN_WIDTH  600
-#define WIN_HEIGHT 800
-#define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.1.6"
-/*----------------------------------------------------------------------------*/
-enum {
-    REN_OK,                      /**< File renamed */
-    REN_NOT_REN,                 /**< Could not rename */
-    REN_EXISTS,                  /**< File already exists */
-    REN_NC                       /**< No change */
-};
+void cres (void         ***v_ptr,
+           const size_t    ul_num, 
+           const size_t    ul_size);
 /*----------------------------------------------------------------------------*/
 #endif
 

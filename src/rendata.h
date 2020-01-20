@@ -25,6 +25,7 @@
 #define RENDATA_H
 
 #include <stdint.h>
+#include "rfnames.h"
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -95,26 +96,6 @@ RNumber {
     uint8_t   pos;
 } RNumber;
 /*----------------------------------------------------------------------------*/
-/**
- * @struct RFnames
- * @brief  File names buffer and entries
- *
- * @var   RFnames::cnt
- * @brief Count of file names
- *
- * @var   RFnames::s_new
- * @brief Strings with new file names
- *
- * @var   RFnames::s_org
- * @brief Strings with original file names
- */
-typedef struct
-RFnames {
-    int       cnt;
-    char    **s_new;
-    char    **s_org;
-} RFnames;
-/*----------------------------------------------------------------------------*/
 /** 
  * @struct RenData
  *
@@ -160,20 +141,26 @@ RenData {
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  RenData initialization.
+ * @fn         void rendata_init (RenData *rd_data)
+ * @brief      RenData initialization.
+ * @param[out] rd_data Pointer to RenData object
+ * @return     none
  *
+ * @fn     RenData *rendata_new (void)
+ * @brief  Create and return new RenData item.
+ * @return RenData item
+ *
+ * @fn         void rendata_free (RenData *rd_data)
+ * @brief      Free allocated memory.
  * @param[out] rd_data Pointer to RenData object
  * @return     none
  */
-void rendata_init (RenData *rd_data);
 /*----------------------------------------------------------------------------*/
-/**
- * @brief  Free allocated memory.
- *
- * @param[in,out] rd_data Pointer to RenData object
- * @return        none
- */
-void rendata_free (RenData *rd_data);
+void      rendata_init (RenData *rd_data);
+
+RenData * rendata_new  (void) __attribute__ ((malloc, returns_nonnull));
+
+void      rendata_free (RenData *rd_data);
 /*----------------------------------------------------------------------------*/
 #endif
 

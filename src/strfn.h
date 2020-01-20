@@ -18,7 +18,7 @@
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @brief  Functions to modify strings
- * 
+ *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #ifndef STRFN_H
@@ -26,7 +26,7 @@
 
 #include <stddef.h>
 /*----------------------------------------------------------------------------*/
-/** 
+/**
  * @struct ProcessData
  * @brief  Structure with data to string process functions
  *

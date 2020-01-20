@@ -18,7 +18,7 @@
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @brief  Functions to modify strings
- * 
+ *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <glib.h>
@@ -55,14 +55,14 @@ void
 string_replace_in (char              *s_src_dst,
                    const ProcessData *pd_data)
 {
-    char          s_tmp [FN_LEN+1];           // temp file name
-    size_t        ul_vlen  = 0;               // valid name length
+    char          s_tmp [FN_LEN+1];           /* temp file name */
+    size_t        ul_vlen  = 0;               /* valid name length */
     uint16_t      i        = 0;
-    size_t        ul_frlen = 0;               // rename from length
-    const size_t  ul_max   = FN_LEN;          // max length of name
-    const char   *s_fr     = pd_data->s_str1; // "replace from" string
-    const char   *s_to     = pd_data->s_str2; // "replace to" string
-    char         *fp       = NULL;            // find string pointer
+    size_t        ul_frlen = 0;               /* rename from length */
+    const size_t  ul_max   = FN_LEN;          /* max length of name */
+    const char   *s_fr     = pd_data->s_str1; /* "replace from" string */
+    const char   *s_to     = pd_data->s_str2; /* "replace to" string */
+    char         *fp       = NULL;            /* find string pointer */
 
     memset (s_tmp, '\0', sizeof (s_tmp));
 
@@ -70,8 +70,8 @@ string_replace_in (char              *s_src_dst,
         g_utf8_validate (s_fr, -1, NULL) &&
         g_utf8_validate (s_to, -1, NULL) ) {
 
-        const char * __restrict sp = s_src_dst; // copy src_dest pointer
-        char       * __restrict dp = s_tmp;     // copy s_tmp pointer
+        const char * __restrict sp = s_src_dst; /* copy src_dest pointer */
+        char       * __restrict dp = s_tmp;     /* copy s_tmp pointer */
 
         fp = strstr (sp, s_fr);
 
@@ -82,7 +82,7 @@ string_replace_in (char              *s_src_dst,
 
         while (fp != NULL) {
 
-            const char * __restrict tp = s_to;  // pointer to s_to
+            const char * __restrict tp = s_to;  /* pointer to s_to */
 
             while (sp != fp && i < FN_LEN) {
                 dp[i++] = *sp++;
@@ -121,12 +121,12 @@ void
 string_delete_chars (char              *s_src_dst,
                      const ProcessData *pd_data)
 {
-    size_t  ul_cnt  = pd_data->ul_cnt;    // Delete chars count
-    size_t  ul_pos  = pd_data->ul_pos;    // Delete start position
-    size_t  ul_len  = 0;    // Length of text to process
-    size_t  ul_olen = 0;    // Length of text before processing
-    char   *ch_po   = NULL; // Pointer to delete start position
-    char   *ch_cn   = NULL; // Pointer to position after deleted chars
+    size_t  ul_cnt  = pd_data->ul_cnt;    /* Delete chars count */
+    size_t  ul_pos  = pd_data->ul_pos;    /* Delete start position */
+    size_t  ul_len  = 0;    /* Length of text to process */
+    size_t  ul_olen = 0;    /* Length of text before processing */
+    char   *ch_po   = NULL; /* Pointer to delete start position */
+    char   *ch_cn   = NULL; /* Pointer to position after deleted chars */
 
     if (ul_cnt == 0)
         return;
@@ -163,23 +163,23 @@ void
 string_insert_string (char              *s_src_dst,
                       const ProcessData *pd_data)
 {
-    char          s_tmp [FN_LEN+1];             // Temp String
-    size_t        ul_pos     = pd_data->ul_pos; // Text insert position 
-    size_t        ul_len     = 0;               // Length of text
-    size_t        ul_slen_u8 = 0;               // Length of unicode text
+    char          s_tmp [FN_LEN+1];             /* Temp String */
+    size_t        ul_pos     = pd_data->ul_pos; /* Text insert position  */
+    size_t        ul_len     = 0;               /* Length of text */
+    size_t        ul_slen_u8 = 0;               /* Length of unicode text */
     size_t        i          = 0;
-    const size_t  ul_max     = FN_LEN;          // Max string length
-    const char   *s_ins      = pd_data->s_str1; // Text to insert
-    const char   *x          = NULL;            // Insert text pointer
+    const size_t  ul_max     = FN_LEN;          /* Max string length */
+    const char   *s_ins      = pd_data->s_str1; /* Text to insert */
+    const char   *x          = NULL;            /* Insert text pointer */
 
     memset (s_tmp, '\0', sizeof (s_tmp));
 
     if (g_utf8_validate (s_src_dst, -1, NULL) && 
         g_utf8_validate (s_ins, -1, NULL)) {
 
-        char       * __restrict tp = s_tmp;     // Temp string pointer
-        const char * __restrict sp = s_src_dst; // Source string pointer
-        const char * __restrict ip = s_ins;     // Insert string pointer
+        char       * __restrict tp = s_tmp;     /* Temp string pointer */
+        const char * __restrict sp = s_src_dst; /* Source string pointer */
+        const char * __restrict ip = s_ins;     /* Insert string pointer */
 
         ul_slen_u8 = (size_t) g_utf8_strlen (sp, -1);
 
@@ -221,24 +221,24 @@ void
 string_overwrite_string (char              *s_src_dst,
                          const ProcessData *pd_data)
 {
-    char          s_tmp [FN_LEN+1];             // Temp String
-    size_t        ul_pos     = pd_data->ul_pos; // Text insert position 
-    size_t        ul_len     = 0;               // Length of text
-    long          l_ilen     = 0;               // Length of overwrite text
-    size_t        ul_slen_u8 = 0;               // Length of unicode text
+    char          s_tmp [FN_LEN+1];             /* Temp String */
+    size_t        ul_pos     = pd_data->ul_pos; /* Text insert position  */
+    size_t        ul_len     = 0;               /* Length of text */
+    long          l_ilen     = 0;               /* Length of overwrite text */
+    size_t        ul_slen_u8 = 0;               /* Length of unicode text */
     size_t        i          = 0;
-    const size_t  ul_max     = FN_LEN;          // Max string length
-    const char   *s_ins      = pd_data->s_str1; // Overwrite text
-    const char   *x          = NULL;            // Overwrite start pointer
+    const size_t  ul_max     = FN_LEN;          /* Max string length */
+    const char   *s_ins      = pd_data->s_str1; /* Overwrite text */
+    const char   *x          = NULL;            /* Overwrite start pointer */
 
     memset (s_tmp, '\0', sizeof (s_tmp));
 
     if (g_utf8_validate (s_src_dst, -1, NULL) && 
         g_utf8_validate (s_ins, -1, NULL)) {
 
-        char       * __restrict tp = s_tmp;     // Temp string pointer
-        const char * __restrict sp = s_src_dst; // Source string pointer
-        const char * __restrict ip = s_ins;     // Insert string pointer
+        char       * __restrict tp = s_tmp;     /* Temp string pointer */
+        const char * __restrict sp = s_src_dst; /* Source string pointer */
+        const char * __restrict ip = s_ins;     /* Insert string pointer */
 
         ul_slen_u8 = (size_t) g_utf8_strlen (sp, -1);
         l_ilen     = g_utf8_strlen (ip, -1);
@@ -290,13 +290,13 @@ void
 string_add_number (char              *s_src_dst,
                    const ProcessData *pd_data)
 {
-    char         s_no  [20];                  // Temp string for number
-    char         s_tmp [20];                  // Temp string
-    unsigned int ui_no    = pd_data->i_no;    // Number to insert
-    unsigned int ui_st    = pd_data->i_start; // Start numbering position
-    unsigned int ui_mx    = pd_data->i_max;   // Max number range
-    unsigned int ui_z     = 0;                // How many zeros to add
-    unsigned int ui_t     = 0;                // Temp value
+    char         s_no  [20];                  /* Temp string for number */
+    char         s_tmp [20];                  /* Temp string */
+    unsigned int ui_no    = pd_data->i_no;    /* Number to insert */
+    unsigned int ui_st    = pd_data->i_start; /* Start numbering position */
+    unsigned int ui_mx    = pd_data->i_max;   /* Max number range */
+    unsigned int ui_z     = 0;                /* How many zeros to add */
+    unsigned int ui_t     = 0;                /* Temp value */
     ProcessData  pd_data2 = { NULL, NULL, 0, 0, 0, 0, 0 };
 
     memset (s_no,  '\0', sizeof (s_no));
@@ -342,9 +342,9 @@ void
 string_to_lower (char              *s_src_dst,
                  const ProcessData *pd_data __attribute__ ((unused)))
 {
-    char         *s_tt   = NULL;   // temp string
-    const size_t  ul_max = FN_LEN; // Max string length
-    size_t        ul_len = 0;      // Length of name string
+    char         *s_tt   = NULL;   /* temp string */
+    const size_t  ul_max = FN_LEN; /* Max string length */
+    size_t        ul_len = 0;      /* Length of name string */
 
     if (g_utf8_validate (s_src_dst, -1, NULL)) {
 
@@ -370,9 +370,9 @@ void
 string_to_upper (char              *s_src_dst,
                  const ProcessData *pd_data __attribute__ ((unused)))
 {
-    char         *s_tt   = NULL;   // temp string
-    const size_t  ul_max = FN_LEN; // Max string length
-    size_t        ul_len = 0;      // Length of name string
+    char         *s_tt   = NULL;   /* temp string */
+    const size_t  ul_max = FN_LEN; /* Max string length */
+    size_t        ul_len = 0;      /* Length of name string */
 
     if (g_utf8_validate (s_src_dst, -1, NULL)) {
 
@@ -399,7 +399,7 @@ string_extract_name_ext (const char *s_name_ext,
                          char       *s_name,
                          char       *s_ext)
 {
-    const char *pn = strrchr (s_name_ext, '.'); // find first dot from right
+    const char *pn = strrchr (s_name_ext, '.'); /* find first dot from right */
 
     /* if file is hidden or has no ext copy whole src name as f_name */
     if ((pn == NULL) || (pn == s_name_ext)) {
@@ -429,13 +429,12 @@ string_combine_name_ext (char       *s_name_ext,
 
     ul_len = get_valid_length (s_name, ul_max);
 
-    if (strcmp (s_ext, "") != 0) { // extension present
-    //if (s_ext != NULL && strcmp (s_ext, "") != 0) { // extension present
+    if (strcmp (s_ext, "") != 0) { /* extension present */
 
         memcpy (s_name_ext, s_name, ul_len);
         memcpy (s_name_ext + ul_len, s_ext, ul_elen);
     }
-    else { // no extenstion
+    else { /* no extenstion */
         memcpy (s_name_ext, s_name, ul_len);
     }
     #ifdef DEBUG
@@ -452,12 +451,12 @@ string_process_filename (void          (*fun) (char*, const ProcessData*),
                          ProcessData    *pd_data,
                          const int       ne)
 {
-    char f_name [FN_LEN + 1]; // temp name
-    char f_ext  [FN_LEN + 1]; // temp extension
+    char f_name [FN_LEN + 1]; /* temp name */
+    char f_ext  [FN_LEN + 1]; /* temp extension */
 
     if (ne == 2)
-        fun (s_src_dst, pd_data); // change text in name and ext
-    else { // change text in name or ext
+        fun (s_src_dst, pd_data); /* change text in name and ext */
+    else { /* change text in name or ext */
 
         memset (f_name, '\0', sizeof (f_name));
         memset (f_ext,  '\0', sizeof (f_ext));
@@ -465,10 +464,10 @@ string_process_filename (void          (*fun) (char*, const ProcessData*),
         /* get name and ext to separate strings */
         string_extract_name_ext (s_src_dst, f_name, f_ext);
 
-        if (ne == 1) fun (f_name, pd_data); // change name only
-        if (ne == 0) fun (f_ext,  pd_data); // change ext only
-
-        string_combine_name_ext (s_src_dst, f_name, f_ext); // join name and ext
+        if (ne == 1) fun (f_name, pd_data); /* change name only */
+        if (ne == 0) fun (f_ext,  pd_data); /* change ext only */
+        /* join name and ext */
+        string_combine_name_ext (s_src_dst, f_name, f_ext);
     }
 }
 /*----------------------------------------------------------------------------*/

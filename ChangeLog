@@ -13,6 +13,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2020-01-20  Michal Babik  <michalb1981@o2.pl>
+	
+	* cres.c: New file with frunctions to create or resize dynamic array.
+	* rfnames.c: RFnames structure and functions moved here.
+	* rendata.c (rdelete_init, rinsovr_init, rreplace_init, rnumber_init):
+	  New functions with initializations moved from rendata_init.
+	* rendata.c (rendata_new): New function to create RenData item.
+	* rendata.c (rendata_free): Changed, it calls rfnames_free.
+	* sfrename.c: Removed RFiles structure and its functions and used RenData
+	  instead.
+	* sfrename.c (create_file_name_entries): Changed way of creating
+	  structures and entries.
+	* sfrename.c (file_check_and_rename): Function changed to work with
+	  files from different directory paths.
+
 2020-01-03  Michal Babik  <michalb1981@o2.pl>
 
 	* strfn.c (string_replace_in, string_insert_string,
