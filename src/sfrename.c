@@ -26,7 +26,7 @@
  *
  * @date January 20, 2020
  *
- * @version 1.1.6
+ * @version 1.1.7
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -125,8 +125,7 @@ file_names_update_changes (RenData *rd_data)
         memset (rd_data->names.s_new[i], '\0', FN_LEN+1);
 
         /* copy original name to new to process */
-        strcpy (rd_data->names.s_new[i],
-                rd_data->names.s_org[i]);
+        strcpy (rd_data->names.s_new[i], rd_data->names.s_org[i]);
 
         name_to_upcase_lowercase (rd_data, i);
         name_spaces_underscores (rd_data, i);
@@ -439,7 +438,7 @@ static void
 event_replace_from_entry_changed (GtkWidget *widget,
                                   RenData   *rd_data)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
     memset (rd_data->replace.s_from, '\0', sizeof (rd_data->replace.s_from));
     memcpy (rd_data->replace.s_from, s_en, get_valid_length (s_en, FN_LEN));
@@ -461,7 +460,7 @@ static void
 event_replace_to_entry_changed (GtkWidget *widget,
                                 RenData   *rd_data)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY(widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
     memset (rd_data->replace.s_to, '\0', sizeof (rd_data->replace.s_to));
     memcpy (rd_data->replace.s_to, s_en, get_valid_length (s_en, FN_LEN));
@@ -1016,6 +1015,7 @@ create_file_name_entries (GFile     **files,
 
         if (g_file_query_exists (files[i], NULL) &&
             strlen (s_ppath) > 1) {
+
             rfnames_add (&rd_data->names, s_ppath);
             /* Add entry to the container */
             gtk_box_pack_start (GTK_BOX (gw_entry_box),
@@ -1065,23 +1065,6 @@ create_window (GtkWidget        **window,
     g_signal_connect (G_OBJECT (*window),
             "key-press-event", G_CALLBACK (event_win_key_press), rd_data);
 }
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Application startup signal.
- *
- * @param[in,out] application  Pointer to GtkApplication
- * @param[in,out] r_files      Pointer to RFiles with all file names and
- *                             settings
- * @return        none
- */
-/*
-static void
-startup (GtkApplication *application __attribute__ ((unused)),
-         RenData        *rd_data)
-{
-    rendata_init (rd_data);
-}
-*/
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Application shutdown signal.
@@ -1233,7 +1216,6 @@ main (int argc, char **argv)
     app = gtk_application_new ("org.nongnu.SmallFileRenamer",
                                G_APPLICATION_HANDLES_OPEN);
 
-    /*g_signal_connect (app, "startup", G_CALLBACK (startup), rd_data);*/
     g_signal_connect (app, "shutdown", G_CALLBACK (shutdown), rd_data);
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
     g_signal_connect (app, "open", G_CALLBACK (open), rd_data);

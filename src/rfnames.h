@@ -73,5 +73,6 @@ void rfnames_free (RFnames    *rf_names);
 void rfnames_add  (RFnames    *rf_names,
                    const char *s_pth) __attribute__ ((nonnull (2)));
 /*----------------------------------------------------------------------------*/
+void rfnames_free2 (RFnames *rf_names);
 #endif
 

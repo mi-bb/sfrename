@@ -45,7 +45,7 @@
 #define WIN_WIDTH  600
 #define WIN_HEIGHT 800
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.1.6"
+#define APP_VER    "1.1.7"
 /*----------------------------------------------------------------------------*/
 enum {
     REN_OK,                      /**< File renamed */

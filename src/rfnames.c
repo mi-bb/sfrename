@@ -94,7 +94,10 @@ rfnames_reserve (RFnames      *rf_names,
         g_slice_free1 ( 
                 (strlen (rf_names->s_pth[rf_names->cnt]) +1) * sizeof (char),
                 rf_names->s_pth[rf_names->cnt]);
-        /*gtk_widget_destroy (rf_names->entry[rf_names->cnt]);*/
+        /*
+        if (GTK_IS_WIDGET (rf_names->entry[rf_names->cnt]))
+            gtk_widget_destroy (rf_names->entry[rf_names->cnt]);
+            */
     }
 
     cres ((void ***) &rf_names->s_org, ul_size, sizeof (char*));
@@ -159,6 +162,12 @@ rfnames_add (RFnames    *rf_names,
     printf ("   dir : %s\n", rf_names->s_pth[i]);
     printf ("  full : %s\n", s_pth);
     #endif
+}
+/*----------------------------------------------------------------------------*/
+void
+rfnames_free2 (RFnames *rf_names)
+{
+    rfnames_reserve (rf_names, 5);
 }
 /*----------------------------------------------------------------------------*/
 
