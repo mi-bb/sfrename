@@ -30,25 +30,25 @@
  * @brief  Delete chars in specified file name.
  */
 void
-name_delete_chars (RenData        *rd_data,
-                   const uint16_t  i)
+name_delete_chars (RenData             *rd_data,
+                   const uint_fast32_t  i)
 {
     ProcessData pd_data = {
         NULL,
         NULL,
-        rd_data->del.pos,
-        rd_data->del.cnt,
+        rd_data->del->pos,
+        rd_data->del->cnt,
         0,
         0,
         0
     };
 
     /* exit if no chars to delete */
-    if (rd_data->del.cnt == 0)
+    if (rd_data->del->cnt == 0)
         return;
 
     string_process_filename (string_delete_chars,
-                             rd_data->names.s_new[i],
+                             rd_data->names->rf_items[i]->s_new,
                              &pd_data,
                              rd_data->applyto);
 }
@@ -57,24 +57,24 @@ name_delete_chars (RenData        *rd_data,
  * @brief  Insert string in specified file name at some position.
  */
 void
-name_insert_string (RenData        *rd_data,
-                    const uint16_t  i)
+name_insert_string (RenData             *rd_data,
+                    const uint_fast32_t  i)
 {
     ProcessData pd_data = {
-        rd_data->ins.s_text,
+        rd_data->ins->s_text,
         NULL,
-        rd_data->ins.pos,
+        rd_data->ins->pos,
         0,
         0,
         0,
         0
     };
 
-    if (strcmp (rd_data->ins.s_text, "") == 0)
+    if (strcmp (rd_data->ins->s_text, "") == 0)
         return;
 
     string_process_filename (string_insert_string,
-                             rd_data->names.s_new[i],
+                             rd_data->names->rf_items[i]->s_new,
                              &pd_data,
                              rd_data->applyto);
 }
@@ -83,24 +83,24 @@ name_insert_string (RenData        *rd_data,
  * @brief  Overwrite string in specified file name at some position.
  */
 void
-name_overwrite_string (RenData        *rd_data,
-                       const uint16_t  i)
+name_overwrite_string (RenData             *rd_data,
+                       const uint_fast32_t  i)
 {
     ProcessData pd_data = {
-        rd_data->overwrite.s_text,
+        rd_data->ovrw->s_text,
         NULL,
-        rd_data->overwrite.pos,
+        (size_t) rd_data->ovrw->pos,
         0,
         0,
         0,
         0
     };
 
-    if (strcmp (rd_data->overwrite.s_text, "") == 0)
+    if (strcmp (rd_data->ovrw->s_text, "") == 0)
         return;
 
     string_process_filename (string_overwrite_string,
-                             rd_data->names.s_new[i],
+                             rd_data->names->rf_items[i]->s_new,
                              &pd_data,
                              rd_data->applyto);
 }
@@ -109,22 +109,22 @@ name_overwrite_string (RenData        *rd_data,
  * @brief  Number file names.
  */
 void
-name_number_string (RenData        *rd_data,
-                    const uint16_t  i)
+name_number_string (RenData             *rd_data,
+                    const uint_fast32_t  i)
 {
     ProcessData pd_data = {
         NULL,
         NULL,
-        rd_data->number.pos,
+        (size_t) rd_data->number->pos,
         0,
         i,
-        rd_data->number.start,
-        (unsigned int) rd_data->names.cnt - 1
+        rd_data->number->start,
+        rd_data->names->cnt - 1
     };
 
-    if (rd_data->number.opt) {
+    if (rd_data->number->opt) {
         string_process_filename (string_add_number,
-                                 rd_data->names.s_new[i],
+                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rd_data->applyto);
     }
@@ -134,15 +134,15 @@ name_number_string (RenData        *rd_data,
  * @brief  Change specified file name to upcase or lowercase.
  */
 void
-name_to_upcase_lowercase (RenData        *rd_data,
-                          const uint16_t  i)
+name_to_upcase_lowercase (RenData             *rd_data,
+                          const uint_fast32_t  i)
 {
     ProcessData pd_data = { NULL, NULL, 0, 0, 0, 0, 0 };
 
     /* to uppercase */
     if (rd_data->uplo == 0) {
         string_process_filename (string_to_upper,
-                                 rd_data->names.s_new[i],
+                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rd_data->applyto);
     }
@@ -150,7 +150,7 @@ name_to_upcase_lowercase (RenData        *rd_data,
     /* to lowercase */
     if (rd_data->uplo == 1) {
         string_process_filename (string_to_lower,
-                                 rd_data->names.s_new[i],
+                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rd_data->applyto);
     }
@@ -161,14 +161,14 @@ name_to_upcase_lowercase (RenData        *rd_data,
  *         other.
  */
 void
-name_spaces_underscores (RenData        *rd_data,
-                         const uint16_t  i)
+name_spaces_underscores (RenData             *rd_data,
+                         const uint_fast32_t  i)
 {
     /* underscores to spaces */
     if (rd_data->spaces == 0) {
         ProcessData pd_data = { "_", " ", 0, 0, 0, 0, 0 };
         string_process_filename (string_replace_in,
-                                 rd_data->names.s_new[i],
+                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rd_data->applyto);
     }
@@ -176,7 +176,7 @@ name_spaces_underscores (RenData        *rd_data,
     if (rd_data->spaces == 1) {
         ProcessData pd_data = { " ", "_", 0, 0, 0, 0, 0 };
         string_process_filename (string_replace_in,
-                                 rd_data->names.s_new[i],
+                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rd_data->applyto);
     }
@@ -187,12 +187,12 @@ name_spaces_underscores (RenData        *rd_data,
  *         If "replace from" string is not empty, perform string replace.
  */
 void
-name_replace_strings (RenData        *rd_data,
-                      const uint16_t  i)
+name_replace_strings (RenData             *rd_data,
+                      const uint_fast32_t  i)
 {
     ProcessData pd_data = {
-        rd_data->replace.s_from,
-        rd_data->replace.s_to,
+        rd_data->replace->s_from,
+        rd_data->replace->s_to,
         0,
         0,
         0,
@@ -200,9 +200,9 @@ name_replace_strings (RenData        *rd_data,
         0
     };
 
-    if (strcmp (rd_data->replace.s_from, "") != 0) {
+    if (strcmp (rd_data->replace->s_from, "") != 0) {
         string_process_filename (string_replace_in,
-                                 rd_data->names.s_new[i],
+                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rd_data->applyto);
     }

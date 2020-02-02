@@ -36,8 +36,8 @@
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_delete_chars        (RenData        *rd_data,
-                               const uint16_t  i);
+void name_delete_chars        (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string in specified file name at some position.
@@ -48,8 +48,8 @@ void name_delete_chars        (RenData        *rd_data,
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_insert_string       (RenData        *rd_data,
-                               const uint16_t  i);
+void name_insert_string       (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Overwrite string in specified file name at some position.
@@ -60,8 +60,8 @@ void name_insert_string       (RenData        *rd_data,
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_overwrite_string    (RenData        *rd_data,
-                               const uint16_t  i);
+void name_overwrite_string    (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Number file names.
@@ -72,8 +72,8 @@ void name_overwrite_string    (RenData        *rd_data,
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_number_string       (RenData        *rd_data,
-                               const uint16_t  i);
+void name_number_string       (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Change specified file name to upcase or lowercase.
@@ -82,8 +82,8 @@ void name_number_string       (RenData        *rd_data,
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_to_upcase_lowercase (RenData        *rd_data,
-                               const uint16_t  i);
+void name_to_upcase_lowercase (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Replace spaces to underscores or vice versa in specified file name to
@@ -93,8 +93,8 @@ void name_to_upcase_lowercase (RenData        *rd_data,
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_spaces_underscores  (RenData        *rd_data,
-                               const uint16_t  i);
+void name_spaces_underscores  (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Replace string in specified file name to other.
@@ -104,8 +104,8 @@ void name_spaces_underscores  (RenData        *rd_data,
  * @param[in]     i       Index of file name to change
  * @return        none
  */
-void name_replace_strings     (RenData        *rd_data,
-                               const uint16_t  i);
+void name_replace_strings     (RenData             *rd_data,
+                               const uint_fast32_t  i);
 /*----------------------------------------------------------------------------*/
 #endif
 

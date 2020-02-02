@@ -21,96 +21,86 @@
  * 
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
+#include <stdint.h>
 #include "defs.h"
-#include "cres.h"
 #include "rfnames.h"
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  static const char * get_name_dir_len (const char   *s_pth,
-                                              size_t       *ul_len)
- * @brief      Get file name pointer and length of directory string in given
- *             file path.
- * @param[in]  s_pth   Input file path
- * @param[out] ul_len  Output for directory string length
- * @return     Pointer to file name in path
- *
- * @fn  static void rfnames_reserve  (RFnames      *rf_names,
-                                      const size_t  ul_size)
- * @brief      Reserve space for file names, entries in RFnames object.
- * @param[out] rf_names  RFnames item to operate
- * @param[in]  ul_size   Size to reserve
+ * @brief      RFnames initialization.
+ * @param[out] rf_names Pointer to RFnames object
  * @return     none
  */
+static void rfnames_init (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/
-static const char * get_name_dir_len (const char   *s_pth,
-                                      size_t       *ul_len);
-
-static void         rfnames_reserve  (RFnames      *rf_names,
-                                      const size_t  ul_size);
+/**
+ * @brief      Append RFitem object to RFnames.
+ * @param[out] rf_names Pointer to RFnames object
+ * @param[in]  rf_item RFitem object to add
+ * @return     none
+ */
+static void rfnames_append (RFnames *rf_names,
+                            RFitem  *rf_item);
 /*----------------------------------------------------------------------------*/
-static const char *
-get_name_dir_len (const char *s_pth,
-                  size_t     *ul_len)
-{
-    const char *s_fn = strrchr (s_pth, '/');
-    if (s_fn == NULL) {
-        *ul_len = 0;
-        s_fn = s_pth;
-    }
-    else {
-        s_fn++;
-        *ul_len = (size_t) (s_fn - s_pth);
-    }
-    return s_fn;
-}
+/**
+ * @brief      Delete RFitem object from RFnames list at given position.
+ * @param[out] rf_names Pointer to RFnames object
+ * @param[in]  ui_pos   Position of RFitem to delete
+ * @return     none
+ */
+static void rfnames_delete_at_pos (RFnames             *rf_names,
+                                   const uint_fast32_t  ui_pos);
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief      Delete item from file list clicked.
+ * @param[in]  widget   The object which received the signal
+ * @param[out] rf_names Pointer to RFnames object
+ * @return     none
+ */
+static void event_click_del (GtkWidget *widget,
+                             RFnames   *rf_names);
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief      Select all check items on list.
+ * @param[out] rf_names Pointer to RFnames object
+ * @return     none
+ */
+static void rfnames_select_all (RFnames *rf_names);
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief      Unselect all check items on list.
+ * @param[out] rf_names Pointer to RFnames object
+ * @return     none
+ */
+static void rfnames_unselect_all (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RFnames initialization.
  */
-void
+static void
 rfnames_init (RFnames *rf_names)
 {
-    rf_names->cnt   = 0;    /* names count */
-    rf_names->s_org = NULL; /* org names list */
-    rf_names->s_new = NULL; /* new names list */
-    rf_names->s_pth = NULL; /* file paths */
-    rf_names->entry = NULL; /* entry objects */
+    rf_names->cnt      = 0;    /* names count */
+    rf_names->rf_items = NULL; /* item list */
+    rf_names->file_box = NULL; /* box with widgets */
 }
 /*----------------------------------------------------------------------------*/
-static void
-rfnames_reserve (RFnames      *rf_names,
-                 const size_t  ul_size)
+/**
+ * @brief  Create new RFnames object.
+ */
+RFnames *
+rfnames_new (void)
 {
-    /* No need to resize */
-    if (rf_names->cnt == ul_size)
-        return;
+    RFnames *rf_names = NULL;
 
-    /* if larger free rest */
-    while (ul_size < rf_names->cnt) {
-        g_slice_free1 ( (FN_LEN+1) * sizeof (char),
-                        rf_names->s_new[--rf_names->cnt]);
-        g_slice_free1 ( (FN_LEN+1) * sizeof (char),
-                        rf_names->s_org[rf_names->cnt]);
-        g_slice_free1 ( 
-                (strlen (rf_names->s_pth[rf_names->cnt]) +1) * sizeof (char),
-                rf_names->s_pth[rf_names->cnt]);
-        /*
-        if (GTK_IS_WIDGET (rf_names->entry[rf_names->cnt]))
-            gtk_widget_destroy (rf_names->entry[rf_names->cnt]);
-            */
+    rf_names = malloc (sizeof (RFnames));
+
+    if (rf_names == NULL) {
+        fputs ("Alloc error\n", stderr);
+        exit (EXIT_FAILURE);
     }
+    rfnames_init (rf_names);
 
-    cres ((void ***) &rf_names->s_org, ul_size, sizeof (char*));
-    cres ((void ***) &rf_names->s_new, ul_size, sizeof (char*));
-    cres ((void ***) &rf_names->s_pth, ul_size, sizeof (char*));
-    cres ((void ***) &rf_names->entry, ul_size, sizeof (GtkWidget*));
-
-    if (ul_size == 0) {
-        rfnames_init (rf_names);
-    }
-
-    /* Update file list count */
-    rf_names->cnt = ul_size;
+    return rf_names;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -119,55 +109,407 @@ rfnames_reserve (RFnames      *rf_names,
 void
 rfnames_free (RFnames *rf_names)
 {
-    rfnames_reserve (rf_names, 0);
+    while (rf_names->cnt--) {
+        rfitem_free (rf_names->rf_items[rf_names->cnt]);
+    }
+    free (rf_names);
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Add file to RFnames.
+ * @brief  Append RFitem object to RFnames.
+ */
+static void
+rfnames_append (RFnames *rf_names,
+                RFitem  *rf_item)
+{
+    RFitem **rf_tmp = NULL;
+    /* Malloc if null, realloc if not null */
+    if (rf_names->rf_items == NULL) {
+        rf_names->rf_items = malloc (sizeof (RFitem*));
+    }
+    else {
+        rf_tmp = realloc (rf_names->rf_items,
+                          (rf_names->cnt + 1) * sizeof (RFitem*));
+        if (rf_tmp == NULL) {
+            for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+                rfitem_free (rf_names->rf_items[i]);
+            }
+            free (rf_names->rf_items);
+            fputs ("Alloc error\n", stderr);
+            exit (EXIT_FAILURE);
+        }
+        else {
+            rf_names->rf_items = rf_tmp;
+        }
+    }
+    rf_names->rf_items[rf_names->cnt++] = rf_item;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Delete RFitem object from RFnames list at given position.
+ */
+static void
+rfnames_delete_at_pos (RFnames             *rf_names,
+                       const uint_fast32_t  ui_pos)
+{
+    RFitem    **rf_tmp = NULL;
+    GtkWidget  *gw_ibox;
+    GtkBox     *gb_pbox;
+
+    if (ui_pos >= rf_names->cnt || rf_names->cnt == 0)
+        return;
+
+    /* Get item box and parent list box */
+    gw_ibox = rf_names->rf_items[ui_pos]->box;
+    gb_pbox = GTK_BOX (gtk_widget_get_parent (gw_ibox));
+
+    rfitem_delete (rf_names->rf_items[ui_pos]);
+
+    rf_names->cnt -= 1;
+
+    /* Reorder items on the list and on the box widget */
+    for (uint_fast32_t i = ui_pos; i < rf_names->cnt; ++i) {
+        rf_names->rf_items[i] = rf_names->rf_items[i+1];
+        gw_ibox = rf_names->rf_items[i]->box;
+        gtk_box_reorder_child (gb_pbox, gw_ibox, (gint) i);
+    }
+
+    if (rf_names->cnt == 0) {
+        rf_names->rf_items = NULL;
+        return;
+    }
+
+    rf_tmp = realloc (rf_names->rf_items, (rf_names->cnt) * sizeof (RFitem*));
+    if (rf_tmp == NULL) {
+        for (uint_fast32_t i = 0; i < rf_names->cnt+1; ++i) {
+            rfitem_free (rf_names->rf_items[i]);
+        }
+        free (rf_names->rf_items);
+        fputs ("Alloc error\n", stderr);
+        exit (EXIT_FAILURE);
+    }
+    else {
+        rf_names->rf_items = rf_tmp;
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Delete item from file list clicked.
+ */
+static void
+event_click_del (GtkWidget *widget,
+                 RFnames   *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (rf_names->rf_items[i]->dbut == widget) {
+            rfnames_delete_at_pos (rf_names, i);
+            break;
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Append file to RFnames.
+ */
+GtkWidget *
+rfnames_append_gfile (RFnames *rf_names,
+                      GFile   *g_file)
+{
+    RFitem *rf_item;
+   
+    rf_item = rfitem_new_from_gfile (g_file);
+    rfnames_append (rf_names, rf_item);
+
+    g_signal_connect (G_OBJECT (rf_item->dbut), "clicked",
+                      G_CALLBACK (event_click_del), rf_names);
+
+    return rf_item->box;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Create new RFitem object using data from gfile item and add it
+ *         to RFnames item.
  */
 void
-rfnames_add (RFnames    *rf_names,
-             const char *s_pth)
+rfnames_add_gfile_to_file_box (RFnames *rf_names,
+                               GFile   *g_file)
 {
-    size_t      ul_len = 0;
-    size_t      i      = rf_names->cnt;
-    const char *s_fn   = get_name_dir_len (s_pth, &ul_len);
-
-    /* Resize file list by one */
-    rfnames_reserve (rf_names, rf_names->cnt + 1);
-
-    /* Allocate memory for original and new file name strings */
-    rf_names->s_org[i] = g_slice_alloc0 ( (FN_LEN + 1) * sizeof (char));
-    rf_names->s_new[i] = g_slice_alloc0 ( (FN_LEN + 1) * sizeof (char));
-    rf_names->s_pth[i] = g_slice_alloc0 ( (ul_len + 1) * sizeof (char));
-
-    /* Create entry and set max length to defined file name length */
-    rf_names->entry[i] = gtk_entry_new ();
-
-    gtk_entry_set_max_length (GTK_ENTRY (rf_names->entry[i]), FN_LEN);
-    /* Set entry file names */
-    gtk_entry_set_text (GTK_ENTRY (rf_names->entry[i]), s_fn);
-
-    /* Set full path as a tooltip */
-    gtk_widget_set_tooltip_text (rf_names->entry[i], s_pth);
-
-    /* Copy verified file names to original and new file name string */
-    strncpy (rf_names->s_org[i], s_fn, FN_LEN);
-    strncpy (rf_names->s_new[i], s_fn, FN_LEN);
-    rf_names->s_org[i][FN_LEN] = '\0';
-    rf_names->s_new[i][FN_LEN] = '\0';
-    memcpy (rf_names->s_pth[i], s_pth, ul_len);
-    #ifdef DEBUG
-    printf ("loaded : %s\n", rf_names->s_org[i]);
-    printf ("   dir : %s\n", rf_names->s_pth[i]);
-    printf ("  full : %s\n", s_pth);
-    #endif
+    /* Create and append file widgets (entry, check, buttons) to file
+     * list, get box widget with them */
+    GtkWidget *gw_widget = rfnames_append_gfile (rf_names, g_file);
+    gtk_widget_show_all (gw_widget);
+    /* Add box to the container */
+    gtk_box_pack_start (
+            GTK_BOX (rf_names->file_box),
+            gw_widget,
+            FALSE, FALSE, 0);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Create new RFitem object using data from s_fn string and add it
+ *         to RFnames item.
+ */
 void
-rfnames_free2 (RFnames *rf_names)
+rfnames_add_sfile_to_file_box (RFnames    *rf_names,
+                               const char *s_fn)
 {
-    rfnames_reserve (rf_names, 5);
+    GFile *g_file = g_file_new_for_path (s_fn);
+    rfnames_add_gfile_to_file_box (rf_names, g_file);
+    g_object_unref (g_file);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get length of rf_items list
+ */
+uint_fast32_t
+rfnames_get_cnt (const RFnames *rf_names)
+{
+    return rf_names->cnt;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select all check items on list.
+ */
+static void
+rfnames_select_all (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        rfitem_set_checked (rf_names->rf_items[i], TRUE);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Unselect all check items on list.
+ */
+static void
+rfnames_unselect_all (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        rfitem_set_checked (rf_names->rf_items[i], FALSE);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select or unselect all check items on list.
+ */
+void
+rfnames_select_unselect_all (RFnames *rf_names)
+{
+    gboolean      b_sel = TRUE;
+    uint_fast32_t i     = rf_names->cnt;
+
+    while (i-- && (b_sel = rfitem_get_checked (rf_names->rf_items[i])));
+
+    if (b_sel) {
+        rfnames_unselect_all (rf_names);
+    }
+    else {
+        rfnames_select_all (rf_names);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select all items with file type on list.
+ */
+void
+rfnames_select_files (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_REGULAR) {
+            rfitem_set_checked (rf_names->rf_items[i], TRUE);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select all items with folder type on list.
+ */
+void
+rfnames_select_folders (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
+            rfitem_set_checked (rf_names->rf_items[i], TRUE);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select all items with symlink type on list.
+ */
+void
+rfnames_select_symlinks (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (rf_names->rf_items[i]->b_slink) {
+            rfitem_set_checked (rf_names->rf_items[i], TRUE);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select all items with hidden type on list.
+ */
+void
+rfnames_select_hidden (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (rf_names->rf_items[i]->b_hidden) {
+            rfitem_set_checked (rf_names->rf_items[i], TRUE);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Invert selection of items on list.
+ */
+void
+rfnames_select_invert (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        rfitem_invert_checked (rf_names->rf_items[i]);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove selected items from list.
+ */
+void
+rfnames_remove_selected (RFnames *rf_names)
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (rfitem_get_checked (rf_names->rf_items[i])) {
+            rfnames_delete_at_pos (rf_names, i);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove all items from list.
+ */
+void
+rfnames_remove_all (RFnames *rf_names)
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        rfnames_delete_at_pos (rf_names, i);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove all files from list.
+ */
+void
+rfnames_remove_all_files (RFnames *rf_names)
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_REGULAR) {
+            rfnames_delete_at_pos (rf_names, i);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove all folders from list.
+ */
+void
+rfnames_remove_all_folders (RFnames *rf_names)
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
+            rfnames_delete_at_pos (rf_names, i);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove all symlinks from list.
+ */
+void
+rfnames_remove_all_symlinks (RFnames *rf_names)
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (rf_names->rf_items[i]->b_slink) {
+            rfnames_delete_at_pos (rf_names, i);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove all hidden files/folders from list.
+ */
+void
+rfnames_remove_all_hidden (RFnames *rf_names)
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (rf_names->rf_items[i]->b_hidden) {
+            rfnames_delete_at_pos (rf_names, i);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name in selected RFitem objects on list.
+ */
+void
+rfnames_restore_selected (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (rfitem_get_checked (rf_names->rf_items[i])) {
+            rfitem_entry_restore (rf_names->rf_items[i]);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name in all RFitem objects on list.
+ */
+void
+rfnames_restore_all (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        rfitem_entry_restore (rf_names->rf_items[i]);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Sort RFitem objects in RFnames list by the original path string.
+ */
+void
+rfnames_sort (RFnames *rf_names)
+{
+    GtkBox *gb_pbox;
+    GList  *gl_items  = NULL;
+    GList  *gl_items1 = NULL;
+    int     j         = 0;
+
+    if (rf_names->cnt == 0)
+        return;
+
+    gb_pbox = GTK_BOX (gtk_widget_get_parent (rf_names->rf_items[0]->box));
+
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        gl_items = g_list_append (gl_items, rf_names->rf_items[i]);
+    }
+    gl_items = g_list_sort (gl_items, (GCompareFunc) rfitem_compare);
+
+    gl_items1 = gl_items;
+
+    while (gl_items1 != NULL) {
+        RFitem *rf_item = gl_items1->data;
+        gtk_box_reorder_child (gb_pbox, rf_item->box, j);
+        rf_names->rf_items[j] = rf_item;
+        gl_items1 = gl_items1->next;
+        ++j;
+    }
+    g_list_free (gl_items);
+    g_list_free (gl_items1);
+}
+/*----------------------------------------------------------------------------*/
+
 

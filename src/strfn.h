@@ -25,6 +25,7 @@
 #define STRFN_H
 
 #include <stddef.h>
+#include <stdint.h>
 /*----------------------------------------------------------------------------*/
 /**
  * @struct ProcessData
@@ -36,10 +37,10 @@
  * @var   ProcessData::s_str2
  * @brief Input string
  *
- * @var   ProcessData::ul_pos
+ * @var   ProcessData::ui_pos
  * @brief Position to insert/overwrite/delete
  *
- * @var   ProcessData::ul_cnt
+ * @var   ProcessData::ui_cnt
  * @brief Character count
  *
  * @var   ProcessData::i_no
@@ -53,13 +54,13 @@
  */ 
 typedef struct
 ProcessData {
-    const char   *s_str1;        /* Input string */
-    const char   *s_str2;        /* Input string */
-    size_t        ul_pos;        /* Position to insert/overwrite/delete */
-    size_t        ul_cnt;        /* Character count */
-    unsigned int  i_no;          /* Number */
-    unsigned int  i_start;       /* Start numbering value */
-    unsigned int  i_max;         /* Maximum numbering range */
+    const char    *s_str1;        /* Input string */
+    const char    *s_str2;        /* Input string */
+    size_t         ui_pos;        /* Position to insert/overwrite/delete */
+    size_t         ui_cnt;        /* Character count */
+    uint_fast32_t  i_no;          /* Number */
+    uint_fast32_t  i_start;       /* Start numbering value */
+    uint_fast32_t  i_max;         /* Maximum numbering range */
 } ProcessData;
 /*----------------------------------------------------------------------------*/
 /**
@@ -72,11 +73,11 @@ ProcessData {
  *  Utf8 chars can be multi byte and you can cut it in half with a simple split.
  *
  * @param[in] s_str   Input string
- * @param[in] ul_max  Maximum possible bytes of length
+ * @param[in] ui_max  Maximum possible bytes of length
  * @return    Length in bytes of correct chars up to ui_max value
  */
 size_t get_valid_length        (const char         *s_str,
-                                const size_t        ul_max)
+                                const size_t        ui_max)
                                 __attribute__ ((pure, nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /** 
@@ -207,11 +208,11 @@ void   string_combine_name_ext (char         *s_name_ext,
  * @param[in]     ne        Value tells to change file name, ext or both
  * @return        none
  */
-void   string_process_filename (void        (*fun) (char*, const ProcessData*),
-                                char         *s_src_dst,
-                                ProcessData  *pd_data,
-                                const int     ne)
-                                __attribute__ ((nonnull (2)));
+void string_process_filename (void           (*fun) (char*, const ProcessData*),
+                              char              *s_src_dst,
+                              const ProcessData *pd_data,
+                              const int8_t       ne)
+                              __attribute__ ((nonnull (2)));
 /*----------------------------------------------------------------------------*/
 #endif
 

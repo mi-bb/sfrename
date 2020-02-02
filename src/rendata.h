@@ -24,12 +24,14 @@
 #ifndef RENDATA_H
 #define RENDATA_H
 
+#include <gtk/gtk.h>
 #include <stdint.h>
 #include "rfnames.h"
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
 /**
  * @struct RDelete
+ *
  * @brief  Delete text in name string settings
  *
  * @var   RDelete::cnt
@@ -46,6 +48,7 @@ RDelete {
 /*----------------------------------------------------------------------------*/
 /**
  * @struct RInsOvr
+ *
  * @brief  Insert / Overwrite text in name settings
  *
  * @var   RInsOvr::s_text
@@ -62,6 +65,7 @@ RInsOvr {
 /*----------------------------------------------------------------------------*/
 /**
  * @struct RReplace
+ *
  * @brief  Replace strings in name settings
  *
  * @var   RReplace::s_from
@@ -78,10 +82,14 @@ RReplace {
 /*----------------------------------------------------------------------------*/
 /**
  * @struct RNumber
+ *
  * @brief  Number names settigns
  *
  * @var   RNumber::opt
  * @brief If opt is 0 numbering is disabled, if opt is not 0 it is enabled
+ *
+ * @var   RNumber::no
+ * @brief Number to insert
  *
  * @var   RNumber::start
  * @brief Start numbering from value start
@@ -91,9 +99,9 @@ RReplace {
  */
 typedef struct
 RNumber {
-    uint8_t   opt;
-    uint32_t  start;
-    uint8_t   pos;
+    int8_t        opt;
+    uint_fast32_t start;
+    uint8_t       pos;
 } RNumber;
 /*----------------------------------------------------------------------------*/
 /** 
@@ -111,7 +119,7 @@ RNumber {
  * @brief Delete chars properties
  * @var   RenData::ins
  * @brief Insert text properties
- * @var   RenData::overwrite
+ * @var   RenData::ovrw
  * @brief Overwrite text properties
  * @var   RenData::replace
  * @brief Replace string with string settings
@@ -128,24 +136,19 @@ RNumber {
  */ 
 typedef struct
 RenData {
-    RFnames   names;           /* File names, old, new, entries */
-    RDelete   del;             /* Delete chars properties */
-    RInsOvr   ins;             /* Insert text properties */
-    RInsOvr   overwrite;       /* Overwrite text properties */
-    RReplace  replace;         /* Replace string with string settings */
-    RNumber   number;          /* Numbering names settings */
-    int8_t    uplo;            /* Upper/lower case option */
-    int8_t    spaces;          /* Spaces/underscores option */
-    int8_t    applyto;         /* Apply to file names/ext or both option */
-    int8_t    renexit;         /* Exit after rename option */
+    RFnames   *names;    /* File names, old, new, entries */
+    RDelete   *del;      /* Delete chars properties */
+    RInsOvr   *ins;      /* Insert text properties */
+    RInsOvr   *ovrw;     /* Overwrite text properties */
+    RReplace  *replace;  /* Replace string with string settings */
+    RNumber   *number;   /* Numbering names settings */
+    int8_t     uplo;     /* Upper/lower case option */
+    int8_t     spaces;   /* Spaces/underscores option */
+    int8_t     applyto;  /* Apply to file names/ext or both option */
+    int8_t     renexit;  /* Exit after rename option */
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         void rendata_init (RenData *rd_data)
- * @brief      RenData initialization.
- * @param[out] rd_data Pointer to RenData object
- * @return     none
- *
  * @fn     RenData *rendata_new (void)
  * @brief  Create and return new RenData item.
  * @return RenData item
@@ -156,11 +159,17 @@ RenData {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void      rendata_init (RenData *rd_data);
-
-RenData * rendata_new  (void) __attribute__ ((malloc, returns_nonnull));
+RenData * rendata_new  (void) __attribute__ ((returns_nonnull));
 
 void      rendata_free (RenData *rd_data);
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get names object with file list.
+ *
+ * @param[in] rd_data RenData object with RFnames list
+ * @return    RFnames item
+ */
+RFnames * rendata_get_names (const RenData *rd_data) __attribute__ ((pure));
 /*----------------------------------------------------------------------------*/
 #endif
 

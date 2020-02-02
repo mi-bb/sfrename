@@ -1,5 +1,5 @@
 /**
- * @file  defs.h
+ * @file  dlgs.h
  * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -17,42 +17,44 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  Defines
- *
+ * @brief  Application dialogs
+ * 
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-#ifndef DEFS_H
-#define DEFS_H
+#ifndef DLGS_H
+#define DLGS_H
+
+#define FOLDER_SELECT_FILES      1
+#define FOLDER_SELECT_FOLDERS    2
+#define FOLDER_SELECT_SYMLINKS   4
+#define FOLDER_SELECT_HIDDEN     8
+#define FOLDER_SCAN_RECURSIVELY  16
+
+#include <gtk/gtk.h>
 /*----------------------------------------------------------------------------*/
 /**
- * @def   FN_LEN
- * @brief Maximum chars in file name string
+ * @fn  char * add_files_folder_dialog (GtkWindow *gw_parent)
+ * @brief     Select folder dialog.
+ * @param[in] gw_parent  Dialog parent widget
+ * @return    Foler path or NULL.
  *
- * @def   WIN_WIDTH
- * @brief Application window width
+ * @fn  GSList * add_files_dialog (GtkWindow *gw_parent)
+ * @brief     Select files dialog.
+ * @param[in] gw_parent  Dialog parent widget
+ * @return    List with files.
  *
- * @def   WIN_HEIGHT
- * @brief Application window height
- *
- * @def   APP_NAME
- * @brief Application name string
- *
- * @def   APP_VER
- * @brief Application version string
+ * @fn  void about_app_dialog (void);
+ * @brief     Dialog with information about application.
+ * @param[in] data  Unused pointer for event call
+ * @return    none
  */
-#define FN_LEN     255
-#define WIN_WIDTH  600
-#define WIN_HEIGHT 800
-#define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.2.0"
-#define APP_WEB    "http://www.nongnu.org/small-file-renamer/"
 /*----------------------------------------------------------------------------*/
-enum {
-    REN_OK,                      /**< File renamed */
-    REN_NOT_REN,                 /**< Could not rename */
-    REN_EXISTS,                  /**< File already exists */
-    REN_NC                       /**< No change */
-};
+char   * add_files_folder_dialog (GtkWindow  *gw_parent,
+                                  int        *i_opt);
+
+GSList * add_files_dialog        (GtkWindow  *gw_parent);
+
+void     about_app_dialog        (gpointer data);
 /*----------------------------------------------------------------------------*/
 #endif
 

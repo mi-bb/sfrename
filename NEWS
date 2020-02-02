@@ -14,6 +14,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ----------------------------------------------------------------------
+v1.2.0                                                      2020-02-02
+
+    * Toolbar with buttons to add, select, remove files.
+    * Program can be run without files as arguments.
+    * Checkboxes to select files to apply changes.
+    * Labels with file type.
+    * Buttons for item to restore original name and delete item.
+    * Source code updates.
+
+----------------------------------------------------------------------
 v1.1.7                                                      2020-01-20
 
     * Available renaming files from different directories.

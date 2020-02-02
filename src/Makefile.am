@@ -17,9 +17,10 @@ bin_PROGRAMS = sfrename
 sfrename_SOURCES = sfrename.c\
                    rendata.c rendata.h\
                    rfnames.c rfnames.h\
+                   rfitem.c rfitem.h\
                    namefn.c namefn.h\
                    strfn.c strfn.h\
-                   cres.c cres.h\
+                   dlgs.c dlgs.h\
                    defs.h
 
 sfrename_CFLAGS = $(GTK_CFLAGS) -DG_DISABLE_DEPRECATED
