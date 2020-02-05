@@ -1,5 +1,5 @@
 /**
- * @file  defs.h
+ * @file  imgs.h
  * @copyright Copyright (C) 2019-2020 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -17,43 +17,36 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  Defines
- *
+ * @brief  Application graphics
+ * 
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-#ifndef DEFS_H
-#define DEFS_H
+#ifndef IMGS_H
+#define IMGS_H
+#include <gdk-pixbuf/gdk-pixbuf.h>
 /*----------------------------------------------------------------------------*/
 /**
- * @def   FN_LEN
- * @brief Maximum chars in file name string
- *
- * @def   WIN_WIDTH
- * @brief Application window width
- *
- * @def   WIN_HEIGHT
- * @brief Application window height
- *
- * @def   APP_NAME
- * @brief Application name string
- *
- * @def   APP_VER
- * @brief Application version string
+ * @brief  enum for icons and images
  */
-#define FN_LEN     255
-#define WIN_WIDTH  600
-#define WIN_HEIGHT 800
-#define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.2.1"
-#define APP_WEB    "http://www.nongnu.org/small-file-renamer/"
-#define APP_DSC    "Program for renaming files and directories."
+typedef enum IconImg {
+    W_ICON_ADD,      /**< Add images icon */
+    W_ICON_ADD_DIR,  /**< Add images from directory icon*/
+    W_ICON_REMOVE,   /**< Remove images from list icon */
+    W_ICON_REVERT,   /**< Restore original names icon */
+    W_ICON_SORT,     /**< Sort wallpapers on list icon */
+    W_ICON_SELECT,   /**< Select icon */
+    W_ICON_DUPL,     /**< Remove duplicates icon */
+    W_ICON_INFO,     /**< Info about application icon */
+    W_ICON_ABOUT,    /**< About app dialog image */
+    W_ICON_COUNT     /**< Number of enum items */
+} IconImg;
 /*----------------------------------------------------------------------------*/
-enum {
-    REN_OK,                      /**< File renamed */
-    REN_NOT_REN,                 /**< Could not rename */
-    REN_EXISTS,                  /**< File already exists */
-    REN_NC                       /**< No change */
-};
+/**
+ * @brief  Get image from stored data.
+ *
+ * @param[in]  i_img  Image number
+ * @return     Pixbuf with image
+ */
+GdkPixbuf *get_image (const IconImg i_img);
 /*----------------------------------------------------------------------------*/
 #endif
-

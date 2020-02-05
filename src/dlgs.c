@@ -143,8 +143,7 @@ about_app_dialog (gpointer data __attribute__ ((unused)))
     gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (gw_dialog), 
             "Copyright (C) 2019-2020 Michal Babik");
 
-    gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (gw_dialog),
-            "Program for renaming files and directories.");
+    gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (gw_dialog), APP_DSC);
     gtk_about_dialog_set_license_type (GTK_ABOUT_DIALOG (gw_dialog),
                                        GTK_LICENSE_GPL_3_0);
 

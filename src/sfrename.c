@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date January 20, 2020
+ * @date February 5, 2020
  *
- * @version 1.2.0
+ * @version 1.2.1
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -43,6 +43,7 @@
 #include "rfnames.h"
 #include "rfitem.h"
 #include "namefn.h"
+#include "imgs.h"
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -724,6 +725,57 @@ event_click_add_folder_files (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Create button with icon/label/hint.
+ *
+ * @param[in] s_label  Button label
+ * @param[in] s_hint   Button hint
+ * @param[in] i_but    Icon number
+ * @return    Button
+ */
+static GtkWidget *
+create_image_widget (//const char   *s_label,
+                     //const char   *s_hint,
+                     const IconImg i_but)
+{
+    GtkWidget *gw_img = NULL;
+    GdkPixbuf *gd_pix = NULL;
+
+    if (i_but < W_ICON_COUNT) {
+        gd_pix = get_image (i_but);
+        if (gd_pix != NULL) {
+            gw_img = gtk_image_new_from_pixbuf (gd_pix);
+            g_object_unref (gd_pix);
+        }
+    }
+    return gw_img;
+}
+/*----------------------------------------------------------------------------*/
+static GtkWidget *
+create_img_menu_item (const char    *s_label,
+                      const char    *s_hint,
+                      const IconImg  i_but)
+{
+    GtkWidget *gw_item = gtk_menu_item_new ();
+    GtkWidget *gw_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget *gw_img = NULL;
+
+    gw_img = create_image_widget (i_but);
+    if (gw_img != NULL) {
+        gtk_box_pack_start (GTK_BOX (gw_box), gw_img, FALSE, FALSE, 4);
+    }
+    if (s_label != NULL && strcmp (s_label, "") != 0) {
+        GtkWidget *gw_lab = gtk_label_new (s_label);
+        //gtk_container_add (GTK_CONTAINER (gw_box), gw_lab);
+        gtk_box_pack_start (GTK_BOX (gw_box), gw_lab, FALSE, FALSE, 4);
+    }
+    if (s_hint != NULL && strcmp (s_hint, "") != 0) {
+        gtk_widget_set_tooltip_text (gw_item, s_hint);
+    }
+    gtk_container_add (GTK_CONTAINER (gw_item), gw_box);
+    return gw_item;
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Creates upcase / lowercase container.
  *
  * @param[out]    gw_container Pointer to container
@@ -1118,7 +1170,6 @@ static void
 create_toolbar (GtkWidget **gw_container,
                 RenData    *rd_data)
 {
-    GtkToolItem *ti_button;
     GtkToolItem *ti_menu_button;
     GtkWidget   *gw_menu;
     GtkWidget   *menu_item;
@@ -1126,14 +1177,17 @@ create_toolbar (GtkWidget **gw_container,
     *gw_container = gtk_toolbar_new ();
 
     /* Creating ADD button with menu */
-    ti_menu_button = gtk_menu_tool_button_new (NULL, "ADD");
+    ti_menu_button = gtk_menu_tool_button_new (
+            create_image_widget (W_ICON_ADD), "ADD");
     gtk_tool_item_set_tooltip_text (ti_menu_button, "Add files");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
     g_signal_connect_swapped (ti_menu_button, "clicked",
             G_CALLBACK (event_click_add_files), rd_data->names);
     /* Menu for ADD button */
     gw_menu = gtk_menu_new ();
-    menu_item = gtk_menu_item_new_with_label ("Add files from directory");
+    menu_item = create_img_menu_item ("Add files from directory",
+                                      NULL,
+                                      W_ICON_ADD_DIR);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (event_click_add_folder_files), rd_data->names);
@@ -1143,7 +1197,8 @@ create_toolbar (GtkWidget **gw_container,
     gtk_widget_show_all (gw_menu);
 
     /* SEL button with menu */
-    ti_menu_button = gtk_menu_tool_button_new (NULL, "SEL");
+    ti_menu_button = gtk_menu_tool_button_new (
+            create_image_widget (W_ICON_SELECT), "SEL");
     gtk_tool_item_set_tooltip_text (ti_menu_button, "Select / unselect all");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
     g_signal_connect_swapped (ti_menu_button, "clicked",
@@ -1151,27 +1206,37 @@ create_toolbar (GtkWidget **gw_container,
     /* Menu for SEL button */
     gw_menu = gtk_menu_new ();
     /* Select all files menu entry */
-    menu_item = gtk_menu_item_new_with_label ("Select all files");
+    menu_item = create_img_menu_item ("Select all files",
+                                      NULL,
+                                      W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_files), rd_data->names);
     /* Select all directories menu entry */
-    menu_item = gtk_menu_item_new_with_label ("Select all directories");
+    menu_item = create_img_menu_item ("Select all directories",
+                                      NULL,
+                                      W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_folders), rd_data->names);
     /* Select all symlink type files/folders */
-    menu_item = gtk_menu_item_new_with_label ("Select all symlinks");
+    menu_item = create_img_menu_item ("Select all symlinks",
+                                      NULL,
+                                      W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_symlinks), rd_data->names);
     /* Select all hidden type files/folders */
-    menu_item = gtk_menu_item_new_with_label ("Select all hidden");
+    menu_item = create_img_menu_item ("Select all hidden",
+                                      NULL,
+                                      W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_hidden), rd_data->names);
     /* Invert selection menu entry */
-    menu_item = gtk_menu_item_new_with_label ("Invert selection");
+    menu_item = create_img_menu_item ("Invert selection",
+                                      NULL,
+                                      W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_invert), rd_data->names);
@@ -1181,7 +1246,8 @@ create_toolbar (GtkWidget **gw_container,
     gtk_widget_show_all (gw_menu);
 
     /* RES button with menu */
-    ti_menu_button = gtk_menu_tool_button_new (NULL, "RES");
+    ti_menu_button = gtk_menu_tool_button_new (
+            create_image_widget (W_ICON_REVERT), "DEL");
     gtk_tool_item_set_tooltip_text (ti_menu_button,
             "Restore original names for selected items");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
@@ -1190,7 +1256,10 @@ create_toolbar (GtkWidget **gw_container,
     /* Menu for RES button */
     gw_menu = gtk_menu_new ();
     /* Restore all original names menu entry */
-    menu_item = gtk_menu_item_new_with_label ("Restore all");
+    menu_item = create_img_menu_item ("Restore all",
+                                      NULL,
+                                      W_ICON_REVERT);
+    //menu_item = gtk_menu_item_new_with_label ("Restore all");
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_restore_all), rd_data->names);
@@ -1200,7 +1269,8 @@ create_toolbar (GtkWidget **gw_container,
     gtk_widget_show_all (gw_menu);
 
     /* DEL button with menu */
-    ti_menu_button = gtk_menu_tool_button_new (NULL, "DEL");
+    ti_menu_button = gtk_menu_tool_button_new (
+            create_image_widget (W_ICON_REMOVE), "DEL");
     gtk_tool_item_set_tooltip_text (ti_menu_button,
             "Remove selected items from list");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
@@ -1209,27 +1279,37 @@ create_toolbar (GtkWidget **gw_container,
     /* Menu for DEL button */
     gw_menu = gtk_menu_new ();
     /* Delete all items from list */
-    menu_item = gtk_menu_item_new_with_label ("Delete all");
+    menu_item = create_img_menu_item ("Remove all",
+                                      NULL,
+                                      W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all), rd_data->names);
     /* Delete all files from list */
-    menu_item = gtk_menu_item_new_with_label ("Delete all files");
+    menu_item = create_img_menu_item ("Remove all files",
+                                      NULL,
+                                      W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_files), rd_data->names);
     /* Delete all folders from list */
-    menu_item = gtk_menu_item_new_with_label ("Delete all directories");
+    menu_item = create_img_menu_item ("Remove all directories",
+                                      NULL,
+                                      W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_folders), rd_data->names);
     /* Delete all symlinks from list */
-    menu_item = gtk_menu_item_new_with_label ("Delete all symlinks");
+    menu_item = create_img_menu_item ("Remove all symlinks",
+                                      NULL,
+                                      W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_symlinks), rd_data->names);
     /* Delete all hidden files/folders from list */
-    menu_item = gtk_menu_item_new_with_label ("Delete all hidden");
+    menu_item = create_img_menu_item ("Remove all hidden",
+                                      NULL,
+                                      W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_hidden), rd_data->names);
@@ -1239,16 +1319,21 @@ create_toolbar (GtkWidget **gw_container,
     gtk_widget_show_all (gw_menu);
 
     /* SRT button with menu */
-    ti_menu_button = gtk_menu_tool_button_new (NULL, "SRT");
+    ti_menu_button = gtk_tool_button_new (
+            create_image_widget (W_ICON_SORT), "SRT");
     gtk_tool_item_set_tooltip_text (ti_menu_button, "Sort names");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
     g_signal_connect_swapped (ti_menu_button, "clicked",
             G_CALLBACK (rfnames_sort), rd_data->names);
 
-    ti_button = gtk_tool_button_new (NULL, "( i )");
-    gtk_tool_item_set_tooltip_text (ti_button, "Application info");
-    gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_button, -1);
-    g_signal_connect_swapped (ti_button, "clicked",
+    ti_menu_button = gtk_separator_tool_item_new ();
+    gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
+
+    ti_menu_button = gtk_tool_button_new (
+            create_image_widget (W_ICON_INFO), "( i )");
+    gtk_tool_item_set_tooltip_text (ti_menu_button, "Application info");
+    gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
+    g_signal_connect_swapped (ti_menu_button, "clicked",
             G_CALLBACK (about_app_dialog), NULL);
 }
 /*----------------------------------------------------------------------------*/
@@ -1281,7 +1366,9 @@ create_file_name_entries (GFile         **files,
     rd_data->names->file_box = gw_entry_box;
 
     for (uint_fast32_t i = 0; i < n_files; ++i) {
-        rfnames_add_gfile_to_file_box (rd_data->names, files[i]);
+        if (g_file_query_exists (files[i], FALSE)) {
+            rfnames_add_gfile_to_file_box (rd_data->names, files[i]);
+        }
     }
     /* Make scrollbars */
     *gw_container = gtk_scrolled_window_new (NULL, NULL);
@@ -1315,6 +1402,13 @@ create_window (GtkWidget        **window,
 
     /* Set window properties */
     gtk_window_set_title (GTK_WINDOW (*window), APP_NAME " v" APP_VER);
+    
+    GdkPixbuf *gd_pix = NULL;
+    gd_pix = get_image (W_ICON_ABOUT);
+    if (gd_pix != NULL) {
+        gtk_window_set_default_icon (gd_pix);
+        g_object_unref (gd_pix);
+    }
 
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
@@ -1425,7 +1519,7 @@ open (GtkApplication  *application,
 
     gtk_box_pack_start (GTK_BOX (gw_vbox), gw_toolbar, FALSE, FALSE,  0);
     gtk_box_pack_start (GTK_BOX (gw_vbox),
-            gtk_label_new("Enter new file / directory name"), FALSE, FALSE, 0);
+            gtk_label_new("New file / directory name"), FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (gw_vbox), 
             gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 4);
     gtk_box_pack_start (GTK_BOX (gw_vbox), gw_entry_box, TRUE, TRUE,  0);

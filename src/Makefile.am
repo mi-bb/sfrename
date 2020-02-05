@@ -21,6 +21,7 @@ sfrename_SOURCES = sfrename.c\
                    namefn.c namefn.h\
                    strfn.c strfn.h\
                    dlgs.c dlgs.h\
+                   imgs.c imgs.h\
                    defs.h
 
 sfrename_CFLAGS = $(GTK_CFLAGS) -DG_DISABLE_DEPRECATED

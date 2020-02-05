@@ -13,6 +13,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2020-02-05  Michal Babik  <michalb1981@o2.pl>
+
+	* imgs.c, imgs.h: New files with graphics.
+	* sfrename.c (create_file_name_entries): Added forgotten checkig
+	  for file existence.
+	* sfrename.c (create_toolbar): Changed to load pixbufs to tool items.
+	* rfitem.c (rfitem_label_set_markup): New function to set label
+	  markup based on the type of file/dir.
+	* rfitem.c (rfitem_new_from_gfile): Added call to function
+	  rfitem_label_set_markup.
+	* rfnames.c (rfnames_sort): Improved sorting.
+
 2020-01-20  Michal Babik  <michalb1981@o2.pl>
 	
 	* cres.c: New file with frunctions to create or resize dynamic array.

@@ -484,19 +484,46 @@ void
 rfnames_sort (RFnames *rf_names)
 {
     GtkBox *gb_pbox;
-    GList  *gl_items  = NULL;
-    GList  *gl_items1 = NULL;
-    int     j         = 0;
+    GList  *gl_items   = NULL;
+    GList  *gl_items1  = NULL;
+    GList  *gl_dirs    = NULL;
+    GList  *gl_files   = NULL;
+    GList  *gl_dirs_h  = NULL;
+    GList  *gl_files_h = NULL;
+    int              j = 0;
 
     if (rf_names->cnt == 0)
         return;
 
-    gb_pbox = GTK_BOX (gtk_widget_get_parent (rf_names->rf_items[0]->box));
-
     for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        gl_items = g_list_append (gl_items, rf_names->rf_items[i]);
+        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
+            if (rf_names->rf_items[i]->b_hidden) {
+                gl_dirs_h = g_list_append (gl_dirs_h, rf_names->rf_items[i]);
+            }
+            else {
+                gl_dirs = g_list_append (gl_dirs, rf_names->rf_items[i]);
+            }
+        }
+        else {
+            if (rf_names->rf_items[i]->b_hidden) {
+                gl_files_h = g_list_append (gl_files_h, rf_names->rf_items[i]);
+            }
+            else {
+                gl_files = g_list_append (gl_files, rf_names->rf_items[i]);
+            }
+        }
     }
-    gl_items = g_list_sort (gl_items, (GCompareFunc) rfitem_compare);
+    gl_dirs    = g_list_sort (gl_dirs,    (GCompareFunc) rfitem_compare);
+    gl_dirs_h  = g_list_sort (gl_dirs_h,  (GCompareFunc) rfitem_compare);
+    gl_files   = g_list_sort (gl_files,   (GCompareFunc) rfitem_compare);
+    gl_files_h = g_list_sort (gl_files_h, (GCompareFunc) rfitem_compare);
+
+    gl_items = g_list_concat (gl_items, gl_dirs_h);
+    gl_items = g_list_concat (gl_items, gl_dirs);
+    gl_items = g_list_concat (gl_items, gl_files_h);
+    gl_items = g_list_concat (gl_items, gl_files);
+
+    gb_pbox = GTK_BOX (gtk_widget_get_parent (rf_names->rf_items[0]->box));
 
     gl_items1 = gl_items;
 
@@ -511,5 +538,4 @@ rfnames_sort (RFnames *rf_names)
     g_list_free (gl_items1);
 }
 /*----------------------------------------------------------------------------*/
-
 

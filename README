@@ -56,12 +56,6 @@ File names should be passed to program as arguments, example of use:
 
     sfrename filename1.ext filename2.ext
 
-or
-
-    sfrename `ls`
-
-to rename all files and directories in current directory.
-
 I made this program to use it with Midnight Commander to rename files and
 directories.
 

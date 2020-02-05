@@ -39,6 +39,11 @@
  * @param[in]  b  String b
  * @return     Compare result
  *
+ * @fn         static void rfitem_label_set_markup (RFitem *rf_item)
+ * @brief      Set label style and text based on type of file / folder.
+ * @param[out] rf_item Pointer to RFitem object
+ * @return     none
+ *
  * @fn         static void rfitem_init (RFitem *rf_item)
  * @brief      RFitem initialization.
  * @param[out] rf_item Pointer to RFitem object
@@ -57,19 +62,21 @@
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-static const char * get_name_dir_len (const char *s_pth,
-                                      size_t     *ui_len)
-                                      __attribute__ ((nonnull (1)));
+static const char * get_name_dir_len        (const char *s_pth,
+                                             size_t     *ui_len)
+                                             __attribute__ ((nonnull (1)));
 
-static int          str_compare      (const char *a,
-                                      const char *b);
+static int          str_compare             (const char *a,
+                                             const char *b);
 
-static void         rfitem_init      (RFitem     *rf_item);
+static void         rfitem_label_set_markup (RFitem     *rf_item);
 
-static void         rfitem_free_data (RFitem     *rf_item);
+static void         rfitem_init             (RFitem     *rf_item);
 
-static void         event_click_rev  (GtkWidget  *widget,
-                                      RFitem     *rf_item);
+static void         rfitem_free_data        (RFitem     *rf_item);
+
+static void         event_click_rev         (GtkWidget  *widget,
+                                             RFitem     *rf_item);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get file name pointer and length of directory string in given
@@ -118,6 +125,41 @@ str_compare (const char *a,
         i_res = g_utf8_collate (a, b);
     }
     return i_res;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set label style and text based on type of file / folder.
+ */
+static void
+rfitem_label_set_markup (RFitem *rf_item)
+{
+    char s_mark[100];
+    s_mark[0] = '\0';
+
+    strcpy (s_mark, "<span font_family=\"monospace\"");
+
+    if (rf_item->b_slink) {
+        strcat (s_mark, " foreground=\"blue\"");
+    }
+    else if (rf_item->b_hidden) {
+        strcat (s_mark, " foreground=\"green\"");
+    }
+    if (rf_item->f_type == G_FILE_TYPE_REGULAR) {
+        strcat (s_mark, ">F</span>");
+    }
+    else if (rf_item->f_type == G_FILE_TYPE_DIRECTORY) {
+        strcat (s_mark, ">D</span>");
+    }
+    else if (rf_item->f_type == G_FILE_TYPE_SYMBOLIC_LINK) {
+        strcat (s_mark, ">S</span>");
+    }
+    else if (rf_item->f_type == G_FILE_TYPE_SPECIAL) {
+        strcat (s_mark, ">D</span>");
+    }
+    else {
+        strcat (s_mark, ">?</span>");
+    }
+    gtk_label_set_markup (GTK_LABEL (rf_item->label), s_mark);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -188,6 +230,9 @@ rfitem_new_from_gfile (GFile *g_file)
         g_object_unref (f_info);
     }
     else {
+        #ifdef DEBUG
+        printf ("Could not get ifno of %s\n", s_fn);
+        #endif
         rf_item->f_type = G_FILE_TYPE_UNKNOWN;
     }
     rf_item->label = gtk_label_new (NULL);
@@ -196,6 +241,8 @@ rfitem_new_from_gfile (GFile *g_file)
     rf_item->rbut  = gtk_button_new_with_label ("R");
     rf_item->dbut  = gtk_button_new_with_label ("D");
     rf_item->box   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
+    /* Set type label markup (file or dir, type color) */
+    rfitem_label_set_markup (rf_item);
     /* Create entry and set max length to defined file name length */
     gtk_entry_set_max_length (GTK_ENTRY (rf_item->entry), FN_LEN);
     /* Set entry file names */
@@ -205,20 +252,8 @@ rfitem_new_from_gfile (GFile *g_file)
     /* Set item active to apply changes */
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rf_item->check), TRUE);
     gtk_widget_set_tooltip_text (rf_item->rbut, "Restore original");
-    gtk_widget_set_tooltip_text (rf_item->dbut, "Delete from list");
+    gtk_widget_set_tooltip_text (rf_item->dbut, "Remove from list");
 
-    if (rf_item->f_type == G_FILE_TYPE_REGULAR) {
-        gtk_label_set_markup (GTK_LABEL (rf_item->label), "<tt>F</tt>");
-    }
-    else if (rf_item->f_type == G_FILE_TYPE_DIRECTORY) {
-        gtk_label_set_markup (GTK_LABEL (rf_item->label), "<tt>D</tt>");
-    }
-    else if (rf_item->f_type == G_FILE_TYPE_SYMBOLIC_LINK) {
-        gtk_label_set_markup (GTK_LABEL (rf_item->label), "<tt>S</tt>");
-    }
-    else {
-        gtk_label_set_markup (GTK_LABEL (rf_item->label), "<tt>?</tt>");
-    }
     gtk_widget_set_margin_bottom (rf_item->box, 4);
 
     /* Copy verified file names to original and new file name string */
@@ -239,6 +274,7 @@ rfitem_new_from_gfile (GFile *g_file)
     printf ("loaded : %s\n", rf_item->s_org);
     printf ("   dir : %s\n", rf_item->s_pth);
     printf ("  full : %s\n", s_path);
+    printf ("  type : %d\n", rf_item->f_type);
     #endif
 
     g_signal_connect (G_OBJECT (rf_item->rbut), "clicked",
