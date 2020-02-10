@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date February 5, 2020
+ * @date February 10, 2020
  *
- * @version 1.2.1
+ * @version 1.2.2
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -696,6 +696,7 @@ event_click_add_files (RFnames *rf_names)
 {
     GSList *gs_files = add_files_dialog (NULL);
     GSList *gs_fn    = gs_files;
+    size_t  ui_pcnt  = rf_names->cnt;
 
     while (gs_fn) {
         const char *s_fn = gs_fn->data;
@@ -703,6 +704,11 @@ event_click_add_files (RFnames *rf_names)
         gs_fn = gs_fn->next;
     }
     g_slist_free_full (gs_files, g_free);
+
+    /* Select first entry after adding to empty list */
+    if (ui_pcnt == 0 && rf_names->cnt > 0) {
+        gtk_widget_grab_focus (rf_names->rf_items[0]->entry);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -714,14 +720,20 @@ event_click_add_files (RFnames *rf_names)
 static void
 event_click_add_folder_files (RFnames *rf_names)
 {
-    int   i_opt = 0;
-    char *s_dir = add_files_folder_dialog (NULL, &i_opt);
+    int     i_opt   = 0;
+    size_t  ui_pcnt = rf_names->cnt;
+    char   *s_dir   = add_files_folder_dialog (NULL, &i_opt);
 
     if (s_dir != NULL) {
         get_folder_content (rf_names, s_dir, i_opt);
         free (s_dir);
     }
     gtk_widget_show_all (rf_names->file_box);
+
+    /* Select first entry after adding to empty list */
+    if (ui_pcnt == 0 && rf_names->cnt > 0) {
+        gtk_widget_grab_focus (rf_names->rf_items[0]->entry);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1531,6 +1543,11 @@ open (GtkApplication  *application,
     gtk_box_pack_start (GTK_BOX (gw_vbox), gw_okcl_box, FALSE, FALSE, 0);
 
     gtk_container_add (GTK_CONTAINER (window), gw_vbox);
+
+    /* Set focus on first entry if file count is greater than 0 */
+    if (rd_data->names->cnt > 0) {
+        gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
+    }
     gtk_widget_show_all (window);
 }
 /*----------------------------------------------------------------------------*/

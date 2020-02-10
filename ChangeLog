@@ -13,6 +13,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2020-02-10  Michal Babik  <michalb1981@o2.pl>
+
+	* sfrename.c (event_click_add_files, event_click_add_folder_files,
+	  open): Added setting focus on first entry.
+
 2020-02-05  Michal Babik  <michalb1981@o2.pl>
 
 	* imgs.c, imgs.h: New files with graphics.

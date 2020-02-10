@@ -16,7 +16,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.69])
-AC_INIT([sfrename], [1.2.1], [michalb1981@o2.pl], [sfrename],\
+AC_INIT([sfrename], [1.2.2], [michalb1981@o2.pl], [sfrename],\
         [https://www.nongnu.org/small-file-renamer/])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/sfrename.c])
