@@ -13,6 +13,24 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2020-02-18  Michal Babik  <michalb1981@o2.pl>
+
+	* dlgs.c (add_files_folder_dialog): Changed to set toggle buttons based
+	  on i_opt value.
+	* rendata.h (RenData::i_opt): Added i_opt value to RenData structure, it
+	  is used to store information of selected options in folder select
+	  dialog.
+	* sfrename.c (event_click_add_folder_files): Added reading i_opt from
+	  RenData item, checking if it is less than 1 and setting to 1 if it is
+	  to have adding files checked in dialog.
+	  Added condition to scan folder if i_opt is greater than 0.
+	  Storing i_opt in RenData item after scaning folder.
+	  Changed input parameter from RFnames to RenData to get access to i_opt.
+	  All callers changed.
+	* autogen.sh: removed --force option so it does not overwrite INSTALL
+	  file.
+	* Some comment updates.
+
 2020-02-10  Michal Babik  <michalb1981@o2.pl>
 
 	* sfrename.c (event_click_add_files, event_click_add_folder_files,

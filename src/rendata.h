@@ -133,6 +133,8 @@ RNumber {
  * @brief Apply to file names/ext or both option
  * @var   RenData::renexit
  * @brief Exit after rename option
+ * @var   RenData::i_opt
+ * @brief Select files from directory options
  */ 
 typedef struct
 RenData {
@@ -146,6 +148,7 @@ RenData {
     int8_t     spaces;   /* Spaces/underscores option */
     int8_t     applyto;  /* Apply to file names/ext or both option */
     int8_t     renexit;  /* Exit after rename option */
+    int8_t     i_opt;    /* Select files from directory options */
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**

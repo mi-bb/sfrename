@@ -28,15 +28,14 @@
 #include "strfn.h"
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get length (not greater than i_max_chars) in bytes for the input
- *         string.
+ * @brief  Get length (not greater than ui_max) in bytes for the input string.
  */
 size_t
 get_valid_length (const char   *s_str,
                   const size_t  ui_max)
 {
-    const char *s_end  = NULL;
-    size_t      ui_len = 0;
+    const char *s_end  = NULL; /* Pointer to last valid char in string */
+    size_t      ui_len = 0;    /* Valid length to return */
 
     ui_len = strlen (s_str);
 
@@ -58,7 +57,7 @@ string_replace_in (char              *s_src_dst,
 {
     char          s_tmp [FN_LEN+1];           /* temp file name */
     size_t        ui_vlen  = 0;               /* valid name length */
-    size_t        i        = 0;
+    size_t        i        = 0;               /* the i */
     size_t        ui_frlen = 0;               /* rename from length */
     const size_t  ui_max   = FN_LEN;          /* max length of name */
     const char   *s_fr     = pd_data->s_str1; /* "replace from" string */
@@ -419,9 +418,9 @@ string_combine_name_ext (char       *s_name_ext,
                          const char *s_name,
                          const char *s_ext)
 {
-    size_t       ui_len  = 0;
-    const size_t ui_elen = strlen (s_ext);
-    const size_t ui_max  = FN_LEN - ui_elen;
+    size_t       ui_len  = 0;                /* Length of file name */
+    const size_t ui_elen = strlen (s_ext);   /* Length of file extension */
+    const size_t ui_max  = FN_LEN - ui_elen; /* Maximal length of file name */
 
     ui_len = get_valid_length (s_name, ui_max);
 

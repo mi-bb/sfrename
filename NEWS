@@ -14,6 +14,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ----------------------------------------------------------------------
+v1.2.3                                                      2020-02-18
+
+    * After adding files from directory program remembers adding
+      options (add files/firectories/hidden etc).
+
+----------------------------------------------------------------------
 v1.2.2                                                      2020-02-10
 
     * Setting focus on first file name entry after starting with files

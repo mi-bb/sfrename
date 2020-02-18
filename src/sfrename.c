@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date February 10, 2020
+ * @date February 17, 2020
  *
- * @version 1.2.2
+ * @version 1.2.3
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -51,7 +51,7 @@
  *
  * @param[in] old_name Old file name
  * @param[in] new_name New file name
- * @param[in] path     Path to directory where the file is
+ * @param[in] path     Path to directory where the file is located
  * @return    Renaming status
  */
 static int_fast8_t
@@ -59,17 +59,18 @@ file_check_and_rename (const char *old_name,
                        const char *new_name,
                        const char *path)
 {
-    char        *s_new   = NULL;
-    char        *s_old   = NULL;
-    int_fast8_t  i_res   = 0;
-    size_t       ui_dlen = strlen (path);
-    size_t       ui_olen = strlen (old_name);
-    size_t       ui_nlen = strlen (new_name);
+    char        *s_new   = NULL;              /* Full path for new file */
+    char        *s_old   = NULL;              /* Full path for old file */
+    int_fast8_t  i_res   = 0;                 /* Renaming result */
+    size_t       ui_dlen = strlen (path);     /* Length of file dir path */
+    size_t       ui_olen = strlen (old_name); /* Length of old file name */
+    size_t       ui_nlen = strlen (new_name); /* Length of new file name */
 
     /* Check if new file name is different than old */
     if (strcmp (old_name, new_name) == 0)
         return REN_NC; /* No chgange */
 
+    /* Alloc memory for full paths of old and new file name */
     s_new = malloc ((ui_dlen + ui_nlen + 1) * sizeof (char));
     s_old = malloc ((ui_dlen + ui_olen + 1) * sizeof (char));
 
@@ -97,7 +98,6 @@ file_check_and_rename (const char *old_name,
     else {
         i_res = REN_EXISTS;      /* File exists */
     }
-
     free (s_new);
     free (s_old);
 
@@ -113,6 +113,7 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *rd_data)
 {
+    /* Check if file is checked and skip to next one if it is not */
     for (uint_fast32_t i = 0; i < rd_data->names->cnt; ++i) {
         if (!rfitem_get_checked (rd_data->names->rf_items[i]))
             continue;
@@ -121,6 +122,7 @@ file_names_update_changes (RenData *rd_data)
         strcpy (rd_data->names->rf_items[i]->s_new,
                 rd_data->names->rf_items[i]->s_org);
 
+        /* Execute rename functions */
         name_to_upcase_lowercase (rd_data, i);
         name_spaces_underscores (rd_data, i);
         name_delete_chars (rd_data, i);
@@ -128,7 +130,7 @@ file_names_update_changes (RenData *rd_data)
         name_insert_string (rd_data, i);
         name_overwrite_string (rd_data, i);
         name_number_string (rd_data, i);
-
+        /* Update file name entry if name has changed */
         rfitem_entry_check_and_update (rd_data->names->rf_items[i],
                                        rd_data->names->rf_items[i]->s_new);
     }
@@ -157,12 +159,11 @@ enumerate_folder (RFnames   *rf_names,
         printf ("Enumerating folder %s\n", g_file_peek_path (gf_dir));
     #endif
 
-    f_enum = g_file_enumerate_children (
-            gf_dir,
-            "standard::*",
-            G_FILE_QUERY_INFO_NONE,
-            NULL,
-            &g_err);
+    f_enum = g_file_enumerate_children (gf_dir,
+                                        "standard::*",
+                                        G_FILE_QUERY_INFO_NONE,
+                                        NULL,
+                                        &g_err);
     do {
         g_file_enumerator_iterate (f_enum, &f_info, &g_file, NULL, &g_err);
         if (f_info != NULL) {
@@ -192,7 +193,7 @@ enumerate_folder (RFnames   *rf_names,
         }
     }
     while (f_info != NULL);
-    
+
     g_object_unref (f_enum);
 }
 /*----------------------------------------------------------------------------*/
@@ -293,9 +294,9 @@ static void
 event_click_rename (GtkWidget *widget,
                     RenData   *rd_data)
 {
-    const char    *s_new        = NULL;
-    const char    *s_pth        = NULL;
-    char          *s_old        = NULL;
+    char          *s_old        = NULL; /* Old file name */
+    const char    *s_new        = NULL; /* New file name */
+    const char    *s_pth        = NULL; /* Path to file's directory */
     int_fast8_t    i_renamed    = 0;    /* Renaming result */
     uint_fast32_t  ui_ren_count = 0;    /* Number of renamed files */
 
@@ -694,9 +695,13 @@ event_win_key_press (GtkWidget   *widget,
 static void
 event_click_add_files (RFnames *rf_names)
 {
-    GSList *gs_files = add_files_dialog (NULL);
-    GSList *gs_fn    = gs_files;
-    size_t  ui_pcnt  = rf_names->cnt;
+    GSList *gs_files = NULL; /* File list returned by dialog */
+    GSList *gs_fn    = NULL; /* File list copy */
+    size_t  ui_pcnt  = 0;    /* Previous number of file items on list */
+
+    ui_pcnt  = rf_names->cnt;
+    gs_files = add_files_dialog (NULL);
+    gs_fn    = gs_files;
 
     while (gs_fn) {
         const char *s_fn = gs_fn->data;
@@ -714,43 +719,45 @@ event_click_add_files (RFnames *rf_names)
 /**
  * @brief  Add files from folder button pressed.
  *
- * @param[in,out] rf_names RFnames object with file list
+ * @param[in,out] rd_data RenData object with settings
  * @return        none
  */
 static void
-event_click_add_folder_files (RFnames *rf_names)
+event_click_add_folder_files (RenData *rd_data)
 {
-    int     i_opt   = 0;
-    size_t  ui_pcnt = rf_names->cnt;
-    char   *s_dir   = add_files_folder_dialog (NULL, &i_opt);
+    int     i_opt   = 0;    /* Options for select files from directory */
+    size_t  ui_pcnt = 0;    /* Previous number of file items on list */
+    char   *s_dir   = NULL; /* Folder path */
 
-    if (s_dir != NULL) {
-        get_folder_content (rf_names, s_dir, i_opt);
+    ui_pcnt = rd_data->names->cnt;
+    i_opt   = rd_data->i_opt;
+    i_opt   = i_opt < 1 ? 1 : i_opt;
+    s_dir   = add_files_folder_dialog (NULL, &i_opt);
+
+    if (s_dir != NULL && i_opt > 0) {
+        get_folder_content (rd_data->names, s_dir, i_opt);
+        rd_data->i_opt = (int8_t) i_opt;
         free (s_dir);
     }
-    gtk_widget_show_all (rf_names->file_box);
+    gtk_widget_show_all (rd_data->names->file_box);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rf_names->cnt > 0) {
-        gtk_widget_grab_focus (rf_names->rf_items[0]->entry);
+    if (ui_pcnt == 0 && rd_data->names->cnt > 0) {
+        gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
     }
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Create button with icon/label/hint.
+ * @brief  Create GtkImage widget with desired icon/image.
  *
- * @param[in] s_label  Button label
- * @param[in] s_hint   Button hint
- * @param[in] i_but    Icon number
- * @return    Button
+ * @param[in] i_but  Icon number
+ * @return    Imge widget
  */
 static GtkWidget *
-create_image_widget (//const char   *s_label,
-                     //const char   *s_hint,
-                     const IconImg i_but)
+create_image_widget (const IconImg i_but)
 {
-    GtkWidget *gw_img = NULL;
-    GdkPixbuf *gd_pix = NULL;
+    GtkWidget *gw_img = NULL; /* GtkImage widget to return */
+    GdkPixbuf *gd_pix = NULL; /* Pigbuf to load graphics */
 
     if (i_but < W_ICON_COUNT) {
         gd_pix = get_image (i_but);
@@ -762,14 +769,25 @@ create_image_widget (//const char   *s_label,
     return gw_img;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Create GtkMenuItem widget with image, text, and tooltip.
+ *
+ * @param[in] s_label Menu entry label
+ * @param[in] s_hint  Menu entry tooltip
+ * @param[in] i_but   Icon number
+ * @return    Result menu entry widget
+ */
 static GtkWidget *
 create_img_menu_item (const char    *s_label,
                       const char    *s_hint,
                       const IconImg  i_but)
 {
-    GtkWidget *gw_item = gtk_menu_item_new ();
-    GtkWidget *gw_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
-    GtkWidget *gw_img = NULL;
+    GtkWidget *gw_item; /* GtkMenuItem widget to return */
+    GtkWidget *gw_box;  /* Box to pack image and label for menu item */
+    GtkWidget *gw_img;  /* GtkImage widget for graphics */
+
+    gw_item = gtk_menu_item_new ();
+    gw_box  = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 
     gw_img = create_image_widget (i_but);
     if (gw_img != NULL) {
@@ -777,7 +795,7 @@ create_img_menu_item (const char    *s_label,
     }
     if (s_label != NULL && strcmp (s_label, "") != 0) {
         GtkWidget *gw_lab = gtk_label_new (s_label);
-        //gtk_container_add (GTK_CONTAINER (gw_box), gw_lab);
+        /*gtk_container_add (GTK_CONTAINER (gw_box), gw_lab);*/
         gtk_box_pack_start (GTK_BOX (gw_box), gw_lab, FALSE, FALSE, 4);
     }
     if (s_hint != NULL && strcmp (s_hint, "") != 0) {
@@ -1202,7 +1220,7 @@ create_toolbar (GtkWidget **gw_container,
                                       W_ICON_ADD_DIR);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
-            G_CALLBACK (event_click_add_folder_files), rd_data->names);
+            G_CALLBACK (event_click_add_folder_files), rd_data);
     /* Assign menu to menu tool button and show menu */
     gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (ti_menu_button),
                                    gw_menu);
@@ -1409,23 +1427,23 @@ create_window (GtkWidget        **window,
                GtkApplication    *application,
                RenData           *rd_data)
 {
+    GdkPixbuf *gd_pix = NULL; /* Pixbuf for default window icon */
+
     /* Create window widget */
     *window = gtk_application_window_new (application);
 
     /* Set window properties */
     gtk_window_set_title (GTK_WINDOW (*window), APP_NAME " v" APP_VER);
+    gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
+    gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
+    gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
     
-    GdkPixbuf *gd_pix = NULL;
+    /* Set default application icon */
     gd_pix = get_image (W_ICON_ABOUT);
     if (gd_pix != NULL) {
         gtk_window_set_default_icon (gd_pix);
         g_object_unref (gd_pix);
     }
-
-    gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
-    gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
-    gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
-
     /* Connect window events */
     g_signal_connect (G_OBJECT (*window), "key-press-event",
                       G_CALLBACK (event_win_key_press), rd_data);
@@ -1562,11 +1580,7 @@ static void
 activate (GtkApplication *application,
           RenData        *rd_data)
 {
-    open (application,
-          NULL,
-          0,
-          NULL,
-          rd_data);
+    open (application, NULL, 0, NULL, rd_data);
 }
 /*----------------------------------------------------------------------------*/
 /**

@@ -18,7 +18,7 @@
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @brief  Application graphics
- * 
+ *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #ifndef IMGS_H

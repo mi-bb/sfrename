@@ -18,7 +18,7 @@
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
  * @brief  Application dialogs
- * 
+ *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 //#include "imgs.h"
@@ -36,7 +36,6 @@ add_files_folder_dialog (GtkWindow *gw_parent,
     char      *s_folder  = NULL; /* Selected folder name */
     int        res       = 0;    /* Dialog run response */
 
-    *i_opt = 0;
     gw_dialog = gtk_file_chooser_dialog_new ("Select Folder",
                                           gw_parent,
                                           GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
@@ -57,7 +56,18 @@ add_files_folder_dialog (GtkWindow *gw_parent,
             "Select hidden files / directories");
     GtkWidget *gw_chk_r = gtk_check_button_new_with_label (
             "Scan folders recursively");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_f), TRUE);
+
+    if (*i_opt & FOLDER_SELECT_FILES)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_f), TRUE);
+    if (*i_opt & FOLDER_SELECT_FOLDERS)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_d), TRUE);
+    if (*i_opt & FOLDER_SELECT_SYMLINKS)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_s), TRUE);
+    if (*i_opt & FOLDER_SELECT_HIDDEN)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_h), TRUE);
+    if (*i_opt & FOLDER_SCAN_RECURSIVELY)
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_r), TRUE);
+
     gtk_box_pack_start (GTK_BOX (gw_box), gw_chk_f, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (gw_box), gw_chk_d, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (gw_box), gw_chk_s, FALSE, FALSE, 0);
@@ -69,6 +79,7 @@ add_files_folder_dialog (GtkWindow *gw_parent,
     res = gtk_dialog_run (GTK_DIALOG (gw_dialog));
 
     if (res == GTK_RESPONSE_ACCEPT) {
+        *i_opt = 0;
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (gw_chk_f))) {
             *i_opt |= FOLDER_SELECT_FILES;
         }
@@ -97,8 +108,8 @@ add_files_folder_dialog (GtkWindow *gw_parent,
 GSList *
 add_files_dialog (GtkWindow *gw_parent)
 {
-    GtkFileFilter *gff_filter;
-    GtkWidget     *gw_dialog;
+    GtkFileFilter *gff_filter;       /* File filter for dialog */
+    GtkWidget     *gw_dialog;        /* Dialog widget */
     GSList        *gsl_files = NULL; /* Result file list */
     int            res       = 0;    /* Dialog run response */
 

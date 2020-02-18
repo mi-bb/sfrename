@@ -188,12 +188,12 @@ rfitem_init (RFitem *rf_item)
 RFitem *
 rfitem_new_from_gfile (GFile *g_file)
 {
-    size_t      ui_len  = 0;
-    RFitem     *rf_item = NULL;
-    GError     *g_err   = NULL;
-    GFileInfo  *f_info  = NULL;
-    const char *s_path  = NULL;
-    const char *s_fn    = NULL;
+    size_t      ui_len  = 0;    /* Number of dir characters in file path */
+    RFitem     *rf_item = NULL; /* RFitem object to return */
+    GError     *g_err   = NULL; /* For error output */
+    GFileInfo  *f_info  = NULL; /* For file info */
+    const char *s_path  = NULL; /* Full file path dir + file name */
+    const char *s_fn    = NULL; /* File name only */
 
     rf_item = malloc (sizeof (RFitem));
 
@@ -251,9 +251,9 @@ rfitem_new_from_gfile (GFile *g_file)
     gtk_widget_set_tooltip_text (rf_item->entry, s_path);
     /* Set item active to apply changes */
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rf_item->check), TRUE);
+
     gtk_widget_set_tooltip_text (rf_item->rbut, "Restore original");
     gtk_widget_set_tooltip_text (rf_item->dbut, "Remove from list");
-
     gtk_widget_set_margin_bottom (rf_item->box, 4);
 
     /* Copy verified file names to original and new file name string */

@@ -306,11 +306,10 @@ rnumber_free (RNumber *r_number)
 static void
 rendata_init (RenData *rd_data)
 {
-    rd_data->uplo     = 2;    /* upper/lower case setting */
-    rd_data->spaces   = 2;    /* spaces/underscores setting */
-    rd_data->applyto  = 2;    /* apply to names/ext/both setting */
-    rd_data->renexit  = 1;    /* exit after rename setting */
-
+    rd_data->uplo    = 2;    /* upper/lower case setting */
+    rd_data->spaces  = 2;    /* spaces/underscores setting */
+    rd_data->applyto = 2;    /* apply to names/ext/both setting */
+    rd_data->renexit = 1;    /* exit after rename setting */
     rd_data->names   = rfnames_new ();
     rd_data->del     = rdelete_new ();
     rd_data->ins     = rinsovr_new ();
@@ -351,6 +350,9 @@ rendata_free (RenData *rd_data)
     free (rd_data);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get names object with file list.
+ */
 RFnames *
 rendata_get_names (const RenData *rd_data)
 {

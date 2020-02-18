@@ -64,11 +64,10 @@ ProcessData {
 } ProcessData;
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get length (not greater than i_max_chars) in bytes for the input
- *         string.
+ * @brief  Get length (not greater than i_max) in bytes for the input string.
  *
  *  Gets length of maximum correct chars in string. End of string should be
- *  a null character. Returned length can not be greater than i_max_chars,
+ *  a null character. Returned length can not be greater than i_max,
  *  input string may have any length.
  *  Utf8 chars can be multi byte and you can cut it in half with a simple split.
  *
