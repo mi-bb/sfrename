@@ -18,6 +18,8 @@ v1.2.3                                                      2020-02-18
 
     * After adding files from directory program remembers adding
       options (add files/firectories/hidden etc).
+    * Updated autogen.sh in repositories so it doesn't overwrite
+      INSTALL file.
 
 ----------------------------------------------------------------------
 v1.2.2                                                      2020-02-10
