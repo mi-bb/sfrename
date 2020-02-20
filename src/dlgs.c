@@ -145,7 +145,7 @@ about_app_dialog (gpointer data __attribute__ ((unused)))
 {
     GtkWidget *gw_dialog;
     const char *s_authors[] = {"Michal Babik <michalb1981@o2.pl> "
-                               "http://init6.pomorze.pl/index-en.html", NULL};
+                               "http://init6.pomorze.pl", NULL};
 
     gw_dialog = gtk_about_dialog_new ();
 
