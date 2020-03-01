@@ -82,22 +82,19 @@ string_replace_in (char              *s_src_dst,
 
             const char * __restrict tp = s_to;  /* pointer to s_to */
 
-            while (sp != fp && i < FN_LEN) {
-                dp[i++] = *sp++;
-            }
+            while (sp != fp && i++ < ui_max)
+                *dp++ = *sp++;
 
-            while (*tp && i < FN_LEN) {
-                dp[i++] = *tp++;
-            }
+            while (*tp && i++ < ui_max)
+                *dp++ = *tp++;
 
             /* change source pointer to "after found" */
             sp = fp + ui_frlen; 
             fp = strstr (sp, s_fr);
         }
-        while (*sp && i < FN_LEN) {
-            dp[i++] = *sp++;
-        }
-        dp[i] = '\0';
+        while (*sp && i++ < ui_max)
+            *dp++ = *sp++;
+        *dp = '\0';
     }
     else
         return;
@@ -166,7 +163,7 @@ string_insert_string (char              *s_src_dst,
     size_t        ui_pos     = pd_data->ui_pos; /* Text insert position  */
     size_t        ui_len     = 0;               /* Length of text */
     size_t        ui_slen_u8 = 0;               /* Length of unicode text */
-    size_t        i          = 0;
+    size_t        i          = 0;               /* i */
     const size_t  ui_max     = FN_LEN;          /* Max string length */
     const char   *s_ins      = pd_data->s_str1; /* Text to insert */
     const char   *x          = NULL;            /* Insert text pointer */
@@ -185,18 +182,15 @@ string_insert_string (char              *s_src_dst,
 
         x = g_utf8_offset_to_pointer (sp, (glong) ui_pos);
 
-        while (sp != x) {
-            tp[i++] = *sp++;
-        }
+        while (sp != x && i++ < ui_max)
+            *tp++ = *sp++;
 
-        while (*ip && i < ui_max) {
-            tp[i++] = *ip++;
-        }
+        while (*ip && i++ < ui_max)
+            *tp++ = *ip++;
 
-        while (*sp && i < ui_max) {
-            tp[i++] = *sp++;
-        }
-        tp[i] = '\0';
+        while (*sp && i++ < ui_max)
+            *tp++ = *sp++;
+        *tp = '\0';
     }
     else
         return;
@@ -224,7 +218,7 @@ string_overwrite_string (char              *s_src_dst,
     size_t        ui_len     = 0;               /* Length of text */
     size_t        ui_ilen    = 0;               /* Length of overwrite text */
     size_t        ui_slen_u8 = 0;               /* Length of unicode text */
-    size_t        i          = 0;
+    size_t        i          = 0;               /* i */
     const size_t  ui_max     = FN_LEN;          /* Max string length */
     const char   *s_ins      = pd_data->s_str1; /* Overwrite text */
     const char   *x          = NULL;            /* Overwrite start pointer */
@@ -248,23 +242,20 @@ string_overwrite_string (char              *s_src_dst,
 
         x = g_utf8_offset_to_pointer (sp, (glong) ui_pos);
 
-        while (sp != x) {
-            tp[i++] = *sp++;
-        }
+        while (sp != x && i++ < ui_max)
+            *tp++ = *sp++;
 
-        while (*ip && i < ui_max) {
-            tp[i++] = *ip++;
-        }
+        while (*ip && i++ < ui_max)
+            *tp++ = *ip++;
 
         if ((size_t) g_utf8_strlen (sp, -1) > ui_ilen) {
 
             sp = g_utf8_offset_to_pointer (sp, (glong) ui_ilen);
 
-            while (*sp && i < ui_max) {
-                tp[i++] = *sp++;
-            }
+            while (*sp && i++ < ui_max)
+                *tp++ = *sp++;
         }
-        tp[i] = '\0';
+        *tp = '\0';
     }
     else
         return;
@@ -305,19 +296,16 @@ string_add_number (char              *s_src_dst,
     ui_z = 0;
     ui_t = ui_mx;
 
-    while (ui_t /= 10) {
+    while (ui_t /= 10)
         ui_z++;
-    }
 
     ui_t = ui_no;
 
-    while (ui_t /= 10) {
+    while (ui_t /= 10)
         ui_z--;
-    }
 
-    for (uint_fast32_t i = 0; i < ui_z; ++i) {
+    for (uint_fast32_t i = 0; i < ui_z; ++i)
         s_no[i] = '0';
-    }
 
     sprintf (s_tmp, "%" PRIdFAST32, ui_no);
     strcat (s_no, s_tmp);
@@ -339,8 +327,8 @@ void
 string_to_lower (char              *s_src_dst,
                  const ProcessData *pd_data __attribute__ ((unused)))
 {
-    char         *s_tt   = NULL;   /* temp string */
     const size_t  ui_max = FN_LEN; /* Max string length */
+    char         *s_tt   = NULL;   /* temp string */
     size_t        ui_len = 0;      /* Length of name string */
 
     if (g_utf8_validate (s_src_dst, -1, NULL)) {
@@ -367,8 +355,8 @@ string_to_upper (char              *s_src_dst,
                  const ProcessData *pd_data __attribute__ ((unused)))
 {
     char         *s_tt   = NULL;   /* temp string */
-    const size_t  ui_max = FN_LEN; /* Max string length */
     size_t        ui_len = 0;      /* Length of name string */
+    const size_t  ui_max = FN_LEN; /* Max string length */
 
     if (g_utf8_validate (s_src_dst, -1, NULL)) {
 

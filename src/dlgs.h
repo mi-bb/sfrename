@@ -23,7 +23,19 @@
  */
 #ifndef DLGS_H
 #define DLGS_H
-
+/*----------------------------------------------------------------------------*/
+/**
+ * @def   FOLDER_SELECT_FILES
+ * @brief Value for select files in folder
+ * @def   FOLDER_SELECT_FOLDERS
+ * @brief Value for select folders in folder
+ * @def   FOLDER_SELECT_SYMLINKS
+ * @brief Value for select file/dir symlinks
+ * @def   FOLDER_SELECT_HIDDEN
+ * @brief Value for select hidden files/dirs
+ * @def   FOLDER_SCAN_RECURSIVELY
+ * @brief Value for scanning directory recursively
+ */
 #define FOLDER_SELECT_FILES      1
 #define FOLDER_SELECT_FOLDERS    2
 #define FOLDER_SELECT_SYMLINKS   4
@@ -33,10 +45,12 @@
 #include <gtk/gtk.h>
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  char * add_files_folder_dialog (GtkWindow *gw_parent)
- * @brief     Select folder dialog.
- * @param[in] gw_parent  Dialog parent widget
- * @return    Foler path or NULL.
+ * @fn  char * add_files_folder_dialog (GtkWindow *gw_parent, int *i_opt)
+ * @brief         Select folder dialog.
+ * @param[in]     gw_parent Dialog parent widget
+ * @param[in,out] i_opt     Pointer to int value with options for selecting
+ *                          files/dirs
+ * @return        Foler path or NULL.
  *
  * @fn  GSList * add_files_dialog (GtkWindow *gw_parent)
  * @brief     Select files dialog.

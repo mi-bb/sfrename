@@ -33,22 +33,16 @@
  *
  * @var   ProcessData::s_str1
  * @brief Input string
- *
  * @var   ProcessData::s_str2
  * @brief Input string
- *
  * @var   ProcessData::ui_pos
  * @brief Position to insert/overwrite/delete
- *
  * @var   ProcessData::ui_cnt
  * @brief Character count
- *
  * @var   ProcessData::i_no
  * @brief Number
- *
  * @var   ProcessData::i_start
  * @brief Start numbering value
- *
  * @var   ProcessData::i_max
  * @brief Maximum numbering range
  */ 
@@ -69,7 +63,8 @@ ProcessData {
  *  Gets length of maximum correct chars in string. End of string should be
  *  a null character. Returned length can not be greater than i_max,
  *  input string may have any length.
- *  Utf8 chars can be multi byte and you can cut it in half with a simple split.
+ *  Utf8 chars can be multi byte and for desired fixed size string a char may
+ *  be cut in half when simple split is used.
  *
  * @param[in] s_str   Input string
  * @param[in] ui_max  Maximum possible bytes of length

@@ -88,9 +88,6 @@ RReplace {
  * @var   RNumber::opt
  * @brief If opt is 0 numbering is disabled, if opt is not 0 it is enabled
  *
- * @var   RNumber::no
- * @brief Number to insert
- *
  * @var   RNumber::start
  * @brief Start numbering from value start
  *

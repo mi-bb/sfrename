@@ -116,8 +116,18 @@ uint_fast32_t rfnames_get_cnt (const RFnames *rf_names)
  * @param[out] rf_names RFnames list
  * @return     none
  *
+ * @fn         void rfnames_unselect_files (RFnames *rf_names)
+ * @brief      Unselect all items with file type on list.
+ * @param[out] rf_names RFnames list
+ * @return     none
+ *
  * @fn         void rfnames_select_folders (RFnames *rf_names)
  * @brief      Select all items with folder type on list.
+ * @param[out] rf_names RFnames list
+ * @return     none
+ *
+ * @fn         void rfnames_unselect_folders (RFnames *rf_names)
+ * @brief      Unselect all items with folder type on list.
  * @param[out] rf_names RFnames list
  * @return     none
  *
@@ -126,8 +136,18 @@ uint_fast32_t rfnames_get_cnt (const RFnames *rf_names)
  * @param[out] rf_names RFnames list
  * @return     none
  *
+ * @fn         void rfnames_unselect_symlinks (RFnames *rf_names)
+ * @brief      Unselect all items with symlink type on list.
+ * @param[out] rf_names RFnames list
+ * @return     none
+ *
  * @fn         void rfnames_select_hidden (RFnames *rf_names)
  * @brief      Select all items with hidden type on list.
+ * @param[out] rf_names RFnames list
+ * @return     none
+ *
+ * @fn         void rfnames_unselect_hidden (RFnames *rf_names)
+ * @brief      Unselect all items with hidden type on list.
  * @param[out] rf_names RFnames list
  * @return     none
  *
@@ -141,11 +161,19 @@ void rfnames_select_unselect_all (RFnames *rf_names);
 
 void rfnames_select_files        (RFnames *rf_names);
 
+void rfnames_unselect_files      (RFnames *rf_names);
+
 void rfnames_select_folders      (RFnames *rf_names);
+
+void rfnames_unselect_folders    (RFnames *rf_names);
 
 void rfnames_select_symlinks     (RFnames *rf_names);
 
+void rfnames_unselect_symlinks   (RFnames *rf_names);
+
 void rfnames_select_hidden       (RFnames *rf_names);
+
+void rfnames_unselect_hidden     (RFnames *rf_names);
 
 void rfnames_select_invert       (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/

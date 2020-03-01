@@ -33,37 +33,26 @@
  *
  * @var   RFitem::s_new
  * @brief New (after change) file name string
- *
  * @var   RFitem::s_org
  * @brief Original file name string
- *
- * @var   RFitem::pth
+ * @var   RFitem::s_pth
  * @brief Path to directory with file to rename
- *
  * @var   RFitem::f_type
  * @brief File type in GFileType value
- *
  * @var   RFitem::b_slink
  * @brief Is file / dir a symbolic link
- *
  * @var   RFitem::b_hidden
  * @brief Is file / dir hidden
- *
  * @var   RFitem::label
  * @brief Label showing file type
- *
  * @var   RFitem::entry
  * @brief Entry for file name
- *
  * @var   RFitem::check
  * @brief Checkbutton to set file active for name change
- *
  * @var   RFitem::rbut
  * @brief Button to restore original file name
- *
  * @var   RFitem::dbut
  * @brief Button to delete file item from list
- *
  * @var   RFitem::box
  * @brief Box with all file widgets
  */
@@ -179,6 +168,36 @@ void         rfitem_entry_restore          (RFitem       *rf_item);
  */
 int rfitem_compare (const RFitem *rf_item1,
                     const RFitem *rf_item2);
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn        gboolean rfitem_is_file (const RFitem *rf_item)
+ * @brief     Check if RFitem type is a file.
+ * @param[in] rf_item Pointer to RFitem object
+ * @return    1 if RFitem describes a file type, 0 if not
+ *
+ * @fn        gboolean rfitem_is_folder (const RFitem *rf_item)
+ * @brief     Check if RFitem type is a directory.
+ * @param[in] rf_item Pointer to RFitem object
+ * @return    1 if RFitem describes a directory type, 0 if not
+ *
+ * @fn        gboolean rfitem_is_symlink (const RFitem *rf_item)
+ * @brief     Check if RFitem file/dir type is a symlink.
+ * @param[in] rf_item Pointer to RFitem object
+ * @return    1 if RFitem is a symlink, 0 if not
+ *
+ * @fn        gboolean rfitem_is_hidden  (const RFitem *rf_item)
+ * @brief     Check if RFitem file/dir is hidden.
+ * @param[in] rf_item Pointer to RFitem object
+ * @return    1 if RFitem is a hidden file/dir, 0 if not
+ */
+/*----------------------------------------------------------------------------*/
+gboolean rfitem_is_file    (const RFitem *rf_item) __attribute__ ((pure));
+
+gboolean rfitem_is_folder  (const RFitem *rf_item) __attribute__ ((pure));
+
+gboolean rfitem_is_symlink (const RFitem *rf_item) __attribute__ ((pure));
+
+gboolean rfitem_is_hidden  (const RFitem *rf_item) __attribute__ ((pure));
 /*----------------------------------------------------------------------------*/
 #endif
 

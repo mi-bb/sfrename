@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date February 17, 2020
+ * @date March 1, 2020
  *
- * @version 1.2.3
+ * @version 1.2.4
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -1266,10 +1266,38 @@ create_toolbar (GtkWidget **gw_container,
     /* Invert selection menu entry */
     menu_item = create_img_menu_item ("Invert selection",
                                       NULL,
-                                      W_ICON_SELECT);
+                                      W_ICON_SELECT_BL);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_invert), rd_data->names);
+    /* Unselect all files menu entry */
+    menu_item = create_img_menu_item ("Unselect all files",
+                                      NULL,
+                                      W_ICON_SELECT_BW);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_unselect_files), rd_data->names);
+    /* Unselect all directories menu entry */
+    menu_item = create_img_menu_item ("Unselect all directories",
+                                      NULL,
+                                      W_ICON_SELECT_BW);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_unselect_folders), rd_data->names);
+    /* Unselect all symlink type files/folders */
+    menu_item = create_img_menu_item ("Unselect all symlinks",
+                                      NULL,
+                                      W_ICON_SELECT_BW);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_unselect_symlinks), rd_data->names);
+    /* Unselect all hidden type files/folders */
+    menu_item = create_img_menu_item ("Unselect all hidden",
+                                      NULL,
+                                      W_ICON_SELECT_BW);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_unselect_hidden), rd_data->names);
     /* Assign menu to menu tool button and show menu */
     gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (ti_menu_button),
                                    gw_menu);

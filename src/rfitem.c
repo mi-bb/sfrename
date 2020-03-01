@@ -415,5 +415,41 @@ rfitem_compare (const RFitem *rf_item1,
     return i_res;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check if RFitem type is a file.
+ */
+gboolean
+rfitem_is_file (const RFitem *rf_item)
+{
+    return (rf_item->f_type == G_FILE_TYPE_REGULAR);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check if RFitem type is a directory.
+ */
+gboolean
+rfitem_is_folder (const RFitem *rf_item)
+{
+    return (rf_item->f_type == G_FILE_TYPE_DIRECTORY);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check if RFitem file/dir type is a symlink.
+ */
+gboolean
+rfitem_is_symlink (const RFitem *rf_item)
+{
+    return rf_item->b_slink;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check if RFitem file/dir is hidden.
+ */
+gboolean
+rfitem_is_hidden (const RFitem *rf_item)
+{
+    return rf_item->b_hidden;
+}
+/*----------------------------------------------------------------------------*/
 
 

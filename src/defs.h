@@ -27,32 +27,32 @@
 /**
  * @def   FN_LEN
  * @brief Maximum chars in file name string
- *
  * @def   WIN_WIDTH
  * @brief Application window width
- *
  * @def   WIN_HEIGHT
  * @brief Application window height
- *
  * @def   APP_NAME
  * @brief Application name string
- *
  * @def   APP_VER
  * @brief Application version string
+ * @def   APP_WEB
+ * @brief Application website
+ * @def   APP_DSC
+ * @brief Application description
  */
 #define FN_LEN     255
 #define WIN_WIDTH  600
 #define WIN_HEIGHT 800
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.2.3"
+#define APP_VER    "1.2.4"
 #define APP_WEB    "http://www.nongnu.org/small-file-renamer/"
 #define APP_DSC    "Program for renaming files and directories."
 /*----------------------------------------------------------------------------*/
 enum {
-    REN_OK,                      /**< File renamed */
-    REN_NOT_REN,                 /**< Could not rename */
-    REN_EXISTS,                  /**< File already exists */
-    REN_NC                       /**< No change */
+    REN_OK,       /**< File renamed */
+    REN_NOT_REN,  /**< Could not rename */
+    REN_EXISTS,   /**< File already exists */
+    REN_NC        /**< No change */
 };
 /*----------------------------------------------------------------------------*/
 #endif

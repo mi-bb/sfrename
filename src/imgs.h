@@ -35,6 +35,8 @@ typedef enum IconImg {
     W_ICON_REVERT,   /**< Restore original names icon */
     W_ICON_SORT,     /**< Sort wallpapers on list icon */
     W_ICON_SELECT,   /**< Select icon */
+    W_ICON_SELECT_BW,/**< BW select icon */
+    W_ICON_SELECT_BL,/**< Blue select icon */
     W_ICON_DUPL,     /**< Remove duplicates icon */
     W_ICON_INFO,     /**< Info about application icon */
     W_ICON_ABOUT,    /**< About app dialog image */

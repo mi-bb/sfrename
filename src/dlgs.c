@@ -21,7 +21,6 @@
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-//#include "imgs.h"
 #include "defs.h"
 #include "dlgs.h"
 /*----------------------------------------------------------------------------*/

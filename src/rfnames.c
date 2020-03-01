@@ -60,6 +60,17 @@ static void event_click_del (GtkWidget *widget,
                              RFnames   *rf_names);
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Select items on RFnames list if they match the fun return value.
+ * @param[in,out] rf_names Pointer to RFnames object
+ * @param[in]     fun      Function to examine RFitem object
+ * @param[in]     b_sel    Boolean value to select or not select item
+ * @return     none
+ */
+static void rfnames_select_unselect (RFnames         *rf_names,
+                                     int         (*fun) (const RFitem *rf_item),
+                                     const gboolean   b_sel);
+/*----------------------------------------------------------------------------*/
+/**
  * @brief      Select all check items on list.
  * @param[out] rf_names Pointer to RFnames object
  * @return     none
@@ -72,6 +83,15 @@ static void rfnames_select_all (RFnames *rf_names);
  * @return     none
  */
 static void rfnames_unselect_all (RFnames *rf_names);
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove item from RFnames list if it matches the fun return value.
+ * @param[in,out] rf_names Pointer to RFnames object
+ * @param[in]     fun      Function to examine RFitem object.
+ * @return     none
+ */
+static void rfnames_remove (RFnames   *rf_names,
+                            int      (*fun) (const RFitem *rf_item));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RFnames initialization.
@@ -309,16 +329,36 @@ rfnames_select_unselect_all (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Select items on RFnames list if they match the fun return value.
+ */
+static void
+rfnames_select_unselect (RFnames         *rf_names,
+                         gboolean       (*fun) (const RFitem *rf_item),
+                         const gboolean   b_sel)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        if (fun (rf_names->rf_items[i])) {
+            rfitem_set_checked (rf_names->rf_items[i], b_sel);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Select all items with file type on list.
  */
 void
 rfnames_select_files (RFnames *rf_names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_REGULAR) {
-            rfitem_set_checked (rf_names->rf_items[i], TRUE);
-        }
-    }
+    rfnames_select_unselect (rf_names, rfitem_is_file, TRUE);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Unselect all items with file type on list.
+ */
+void
+rfnames_unselect_files (RFnames *rf_names)
+{
+    rfnames_select_unselect (rf_names, rfitem_is_file, FALSE);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -327,11 +367,16 @@ rfnames_select_files (RFnames *rf_names)
 void
 rfnames_select_folders (RFnames *rf_names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
-            rfitem_set_checked (rf_names->rf_items[i], TRUE);
-        }
-    }
+    rfnames_select_unselect (rf_names, rfitem_is_folder, TRUE);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Unselect all items with folder type on list.
+ */
+void
+rfnames_unselect_folders (RFnames *rf_names)
+{
+    rfnames_select_unselect (rf_names, rfitem_is_folder, FALSE);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -340,11 +385,16 @@ rfnames_select_folders (RFnames *rf_names)
 void
 rfnames_select_symlinks (RFnames *rf_names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rf_names->rf_items[i]->b_slink) {
-            rfitem_set_checked (rf_names->rf_items[i], TRUE);
-        }
-    }
+    rfnames_select_unselect (rf_names, rfitem_is_symlink, TRUE);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Unselect all items with symlink type on list.
+ */
+void
+rfnames_unselect_symlinks (RFnames *rf_names)
+{
+    rfnames_select_unselect (rf_names, rfitem_is_symlink, FALSE);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -353,11 +403,16 @@ rfnames_select_symlinks (RFnames *rf_names)
 void
 rfnames_select_hidden (RFnames *rf_names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rf_names->rf_items[i]->b_hidden) {
-            rfitem_set_checked (rf_names->rf_items[i], TRUE);
-        }
-    }
+    rfnames_select_unselect (rf_names, rfitem_is_hidden, TRUE);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Unselect all items with hidden type on list.
+ */
+void
+rfnames_unselect_hidden (RFnames *rf_names)
+{
+    rfnames_select_unselect (rf_names, rfitem_is_hidden, FALSE);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -368,20 +423,6 @@ rfnames_select_invert (RFnames *rf_names)
 {
     for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
         rfitem_invert_checked (rf_names->rf_items[i]);
-    }
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Remove selected items from list.
- */
-void
-rfnames_remove_selected (RFnames *rf_names)
-{
-    uint_fast32_t i = rf_names->cnt;
-    while (i--) {
-        if (rfitem_get_checked (rf_names->rf_items[i])) {
-            rfnames_delete_at_pos (rf_names, i);
-        }
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -398,17 +439,36 @@ rfnames_remove_all (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Remove item from RFnames list if it matches the fun return value.
+ */
+static void
+rfnames_remove (RFnames   *rf_names,
+                gboolean (*fun) (const RFitem *rf_item))
+{
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (fun (rf_names->rf_items[i])) {
+            rfnames_delete_at_pos (rf_names, i);
+        }
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remove selected items from list.
+ */
+void
+rfnames_remove_selected (RFnames *rf_names)
+{
+    rfnames_remove (rf_names, rfitem_get_checked);
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Remove all files from list.
  */
 void
 rfnames_remove_all_files (RFnames *rf_names)
 {
-    uint_fast32_t i = rf_names->cnt;
-    while (i--) {
-        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_REGULAR) {
-            rfnames_delete_at_pos (rf_names, i);
-        }
-    }
+    rfnames_remove (rf_names, rfitem_is_file);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -417,12 +477,7 @@ rfnames_remove_all_files (RFnames *rf_names)
 void
 rfnames_remove_all_folders (RFnames *rf_names)
 {
-    uint_fast32_t i = rf_names->cnt;
-    while (i--) {
-        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
-            rfnames_delete_at_pos (rf_names, i);
-        }
-    }
+    rfnames_remove (rf_names, rfitem_is_folder);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -431,12 +486,7 @@ rfnames_remove_all_folders (RFnames *rf_names)
 void
 rfnames_remove_all_symlinks (RFnames *rf_names)
 {
-    uint_fast32_t i = rf_names->cnt;
-    while (i--) {
-        if (rf_names->rf_items[i]->b_slink) {
-            rfnames_delete_at_pos (rf_names, i);
-        }
-    }
+    rfnames_remove (rf_names, rfitem_is_symlink);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -445,12 +495,7 @@ rfnames_remove_all_symlinks (RFnames *rf_names)
 void
 rfnames_remove_all_hidden (RFnames *rf_names)
 {
-    uint_fast32_t i = rf_names->cnt;
-    while (i--) {
-        if (rf_names->rf_items[i]->b_hidden) {
-            rfnames_delete_at_pos (rf_names, i);
-        }
-    }
+    rfnames_remove (rf_names, rfitem_is_hidden);
 }
 /*----------------------------------------------------------------------------*/
 /**

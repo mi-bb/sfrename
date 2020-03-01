@@ -310,6 +310,7 @@ rendata_init (RenData *rd_data)
     rd_data->spaces  = 2;    /* spaces/underscores setting */
     rd_data->applyto = 2;    /* apply to names/ext/both setting */
     rd_data->renexit = 1;    /* exit after rename setting */
+    rd_data->i_opt   = 1;    /* default select option to files */
     rd_data->names   = rfnames_new ();
     rd_data->del     = rdelete_new ();
     rd_data->ins     = rinsovr_new ();
