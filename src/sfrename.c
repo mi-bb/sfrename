@@ -67,7 +67,7 @@ file_check_and_rename (const char *old_name,
     size_t       ui_nlen = strlen (new_name); /* Length of new file name */
 
     /* Check if new file name is different than old */
-    if (strcmp (old_name, new_name) == 0)
+    if (ui_olen == ui_nlen && strcmp (old_name, new_name) == 0)
         return REN_NC; /* No chgange */
 
     /* Alloc memory for full paths of old and new file name */
@@ -113,14 +113,17 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *rd_data)
 {
+    RFitem *rf_item; /* RFitem object to process */
+
     /* Check if file is checked and skip to next one if it is not */
     for (uint_fast32_t i = 0; i < rd_data->names->cnt; ++i) {
-        if (!rfitem_get_checked (rd_data->names->rf_items[i]))
+        rf_item = rd_data->names->rf_items[i];
+
+        if (!rfitem_get_checked (rf_item))
             continue;
 
         /* copy original name to new to process */
-        strcpy (rd_data->names->rf_items[i]->s_new,
-                rd_data->names->rf_items[i]->s_org);
+        strcpy (rf_item->s_new, rf_item->s_org);
 
         /* Execute rename functions */
         name_to_upcase_lowercase (rd_data, i);
@@ -131,8 +134,7 @@ file_names_update_changes (RenData *rd_data)
         name_overwrite_string (rd_data, i);
         name_number_string (rd_data, i);
         /* Update file name entry if name has changed */
-        rfitem_entry_check_and_update (rd_data->names->rf_items[i],
-                                       rd_data->names->rf_items[i]->s_new);
+        rfitem_entry_check_and_update (rf_item, rf_item->s_new);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -215,9 +217,6 @@ get_folder_content (RFnames    *rf_names,
     GFileInfo *f_info;
     GFileType  f_type;
 
-    if (s_dir == NULL)
-        return;
-
     gf_dir = g_file_new_for_path (s_dir);
     f_info = g_file_query_info (gf_dir,
                                 "standard::*",
@@ -294,17 +293,22 @@ static void
 event_click_rename (GtkWidget *widget,
                     RenData   *rd_data)
 {
-    char          *s_old        = NULL; /* Old file name */
+    const char    *s_old        = NULL; /* Old file name */
     const char    *s_new        = NULL; /* New file name */
     const char    *s_pth        = NULL; /* Path to file's directory */
     int_fast8_t    i_renamed    = 0;    /* Renaming result */
     uint_fast32_t  ui_ren_count = 0;    /* Number of renamed files */
+    uint_fast32_t  ui_names_cnt = 0;    /* Number of files to rename */
+    RFitem        *rf_item;             /* Processed RFitem object */
 
-    for (uint_fast32_t i = 0; i < rd_data->names->cnt; ++i) {
+    ui_names_cnt = rfnames_get_cnt (rd_data->names);
 
-        s_new = rfitem_entry_get_text (rd_data->names->rf_items[i]);
-        s_old = rd_data->names->rf_items[i]->s_org;
-        s_pth = rd_data->names->rf_items[i]->s_pth;
+    for (uint_fast32_t i = 0; i < ui_names_cnt; ++i) {
+        rf_item = rd_data->names->rf_items[i];
+
+        s_new = rfitem_entry_get_text (rf_item);
+        s_old = rfitem_get_sorg (rf_item);
+        s_pth = rfitem_get_spth (rf_item);
 
         i_renamed = file_check_and_rename (s_old, s_new, s_pth);
 
@@ -313,7 +317,7 @@ event_click_rename (GtkWidget *widget,
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", s_old, s_new);
                 /* copy new name to original in buffer */
-                strcpy (s_old, s_new); 
+                rfitem_set_sorg (rf_item, s_new);
                 ++ui_ren_count;
                 break;
 
@@ -334,19 +338,17 @@ event_click_rename (GtkWidget *widget,
         }
         if (i_renamed != REN_OK && i_renamed != REN_NC) {
             /* Revert old file names to new */
-            strcpy (rd_data->names->rf_items[i]->s_new,
-                    rd_data->names->rf_items[i]->s_org);
+            rfitem_set_snew (rf_item, s_old);
 
             /* Update file name in entry */
-            rfitem_entry_check_and_update (rd_data->names->rf_items[i],
-                                           rd_data->names->rf_items[i]->s_new);
+            rfitem_entry_check_and_update (rf_item, s_old);
         }
     }
     printf ("Renamed %" PRIdFAST32 " files of %" PRIdFAST32 "\n",
-            ui_ren_count, rd_data->names->cnt);
+            ui_ren_count, ui_names_cnt);
 
     /* exit application if "Exit after rename" checkbox was selected */
-    if (rd_data->renexit)
+    if (rendata_get_renexit (rd_data))
         event_close (widget, NULL);
     else
         file_names_update_changes (rd_data);
@@ -366,10 +368,10 @@ static void
 event_insert_pos_changed (GtkSpinButton *sp_button,
                           RenData       *rd_data)
 {
-    rd_data->ins->pos =
-        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+    rinsovr_set_pos (rd_data->ins,
+                     (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (strcmp (rd_data->ins->s_text, "") != 0)
+    if (rinsovr_get_text (rd_data->ins)[0] != '\0')
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -387,11 +389,9 @@ static void
 event_insert_string_entry_changed (GtkWidget *widget,
                                    RenData   *rd_data)
 {
-    const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
-    size_t      ui_len = get_valid_length (s_en, FN_LEN);
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    memcpy (rd_data->ins->s_text, s_en, ui_len);
-    rd_data->ins->s_text[ui_len] = '\0';
+    rinsovr_set_text (rd_data->ins, s_en);
 
     file_names_update_changes (rd_data);
 }
@@ -410,10 +410,10 @@ static void
 event_overwrite_pos_changed (GtkSpinButton *sp_button,
                              RenData       *rd_data)
 {
-    rd_data->ovrw->pos =
-        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+    rinsovr_set_pos (rd_data->ovrw,
+                     (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (strcmp (rd_data->ovrw->s_text, "") != 0)
+    if (rinsovr_get_text (rd_data->ovrw)[0] != '\0')
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -432,10 +432,8 @@ event_overwrite_string_entry_changed (GtkWidget *widget,
                                       RenData   *rd_data)
 {
     const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
-    size_t      ui_len = get_valid_length (s_en, FN_LEN);
 
-    memcpy (rd_data->ovrw->s_text, s_en, ui_len);
-    rd_data->ovrw->s_text[ui_len] = '\0';
+    rinsovr_set_text (rd_data->ovrw, s_en);
 
     file_names_update_changes (rd_data);
 }
@@ -454,7 +452,8 @@ static void
 event_delete_cnt_changed (GtkSpinButton *sp_button,
                           RenData       *rd_data)
 {
-    rd_data->del->cnt = (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+    rdelete_set_cnt (rd_data->del,
+                     (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
     file_names_update_changes (rd_data);
 }
@@ -473,9 +472,10 @@ static void
 event_delete_pos_changed (GtkSpinButton *sp_button,
                           RenData       *rd_data)
 {
-    rd_data->del->pos = (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+    rdelete_set_pos (rd_data->del,
+                     (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rd_data->del->cnt > 0)
+    if (rdelete_get_cnt (rd_data->del) > 0)
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -496,7 +496,7 @@ event_case_radio_active (GtkRadioButton *radiob,
     static int8_t dbl = 0; /* to remove double toggling */
 
     if (dbl ^= 1) {
-        rd_data->uplo = get_radio_active (radiob);
+        rendata_set_uplo (rd_data, get_radio_active (radiob));
         file_names_update_changes (rd_data);
     }
 }
@@ -518,7 +518,7 @@ event_spaces_radio_active (GtkRadioButton *radiob,
     static int8_t dbl = 0; /* to remove double toggling */
 
     if (dbl ^= 1) {
-        rd_data->spaces = get_radio_active (radiob);
+        rendata_set_spaces (rd_data, get_radio_active (radiob));
         file_names_update_changes (rd_data);
     }
 }
@@ -538,10 +538,8 @@ event_replace_from_entry_changed (GtkWidget *widget,
                                   RenData   *rd_data)
 {
     const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
-    size_t      ui_len = get_valid_length (s_en, FN_LEN);
 
-    memcpy (rd_data->replace->s_from, s_en, ui_len);
-    rd_data->replace->s_from[ui_len] = '\0';
+    rreplace_set_from (rd_data->replace, s_en);
 
     file_names_update_changes (rd_data);
 }
@@ -561,12 +559,10 @@ event_replace_to_entry_changed (GtkWidget *widget,
                                 RenData   *rd_data)
 {
     const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
-    size_t      ui_len = get_valid_length (s_en, FN_LEN);
 
-    memcpy (rd_data->replace->s_to, s_en, ui_len);
-    rd_data->replace->s_to[ui_len] = '\0';
+    rreplace_set_to (rd_data->replace, s_en);
 
-    if (strcmp (rd_data->replace->s_from, "") != 0)
+    if (rreplace_get_from (rd_data->replace)[0] != '\0')
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -589,7 +585,7 @@ event_apply_radio_active (GtkRadioButton *radiob,
 
     if (dbl ^= 1) {
         /* read apply to names/ext active RadioButton */
-        rd_data->applyto = get_radio_active (radiob);
+        rendata_set_applyto (rd_data, get_radio_active (radiob));
 
         file_names_update_changes (rd_data);
     }
@@ -606,7 +602,8 @@ static void
 event_toggle_number_names (GtkToggleButton *toggleb,
                            RenData         *rd_data)
 {
-    rd_data->number->opt = (int8_t) gtk_toggle_button_get_active (toggleb);
+    rnumber_set_opt (rd_data->number,
+            (int8_t) gtk_toggle_button_get_active (toggleb));
 
     file_names_update_changes (rd_data);
 }
@@ -622,10 +619,10 @@ static void
 event_number_start_changed (GtkSpinButton *sp_button,
                             RenData        *rd_data)
 {
-    rd_data->number->start = 
-        (uint32_t) gtk_spin_button_get_value_as_int (sp_button);
+    rnumber_set_start (rd_data->number, 
+        (uint32_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rd_data->number->opt)
+    if (rnumber_get_opt (rd_data->number))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -640,10 +637,10 @@ static void
 event_number_pos_changed (GtkSpinButton *sp_button,
                           RenData       *rd_data)
 {
-    rd_data->number->pos =
-        (uint8_t) gtk_spin_button_get_value_as_int (sp_button);
+    rnumber_set_pos (rd_data->number,
+        (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rd_data->number->opt)
+    if (rnumber_get_opt (rd_data->number))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -660,7 +657,8 @@ static void
 event_toggle_rename_exit (GtkToggleButton *toggleb,
                           RenData         *rd_data)
 {
-    rd_data->renexit = (int8_t) gtk_toggle_button_get_active (toggleb);
+    rendata_set_renexit (rd_data,
+            (int8_t) gtk_toggle_button_get_active (toggleb));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -695,11 +693,11 @@ event_win_key_press (GtkWidget   *widget,
 static void
 event_click_add_files (RFnames *rf_names)
 {
-    GSList *gs_files = NULL; /* File list returned by dialog */
-    GSList *gs_fn    = NULL; /* File list copy */
-    size_t  ui_pcnt  = 0;    /* Previous number of file items on list */
+    GSList       *gs_files = NULL; /* File list returned by dialog */
+    GSList       *gs_fn    = NULL; /* File list copy */
+    uint_fast32_t ui_pcnt  = 0;    /* Previous number of file items on list */
 
-    ui_pcnt  = rf_names->cnt;
+    ui_pcnt  = rfnames_get_cnt (rf_names);
     gs_files = add_files_dialog (NULL);
     gs_fn    = gs_files;
 
@@ -711,7 +709,7 @@ event_click_add_files (RFnames *rf_names)
     g_slist_free_full (gs_files, g_free);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rf_names->cnt > 0) {
+    if (ui_pcnt == 0 && rfnames_get_cnt (rf_names) > 0) {
         gtk_widget_grab_focus (rf_names->rf_items[0]->entry);
     }
 }
@@ -730,19 +728,19 @@ event_click_add_folder_files (RenData *rd_data)
     char   *s_dir   = NULL; /* Folder path */
 
     ui_pcnt = rd_data->names->cnt;
-    i_opt   = rd_data->i_opt;
+    i_opt   = rendata_get_dirsel (rd_data);
     i_opt   = i_opt < 1 ? 1 : i_opt;
     s_dir   = add_files_folder_dialog (NULL, &i_opt);
 
     if (s_dir != NULL && i_opt > 0) {
         get_folder_content (rd_data->names, s_dir, i_opt);
-        rd_data->i_opt = (int8_t) i_opt;
+        rendata_set_dirsel (rd_data, (int8_t) i_opt);
         free (s_dir);
     }
     gtk_widget_show_all (rd_data->names->file_box);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rd_data->names->cnt > 0) {
+    if (ui_pcnt == 0 && rfnames_get_cnt (rd_data->names) > 0) {
         gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
     }
 }

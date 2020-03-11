@@ -327,6 +327,45 @@ rfitem_delete (RFitem *rf_item)
     free (rf_item);
 }
 /*----------------------------------------------------------------------------*/
+const char *
+rfitem_get_snew (const RFitem *rf_item)
+{
+    return (const char *) rf_item->s_new;
+}
+/*----------------------------------------------------------------------------*/
+void
+rfitem_set_snew (RFitem     *rf_item,
+                 const char *val)
+{
+    strcpy (rf_item->s_new, val);
+}
+/*----------------------------------------------------------------------------*/
+const char *
+rfitem_get_sorg (const RFitem *rf_item)
+{
+    return (const char *) rf_item->s_org;
+}
+/*----------------------------------------------------------------------------*/
+void
+rfitem_set_sorg (RFitem     *rf_item,
+                 const char *val)
+{
+    strcpy (rf_item->s_org, val);
+}
+/*----------------------------------------------------------------------------*/
+const char *
+rfitem_get_spth (const RFitem *rf_item)
+{
+    return (const char *) rf_item->s_pth;
+}
+/*----------------------------------------------------------------------------*/
+void
+rfitem_set_spth (RFitem     *rf_item,
+                 const char *val)
+{
+    strcpy (rf_item->s_pth, val);
+}
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  Restore original file name button clicked.
  */

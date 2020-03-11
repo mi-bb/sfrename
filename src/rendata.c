@@ -22,6 +22,7 @@
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 //#include <glib.h>
+#include "strfn.h"
 #include "rendata.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -164,6 +165,32 @@ rdelete_free (RDelete *r_delete)
     free (r_delete);
 }
 /*----------------------------------------------------------------------------*/
+uint8_t
+rdelete_get_cnt (const RDelete *r_delete)
+{
+    return r_delete->cnt;
+}
+/*----------------------------------------------------------------------------*/
+void
+rdelete_set_cnt (RDelete *r_delete,
+                 uint8_t  val)
+{
+    r_delete->cnt = val;
+}
+/*----------------------------------------------------------------------------*/
+uint8_t
+rdelete_get_pos (const RDelete *r_delete)
+{
+    return r_delete->pos;
+}
+/*----------------------------------------------------------------------------*/
+void
+rdelete_set_pos (RDelete *r_delete,
+                 uint8_t  val)
+{
+    r_delete->pos = val;
+}
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  RInsOvr initialization.
  *
@@ -209,6 +236,35 @@ rinsovr_free (RInsOvr *r_insovr)
     free (r_insovr);
 }
 /*----------------------------------------------------------------------------*/
+const char *
+rinsovr_get_text (const RInsOvr *rio_item)
+{
+    return (const char *) rio_item->s_text;
+}
+/*----------------------------------------------------------------------------*/
+void 
+rinsovr_set_text (RInsOvr    *rio_item,
+                  const char *val)
+{
+    size_t ui_len = get_valid_length (val, FN_LEN);
+
+    memcpy (rio_item->s_text, val, ui_len);
+    rio_item->s_text[ui_len] = '\0';
+}
+/*----------------------------------------------------------------------------*/
+uint8_t
+rinsovr_get_pos (const RInsOvr *rio_item)
+{
+    return rio_item->pos;
+}
+/*----------------------------------------------------------------------------*/
+void
+rinsovr_set_pos (RInsOvr       *rio_item,
+                 const uint8_t  val)
+{
+    rio_item->pos = val;
+}
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  RReplace initialization.
  *
@@ -252,6 +308,38 @@ static void
 rreplace_free (RReplace *r_replace)
 {
     free (r_replace);
+}
+/*----------------------------------------------------------------------------*/
+const char *
+rreplace_get_from (const RReplace *r_replace)
+{
+    return (const char *) r_replace->s_from;
+}
+/*----------------------------------------------------------------------------*/
+void
+rreplace_set_from (RReplace   *r_replace,
+                   const char *val)
+{
+    size_t ui_len = get_valid_length (val, FN_LEN);
+
+    memcpy (r_replace->s_from, val, ui_len);
+    r_replace->s_from[ui_len] = '\0';
+}
+/*----------------------------------------------------------------------------*/
+const char *
+rreplace_get_to (const RReplace *r_replace)
+{
+    return (const char *) r_replace->s_to;
+}
+/*----------------------------------------------------------------------------*/
+void
+rreplace_set_to (RReplace   *r_replace,
+                 const char *val)
+{
+    size_t ui_len = get_valid_length (val, FN_LEN);
+
+    memcpy (r_replace->s_to, val, ui_len);
+    r_replace->s_to[ui_len] = '\0';
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -300,6 +388,45 @@ rnumber_free (RNumber *r_number)
     free (r_number);
 }
 /*----------------------------------------------------------------------------*/
+int8_t
+rnumber_get_opt (const RNumber *r_number)
+{
+    return r_number->opt;
+}
+/*----------------------------------------------------------------------------*/
+void
+rnumber_set_opt (RNumber      *r_number,
+                 const int8_t  val)
+{
+    r_number->opt = val;
+}
+/*----------------------------------------------------------------------------*/
+uint_fast32_t
+rnumber_get_start (const RNumber *r_number)
+{
+    return r_number->start;
+}
+/*----------------------------------------------------------------------------*/
+void
+rnumber_set_start (RNumber             *r_number,
+                   const uint_fast32_t  val)
+{
+    r_number->start = val;
+}
+/*----------------------------------------------------------------------------*/
+uint8_t
+rnumber_get_pos (const RNumber *r_number)
+{
+    return r_number->pos;
+}
+/*----------------------------------------------------------------------------*/
+void
+rnumber_set_pos (RNumber       *r_number,
+                 const uint8_t  val)
+{
+    r_number->pos = val;
+}
+/*----------------------------------------------------------------------------*/
 /**
  * @brief  RenData initialization.
  */
@@ -310,7 +437,7 @@ rendata_init (RenData *rd_data)
     rd_data->spaces  = 2;    /* spaces/underscores setting */
     rd_data->applyto = 2;    /* apply to names/ext/both setting */
     rd_data->renexit = 1;    /* exit after rename setting */
-    rd_data->i_opt   = 1;    /* default select option to files */
+    rd_data->dirsel  = 1;    /* default select option to files */
     rd_data->names   = rfnames_new ();
     rd_data->del     = rdelete_new ();
     rd_data->ins     = rinsovr_new ();
@@ -358,6 +485,71 @@ RFnames *
 rendata_get_names (const RenData *rd_data)
 {
     return rd_data->names;
+}
+/*----------------------------------------------------------------------------*/
+int8_t
+rendata_get_uplo (const RenData *rd_data)
+{
+    return rd_data->uplo;
+}
+/*----------------------------------------------------------------------------*/
+void
+rendata_set_uplo (RenData *rd_data,
+                  int8_t   val)
+{
+    rd_data->uplo = val;
+}
+/*----------------------------------------------------------------------------*/
+int8_t
+rendata_get_spaces (const RenData *rd_data)
+{
+    return rd_data->spaces;
+}
+/*----------------------------------------------------------------------------*/
+void
+rendata_set_spaces (RenData *rd_data,
+                    int8_t   val)
+{
+    rd_data->spaces = val;
+}
+/*----------------------------------------------------------------------------*/
+int8_t
+rendata_get_applyto (const RenData *rd_data)
+{
+    return rd_data->applyto;
+}
+/*----------------------------------------------------------------------------*/
+void
+rendata_set_applyto (RenData *rd_data,
+                     int8_t   val)
+{
+    rd_data->applyto = val;
+}
+/*----------------------------------------------------------------------------*/
+int8_t
+rendata_get_renexit (const RenData *rd_data)
+{
+    return rd_data->renexit;
+}
+/*----------------------------------------------------------------------------*/
+void
+rendata_set_renexit (RenData *rd_data,
+                     int8_t   val)
+{
+    rd_data->renexit = val;
+}
+/*----------------------------------------------------------------------------*/
+int8_t
+rendata_get_dirsel (const RenData *rd_data)
+{
+    return rd_data->dirsel;
+}
+/*----------------------------------------------------------------------------*/
+void
+rendata_set_dirsel (RenData *rd_data,
+                    int8_t   val)
+{
+    rd_data->dirsel = val;
 }
 /*----------------------------------------------------------------------------*/
 

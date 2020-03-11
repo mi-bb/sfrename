@@ -133,6 +133,59 @@ void     rfitem_set_checked    (RFitem         *rf_item,
 void     rfitem_invert_checked (RFitem         *rf_item);
 /*----------------------------------------------------------------------------*/
 /**
+ * @fn         const char * rfitem_get_snew (const RFitem *rf_item)
+ * @brief      Get s_new value.
+ * @param[in]  rf_item  RFitem object
+ * @return     s_new value
+ *
+ * @fn         void rfitem_set_snew (RFitem     *rf_item,
+ *                                   const char *val)
+ * @brief      Set s_new value.
+ * @param[out] rf_item  RFitem object
+ * @param[in]  val      New s_new value
+ * @return     none
+ *
+ * @fn         const char * rfitem_get_sorg (const RFitem *rf_item)
+ * @brief      Get s_org value.
+ * @param[in]  rf_item  RFitem object
+ * @return     s_org value
+ *
+ * @fn         void rfitem_set_sorg (RFitem       *rf_item,
+ *                                   const char   *val)
+ * @brief      Set s_org value.
+ * @param[out] rf_item  RFitem object
+ * @param[in]  val      New s_org value
+ * @return     none
+ *
+ * @fn         const char * rfitem_get_spth (const RFitem *rf_item)
+ * @brief      Get s_pth value.
+ * @param[in]  rf_item  RFitem object
+ * @return     s_pth value
+ *
+ * @fn         void rfitem_set_spth (RFitem     *rf_item,
+ *                                   const char *val)
+ * @brief      Set s_pth value.
+ * @param[out] rf_item  RFitem object
+ * @param[in]  val      New s_pth value
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+const char * rfitem_get_snew (const RFitem *rf_item) __attribute__ ((pure));
+
+void         rfitem_set_snew (RFitem       *rf_item,
+                              const char   *val);
+
+const char * rfitem_get_sorg (const RFitem *rf_item) __attribute__ ((pure));
+
+void         rfitem_set_sorg (RFitem       *rf_item,
+                              const char   *val);
+
+const char * rfitem_get_spth (const RFitem *rf_item) __attribute__ ((pure));
+
+void         rfitem_set_spth (RFitem       *rf_item,
+                              const char   *val);
+/*----------------------------------------------------------------------------*/
+/**
  * @fn        const char * rfitem_entry_get_text (RFitem *rf_item)
  * @brief     Get text from entry.
  * @param[in] rf_item RFitem with entry

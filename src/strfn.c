@@ -287,8 +287,7 @@ string_add_number (char              *s_src_dst,
     uint_fast32_t ui_t     = 0;                /* Temp value */
     ProcessData  pd_data2 = { NULL, NULL, 0, 0, 0, 0, 0 };
 
-    memset (s_no,  '\0', sizeof (s_no));
-    memset (s_tmp, '\0', sizeof (s_tmp));
+    memset (s_no, '\0', sizeof (s_no));
 
     ui_no += ui_st;
     ui_mx += ui_st;

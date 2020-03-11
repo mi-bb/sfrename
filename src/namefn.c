@@ -36,21 +36,21 @@ name_delete_chars (RenData             *rd_data,
     ProcessData pd_data = {
         NULL,
         NULL,
-        rd_data->del->pos,
-        rd_data->del->cnt,
+        rdelete_get_pos (rd_data->del),
+        rdelete_get_cnt (rd_data->del),
         0,
         0,
         0
     };
 
     /* exit if no chars to delete */
-    if (rd_data->del->cnt == 0)
+    if (rdelete_get_cnt (rd_data->del) == 0)
         return;
 
     string_process_filename (string_delete_chars,
                              rd_data->names->rf_items[i]->s_new,
                              &pd_data,
-                             rd_data->applyto);
+                             rendata_get_applyto (rd_data));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -61,22 +61,20 @@ name_insert_string (RenData             *rd_data,
                     const uint_fast32_t  i)
 {
     ProcessData pd_data = {
-        rd_data->ins->s_text,
+        rinsovr_get_text (rd_data->ins),
         NULL,
-        rd_data->ins->pos,
+        rinsovr_get_pos (rd_data->ins),
         0,
         0,
         0,
         0
     };
 
-    if (strcmp (rd_data->ins->s_text, "") == 0)
-        return;
-
-    string_process_filename (string_insert_string,
-                             rd_data->names->rf_items[i]->s_new,
-                             &pd_data,
-                             rd_data->applyto);
+    if (rinsovr_get_text (rd_data->ins)[0] != '\0')
+        string_process_filename (string_insert_string,
+                                 rd_data->names->rf_items[i]->s_new,
+                                 &pd_data,
+                                 rendata_get_applyto (rd_data));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -87,22 +85,22 @@ name_overwrite_string (RenData             *rd_data,
                        const uint_fast32_t  i)
 {
     ProcessData pd_data = {
-        rd_data->ovrw->s_text,
+        rinsovr_get_text (rd_data->ovrw),
         NULL,
-        (size_t) rd_data->ovrw->pos,
+        (size_t) rinsovr_get_pos (rd_data->ovrw),
         0,
         0,
         0,
         0
     };
 
-    if (strcmp (rd_data->ovrw->s_text, "") == 0)
+    if (rinsovr_get_text (rd_data->ovrw)[0] == '\0')
         return;
 
     string_process_filename (string_overwrite_string,
                              rd_data->names->rf_items[i]->s_new,
                              &pd_data,
-                             rd_data->applyto);
+                             rendata_get_applyto (rd_data));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -115,18 +113,18 @@ name_number_string (RenData             *rd_data,
     ProcessData pd_data = {
         NULL,
         NULL,
-        (size_t) rd_data->number->pos,
+        (size_t) rnumber_get_pos (rd_data->number),
         0,
         i,
-        rd_data->number->start,
-        rd_data->names->cnt - 1
+        rnumber_get_start (rd_data->number),
+        rfnames_get_cnt (rd_data->names) - 1
     };
 
-    if (rd_data->number->opt) {
+    if (rnumber_get_opt (rd_data->number)) {
         string_process_filename (string_add_number,
                                  rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
-                                 rd_data->applyto);
+                                 rendata_get_applyto (rd_data));
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -140,19 +138,18 @@ name_to_upcase_lowercase (RenData             *rd_data,
     ProcessData pd_data = { NULL, NULL, 0, 0, 0, 0, 0 };
 
     /* to uppercase */
-    if (rd_data->uplo == 0) {
+    if (rendata_get_uplo (rd_data) == 0) {
         string_process_filename (string_to_upper,
                                  rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
-                                 rd_data->applyto);
+                                 rendata_get_applyto (rd_data));
     }
-
     /* to lowercase */
-    if (rd_data->uplo == 1) {
+    else if (rendata_get_uplo (rd_data) == 1) {
         string_process_filename (string_to_lower,
                                  rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
-                                 rd_data->applyto);
+                                 rendata_get_applyto (rd_data));
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -165,20 +162,20 @@ name_spaces_underscores (RenData             *rd_data,
                          const uint_fast32_t  i)
 {
     /* underscores to spaces */
-    if (rd_data->spaces == 0) {
+    if (rendata_get_spaces (rd_data) == 0) {
         ProcessData pd_data = { "_", " ", 0, 0, 0, 0, 0 };
         string_process_filename (string_replace_in,
                                  rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
-                                 rd_data->applyto);
+                                 rendata_get_applyto (rd_data));
     }
     /* spaces to underscores */
-    if (rd_data->spaces == 1) {
+    else if (rendata_get_spaces (rd_data) == 1) {
         ProcessData pd_data = { " ", "_", 0, 0, 0, 0, 0 };
         string_process_filename (string_replace_in,
                                  rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
-                                 rd_data->applyto);
+                                 rendata_get_applyto (rd_data));
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -191,8 +188,8 @@ name_replace_strings (RenData             *rd_data,
                       const uint_fast32_t  i)
 {
     ProcessData pd_data = {
-        rd_data->replace->s_from,
-        rd_data->replace->s_to,
+        rreplace_get_from (rd_data->replace),
+        rreplace_get_to (rd_data->replace),
         0,
         0,
         0,
@@ -204,7 +201,7 @@ name_replace_strings (RenData             *rd_data,
         string_process_filename (string_replace_in,
                                  rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
-                                 rd_data->applyto);
+                                 rendata_get_applyto (rd_data));
     }
 }
 /*----------------------------------------------------------------------------*/

@@ -26,15 +26,15 @@
 /*----------------------------------------------------------------------------*/
 /**
  * @def   FOLDER_SELECT_FILES
- * @brief Value for select files in folder
+ * @brief Option for select files in folder
  * @def   FOLDER_SELECT_FOLDERS
- * @brief Value for select folders in folder
+ * @brief Option for select folders in folder
  * @def   FOLDER_SELECT_SYMLINKS
- * @brief Value for select file/dir symlinks
+ * @brief Option for select file/dir symlinks
  * @def   FOLDER_SELECT_HIDDEN
- * @brief Value for select hidden files/dirs
+ * @brief Option for select hidden files/dirs
  * @def   FOLDER_SCAN_RECURSIVELY
- * @brief Value for scanning directory recursively
+ * @brief Option for scanning directory recursively
  */
 #define FOLDER_SELECT_FILES      1
 #define FOLDER_SELECT_FOLDERS    2

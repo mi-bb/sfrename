@@ -47,6 +47,42 @@ RDelete {
 } RDelete;
 /*----------------------------------------------------------------------------*/
 /**
+ * @fn         uint8_t rdelete_get_cnt (const RDelete *r_delete)
+ * @brief      Get cnt value.
+ * @param[in]  r_delete  RDelete object
+ * @return     cnt value
+ *
+ * @fn         void rdelete_set_cnt (RDelete *r_delete,
+ *                                   uint8_t  val)
+ * @brief      Set cnt value.
+ * @param[out] r_delete  RDelete object
+ * @param[in]  val       New cnt value
+ * @return     none
+ *
+ * @fn         uint8_t rdelete_get_pos (const RDelete *r_delete)
+ * @brief      Get pos value.
+ * @param[in]  r_delete  RDelete object
+ * @return     pos value
+ *
+ * @fn         void rdelete_set_pos (RDelete *r_delete,
+ *                                   uint8_t  val)
+ * @brief      Set pos value.
+ * @param[out] r_delete  RDelete object
+ * @param[in]  val       New pos value
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+uint8_t rdelete_get_cnt (const RDelete *r_delete) __attribute__ ((pure));
+
+void    rdelete_set_cnt (RDelete       *r_delete,
+                         uint8_t        val);
+
+uint8_t rdelete_get_pos (const RDelete *r_delete) __attribute__ ((pure));
+
+void    rdelete_set_pos (RDelete       *r_delete,
+                         uint8_t        val);
+/*----------------------------------------------------------------------------*/
+/**
  * @struct RInsOvr
  *
  * @brief  Insert / Overwrite text in name settings
@@ -64,6 +100,42 @@ RInsOvr {
 } RInsOvr;
 /*----------------------------------------------------------------------------*/
 /**
+ * @fn         const char * rinsovr_get_text (const RInsOvr *rio_item)
+ * @brief      Get text string.
+ * @param[in]  rio_item  RInsOvr object
+ * @return     text string
+ *
+ * @fn         void rinsovr_set_text (RInsOvr    *rio_item,
+ *                                    const char *val)
+ * @brief      Set text string.
+ * @param[out] rio_item  RInsOvr object
+ * @param[in]  val       New text string
+ * @return     none
+ *
+ * @fn         uint8_t rinsovr_get_pos (const RInsOvr *rio_item)
+ * @brief      Get pos value.
+ * @param[in]  rio_item  RInsOvr object
+ * @return     pos value
+ *
+ * @fn         void rinsovr_set_pos  (RInsOvr       *rio_item,
+ *                                    const uint8_t  val)
+ * @brief      Set pos value.
+ * @param[out] rio_item  RInsOvr object
+ * @param[in]  val       New pos value
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+const char * rinsovr_get_text (const RInsOvr *rio_item);
+
+void         rinsovr_set_text (RInsOvr       *rio_item,
+                               const char    *val);
+
+uint8_t      rinsovr_get_pos  (const RInsOvr *rio_item) __attribute__ ((pure));
+
+void         rinsovr_set_pos  (RInsOvr       *rio_item,
+                               const uint8_t  val);
+/*----------------------------------------------------------------------------*/
+/**
  * @struct RReplace
  *
  * @brief  Replace strings in name settings
@@ -79,6 +151,42 @@ RReplace {
     char      s_from [FN_LEN + 1];
     char      s_to   [FN_LEN + 1];
 } RReplace;
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn         const char * rreplace_get_from (const RReplace *r_replace)
+ * @brief      Get "from" string.
+ * @param[in]  r_replace  RReplace object
+ * @return     "from" string
+ *
+ * @fn         void rreplace_set_from (RReplace   *r_replace,
+ *                                     const char *val)
+ * @brief      Set "from" string.
+ * @param[out] r_replace  RReplace object
+ * @param[in]  val        New "from" string
+ * @return     none
+ *
+ * @fn         const char * rreplace_get_to (const RReplace *r_replace)
+ * @brief      Get "to" string.
+ * @param[in]  r_replace  RReplace object
+ * @return     "to" string
+ *
+ * @fn         void rreplace_set_to   (RReplace   *r_replace,
+ *                                     const char *val)
+ * @brief      Set "to" string.
+ * @param[out] r_replace  RReplace object
+ * @param[in]  val        New "to" string
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+const char * rreplace_get_from (const RReplace *r_replace);
+
+void         rreplace_set_from (RReplace       *r_replace,
+                                const char     *val);
+
+const char * rreplace_get_to   (const RReplace *r_replace);
+
+void         rreplace_set_to   (RReplace       *r_replace,
+                                const char     *val);
 /*----------------------------------------------------------------------------*/
 /**
  * @struct RNumber
@@ -100,6 +208,62 @@ RNumber {
     uint_fast32_t start;
     uint8_t       pos;
 } RNumber;
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn         int8_t rnumber_get_opt (const RNumber *r_number)
+ * @brief      Get opt value.
+ * @param[in]  r_number  RNumber object
+ * @return     opt value
+ *
+ * @fn         void rnumber_set_opt (RNumber      *r_number,
+ *                                   const int8_t  val)
+ * @brief      Set opt value.
+ * @param[out] r_number  RNumber object
+ * @param[in]  val       New opt value
+ * @return     none
+ *
+ * @fn         uint_fast32_t rnumber_get_start (const RNumber *r_number)
+ * @brief      Get start value.
+ * @param[in]  r_number  RNumber object
+ * @return     start value
+ *
+ * @fn         void rnumber_set_start (RNumber             *r_number,
+ *                                     const uint_fast32_t  val)
+ * @brief      Set start value.
+ * @param[out] r_number  RNumber object
+ * @param[in]  val       New start value
+ * @return     none
+ *
+ * @fn         uint8_t rnumber_get_pos (const RNumber *r_number)
+ * @brief      Get pos value.
+ * @param[in]  r_number  RNumber object
+ * @return     pos value
+ *
+ * @fn         void rnumber_set_pos (RNumber       *r_number,
+ *                                   const uint8_t  val)
+ * @brief      Set pos value.
+ * @param[out] r_number  RNumber object
+ * @param[in]  val       New pos value
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+int8_t        rnumber_get_opt   (const RNumber       *r_number)
+              __attribute__ ((pure));
+
+void          rnumber_set_opt   (RNumber             *r_number,
+                                 const int8_t         val);
+
+uint_fast32_t rnumber_get_start (const RNumber       *r_number)
+              __attribute__ ((pure));
+
+void          rnumber_set_start (RNumber             *r_number,
+                                 const uint_fast32_t  val);
+
+uint8_t       rnumber_get_pos   (const RNumber       *r_number)
+              __attribute__ ((pure));
+
+void          rnumber_set_pos   (RNumber             *r_number,
+                                 const uint8_t        val);
 /*----------------------------------------------------------------------------*/
 /** 
  * @struct RenData
@@ -130,7 +294,7 @@ RNumber {
  * @brief Apply to file names/ext or both option
  * @var   RenData::renexit
  * @brief Exit after rename option
- * @var   RenData::i_opt
+ * @var   RenData::dirsel
  * @brief Select files from directory options
  */ 
 typedef struct
@@ -145,7 +309,7 @@ RenData {
     int8_t     spaces;   /* Spaces/underscores option */
     int8_t     applyto;  /* Apply to file names/ext or both option */
     int8_t     renexit;  /* Exit after rename option */
-    int8_t     i_opt;    /* Select files from directory options */
+    int8_t     dirsel;   /* Select files from directory options */
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**
@@ -155,7 +319,7 @@ RenData {
  *
  * @fn         void rendata_free (RenData *rd_data)
  * @brief      Free allocated memory.
- * @param[out] rd_data Pointer to RenData object
+ * @param[out] rd_data RenData object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
@@ -170,6 +334,93 @@ void      rendata_free (RenData *rd_data);
  * @return    RFnames item
  */
 RFnames * rendata_get_names (const RenData *rd_data) __attribute__ ((pure));
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn         int8_t rendata_get_uplo (const RenData *rd_data)
+ * @brief      Get uplo value.
+ * @param[in]  rd_data  RenData object
+ * @return     uplo value
+ *
+ * @fn         void rendata_set_uplo (RenData *rd_data,
+ *                                    int8_t   val)
+ * @brief      Set uplo value.
+ * @param[out] rd_data  RenData object
+ * @param[in]  val      New uplo value
+ * @return     none
+ *
+ * @fn         int8_t rendata_get_spaces (const RenData *rd_data)
+ * @brief      Get spaces value.
+ * @param[in]  rd_data  RenData object
+ * @return     spaces value
+ *
+ * @fn         void rendata_set_spaces (RenData *rd_data,
+ *                                      int8_t   val)
+ * @brief      Set spaces value.
+ * @param[out] rd_data  RenData object
+ * @param[in]  val      New spaces value
+ * @return     none
+ *
+ * @fn         int8_t rendata_get_applyto (const RenData *rd_data)
+ * @brief      Get applyto value.
+ * @param[in]  rd_data  RenData object
+ * @return     applyto value
+ *
+ * @fn         void rendata_set_applyto (RenData *rd_data,
+ *                                       int8_t   val)
+ * @brief      Set applyto value.
+ * @param[out] rd_data  RenData object
+ * @param[in]  val      New applyto value
+ * @return     none
+ *
+ * @fn         int8_t rendata_get_renexit (const RenData *rd_data)
+ * @brief      Get renexit value.
+ * @param[in]  rd_data  RenData object
+ * @return     renexit value
+ *
+ * @fn         void rendata_set_renexit (RenData *rd_data,
+ *                                       int8_t   val)
+ * @brief      Set renexit value.
+ * @param[out] rd_data  RenData object
+ * @param[in]  val      New renexit value
+ * @return     none
+ *
+ * @fn         int8_t rendata_get_dirsel (const RenData *rd_data)
+ * @brief      Get dirsel value.
+ * @param[in]  rd_data  RenData object
+ * @return     dirsel value
+ *
+ * @fn         void rendata_set_dirsel  (RenData *rd_data,
+ *                                       int8_t   val)
+ * @brief      Set dirsel value.
+ * @param[out] rd_data  RenData object
+ * @param[in]  val      New dirsel value
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+int8_t    rendata_get_uplo    (const RenData *rd_data) __attribute__ ((pure));
+
+void      rendata_set_uplo    (RenData       *rd_data,
+                               int8_t         val);
+
+int8_t    rendata_get_spaces  (const RenData *rd_data) __attribute__ ((pure));
+
+void      rendata_set_spaces  (RenData       *rd_data,
+                               int8_t         val);
+
+int8_t    rendata_get_applyto (const RenData *rd_data) __attribute__ ((pure));
+
+void      rendata_set_applyto (RenData       *rd_data,
+                               int8_t         val);
+
+int8_t    rendata_get_renexit (const RenData *rd_data) __attribute__ ((pure));
+
+void      rendata_set_renexit (RenData       *rd_data,
+                               int8_t         val);
+
+int8_t    rendata_get_dirsel  (const RenData *rd_data) __attribute__ ((pure));
+
+void      rendata_set_dirsel  (RenData       *rd_data,
+                               int8_t         val);
 /*----------------------------------------------------------------------------*/
 #endif
 
