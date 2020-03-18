@@ -39,6 +39,16 @@
  * @brief Application website
  * @def   APP_DSC
  * @brief Application description
+ * @def   DEF_UPLO
+ * @brief Default upper/lower case option
+ * @def   DEF_SPACES
+ * @brief Default spaces/underscores option
+ * @def   DEF_APPLTO
+ * @brief Default apply to file names/ext or both option
+ * @def   DEF_RENEXT
+ * @brief Default exit after rename option
+ * @def   DEF_DIRSEL
+ * @brief Default select files from directory options
  */
 #define FN_LEN     255
 #define WIN_WIDTH  600
@@ -47,6 +57,11 @@
 #define APP_VER    "1.2.4"
 #define APP_WEB    "http://www.nongnu.org/small-file-renamer/"
 #define APP_DSC    "Program for renaming files and directories."
+#define DEF_UPLO   2
+#define DEF_SPACES 2
+#define DEF_APPLTO 2
+#define DEF_RENEXT 1
+#define DEF_DIRSEL 1
 /*----------------------------------------------------------------------------*/
 enum {
     REN_OK,       /**< File renamed */

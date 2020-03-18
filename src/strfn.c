@@ -31,8 +31,8 @@
  * @brief  Get length (not greater than ui_max) in bytes for the input string.
  */
 size_t
-get_valid_length (const char   *s_str,
-                  const size_t  ui_max)
+string_get_valid_length (const char   *s_str,
+                         const size_t  ui_max)
 {
     const char *s_end  = NULL; /* Pointer to last valid char in string */
     size_t      ui_len = 0;    /* Valid length to return */
@@ -99,7 +99,7 @@ string_replace_in (char              *s_src_dst,
     else
         return;
 
-    ui_vlen = get_valid_length (s_tmp, ui_max);
+    ui_vlen = string_get_valid_length (s_tmp, ui_max);
 
     memcpy (s_src_dst, s_tmp, ui_vlen);
     s_src_dst[ui_vlen] = '\0';
@@ -195,7 +195,7 @@ string_insert_string (char              *s_src_dst,
     else
         return;
 
-    ui_len = get_valid_length (s_tmp, ui_max);
+    ui_len = string_get_valid_length (s_tmp, ui_max);
 
     memcpy (s_src_dst, s_tmp, ui_len);
     s_src_dst[ui_len] = '\0';
@@ -260,7 +260,7 @@ string_overwrite_string (char              *s_src_dst,
     else
         return;
     
-    ui_len = get_valid_length (s_tmp, ui_max);
+    ui_len = string_get_valid_length (s_tmp, ui_max);
 
     memcpy (s_src_dst, s_tmp, ui_len);
     s_src_dst[ui_len] = '\0';
@@ -333,7 +333,7 @@ string_to_lower (char              *s_src_dst,
     if (g_utf8_validate (s_src_dst, -1, NULL)) {
 
         s_tt   = g_utf8_strdown (s_src_dst, -1);
-        ui_len = get_valid_length (s_tt, ui_max);
+        ui_len = string_get_valid_length (s_tt, ui_max);
         memcpy (s_src_dst, s_tt, ui_len);
         s_src_dst[ui_len] = '\0';
 
@@ -360,7 +360,7 @@ string_to_upper (char              *s_src_dst,
     if (g_utf8_validate (s_src_dst, -1, NULL)) {
 
         s_tt   = g_utf8_strup(s_src_dst, -1);
-        ui_len = get_valid_length (s_tt, ui_max);
+        ui_len = string_get_valid_length (s_tt, ui_max);
         memcpy (s_src_dst, s_tt, ui_len);
         s_src_dst[ui_len] = '\0';
 
@@ -409,7 +409,7 @@ string_combine_name_ext (char       *s_name_ext,
     const size_t ui_elen = strlen (s_ext);   /* Length of file extension */
     const size_t ui_max  = FN_LEN - ui_elen; /* Maximal length of file name */
 
-    ui_len = get_valid_length (s_name, ui_max);
+    ui_len = string_get_valid_length (s_name, ui_max);
 
     if (strcmp (s_ext, "") != 0) { /* extension present */
 

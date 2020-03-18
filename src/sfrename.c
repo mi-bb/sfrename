@@ -113,17 +113,20 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *rd_data)
 {
-    RFitem *rf_item; /* RFitem object to process */
+    RFitem        *rf_item;    /* RFitem object to process */
+    uint_fast32_t  ui_cnt = 0; /* Number of file items */
+
+    ui_cnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
 
     /* Check if file is checked and skip to next one if it is not */
-    for (uint_fast32_t i = 0; i < rd_data->names->cnt; ++i) {
+    for (uint_fast32_t i = 0; i < ui_cnt; ++i) {
         rf_item = rd_data->names->rf_items[i];
 
         if (!rfitem_get_checked (rf_item))
             continue;
 
         /* copy original name to new to process */
-        strcpy (rf_item->s_new, rf_item->s_org);
+        rfitem_set_snew (rf_item, rfitem_get_sorg (rf_item));
 
         /* Execute rename functions */
         name_to_upcase_lowercase (rd_data, i);
@@ -134,7 +137,7 @@ file_names_update_changes (RenData *rd_data)
         name_overwrite_string (rd_data, i);
         name_number_string (rd_data, i);
         /* Update file name entry if name has changed */
-        rfitem_entry_check_and_update (rf_item, rf_item->s_new);
+        rfitem_entry_check_and_update (rf_item, rfitem_get_snew (rf_item));
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -301,7 +304,7 @@ event_click_rename (GtkWidget *widget,
     uint_fast32_t  ui_names_cnt = 0;    /* Number of files to rename */
     RFitem        *rf_item;             /* Processed RFitem object */
 
-    ui_names_cnt = rfnames_get_cnt (rd_data->names);
+    ui_names_cnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
 
     for (uint_fast32_t i = 0; i < ui_names_cnt; ++i) {
         rf_item = rd_data->names->rf_items[i];
@@ -371,7 +374,7 @@ event_insert_pos_changed (GtkSpinButton *sp_button,
     rinsovr_set_pos (rd_data->ins,
                      (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rinsovr_get_text (rd_data->ins)[0] != '\0')
+    if (!rinsovr_empty (rendata_get_rinsert (rd_data)))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -413,7 +416,7 @@ event_overwrite_pos_changed (GtkSpinButton *sp_button,
     rinsovr_set_pos (rd_data->ovrw,
                      (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rinsovr_get_text (rd_data->ovrw)[0] != '\0')
+    if (!rinsovr_empty (rendata_get_roverwr (rd_data)))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -475,7 +478,7 @@ event_delete_pos_changed (GtkSpinButton *sp_button,
     rdelete_set_pos (rd_data->del,
                      (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rdelete_get_cnt (rd_data->del) > 0)
+    if (rdelete_get_cnt (rendata_get_rdelete (rd_data)) > 0)
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -562,7 +565,7 @@ event_replace_to_entry_changed (GtkWidget *widget,
 
     rreplace_set_to (rd_data->replace, s_en);
 
-    if (rreplace_get_from (rd_data->replace)[0] != '\0')
+    if (!rreplace_empty_from (rendata_get_rreplace (rd_data)))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -622,7 +625,7 @@ event_number_start_changed (GtkSpinButton *sp_button,
     rnumber_set_start (rd_data->number, 
         (uint32_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rnumber_get_opt (rd_data->number))
+    if (rnumber_get_opt (rendata_get_rnumber (rd_data)))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -640,7 +643,7 @@ event_number_pos_changed (GtkSpinButton *sp_button,
     rnumber_set_pos (rd_data->number,
         (uint8_t) gtk_spin_button_get_value_as_int (sp_button));
 
-    if (rnumber_get_opt (rd_data->number))
+    if (rnumber_get_opt (rendata_get_rnumber (rd_data)))
         file_names_update_changes (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -727,7 +730,7 @@ event_click_add_folder_files (RenData *rd_data)
     size_t  ui_pcnt = 0;    /* Previous number of file items on list */
     char   *s_dir   = NULL; /* Folder path */
 
-    ui_pcnt = rd_data->names->cnt;
+    ui_pcnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
     i_opt   = rendata_get_dirsel (rd_data);
     i_opt   = i_opt < 1 ? 1 : i_opt;
     s_dir   = add_files_folder_dialog (NULL, &i_opt);
@@ -740,7 +743,7 @@ event_click_add_folder_files (RenData *rd_data)
     gtk_widget_show_all (rd_data->names->file_box);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rfnames_get_cnt (rd_data->names) > 0) {
+    if (ui_pcnt == 0 && rfnames_get_cnt (rendata_get_rfnames (rd_data)) > 0) {
         gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
     }
 }
@@ -791,12 +794,12 @@ create_img_menu_item (const char    *s_label,
     if (gw_img != NULL) {
         gtk_box_pack_start (GTK_BOX (gw_box), gw_img, FALSE, FALSE, 4);
     }
-    if (s_label != NULL && strcmp (s_label, "") != 0) {
+    if (s_label != NULL && s_label[0] != '\0') {
         GtkWidget *gw_lab = gtk_label_new (s_label);
         /*gtk_container_add (GTK_CONTAINER (gw_box), gw_lab);*/
         gtk_box_pack_start (GTK_BOX (gw_box), gw_lab, FALSE, FALSE, 4);
     }
-    if (s_hint != NULL && strcmp (s_hint, "") != 0) {
+    if (s_hint != NULL && s_hint[0] != '\0') {
         gtk_widget_set_tooltip_text (gw_item, s_hint);
     }
     gtk_container_add (GTK_CONTAINER (gw_item), gw_box);
@@ -1463,7 +1466,7 @@ create_window (GtkWidget        **window,
     gtk_container_set_border_width (GTK_CONTAINER (*window), 10);
     gtk_window_set_default_size (GTK_WINDOW (*window), WIN_WIDTH, WIN_HEIGHT);
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
-    
+
     /* Set default application icon */
     gd_pix = get_image (W_ICON_ABOUT);
     if (gd_pix != NULL) {
@@ -1589,7 +1592,7 @@ open (GtkApplication  *application,
     gtk_container_add (GTK_CONTAINER (window), gw_vbox);
 
     /* Set focus on first entry if file count is greater than 0 */
-    if (rd_data->names->cnt > 0) {
+    if (rfnames_get_cnt (rendata_get_rfnames (rd_data)) > 0) {
         gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
     }
     gtk_widget_show_all (window);

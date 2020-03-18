@@ -133,7 +133,7 @@ str_compare (const char *a,
 static void
 rfitem_label_set_markup (RFitem *rf_item)
 {
-    char s_mark[100];
+    char s_mark [100];
     s_mark[0] = '\0';
 
     strcpy (s_mark, "<span font_family=\"monospace\"");

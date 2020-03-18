@@ -15,6 +15,10 @@
 
 bin_PROGRAMS = sfrename
 sfrename_SOURCES = sfrename.c\
+                   rdelete.c rdelete.h\
+                   rinsovr.c rinsovr.h\
+                   rreplace.c rreplace.h\
+                   rnumber.c rnumber.h\
                    rendata.c rendata.h\
                    rfnames.c rfnames.h\
                    rfitem.c rfitem.h\

@@ -70,7 +70,7 @@ ProcessData {
  * @param[in] ui_max  Maximum possible bytes of length
  * @return    Length in bytes of correct chars up to ui_max value
  */
-size_t get_valid_length        (const char         *s_str,
+size_t string_get_valid_length (const char         *s_str,
                                 const size_t        ui_max)
                                 __attribute__ ((pure, nonnull (1)));
 /*----------------------------------------------------------------------------*/
