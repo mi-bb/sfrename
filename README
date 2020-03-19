@@ -33,7 +33,7 @@ About
 
 Small File Renamer is an application for renaming files and directories.
 
-Program works in GNU/Linux.
+Program works in GNU/Linux, FreeBSD.
 
 It was originally made to work with Midnight Commander but it may be used
 separately or with some other program.
@@ -42,7 +42,7 @@ separately or with some other program.
 Requirements
 -------------
 
- * GNU/Linux
+ * GNU/Linux, FreeBSD
  * GCC / Clang
  * GTK+ 3 (3.22)
 
@@ -52,7 +52,9 @@ Installation and running
 
 For installation instructions see INSTALL file.
 
-File names should be passed to program as arguments, example of use:
+Program can be run in standalone mode or files can be passed as command
+arguments.
+Example of use when passing files as command arguments:
 
     sfrename filename1.ext filename2.ext
 

@@ -23,6 +23,7 @@
  */
 #ifndef RNUMBER_H
 #define RNUMBER_H
+
 #include <stdint.h>
 /*----------------------------------------------------------------------------*/
 /**
@@ -57,7 +58,7 @@ RNumber {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RNumber * rnumber_new  (void) __attribute__ ((returns_nonnull));
+RNumber * rnumber_new  (void) __attribute__ ((malloc, returns_nonnull));
 
 void      rnumber_free (RNumber *r_number);
 /*----------------------------------------------------------------------------*/

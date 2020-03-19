@@ -23,6 +23,7 @@
  */
 #ifndef RFNAMES_H
 #define RFNAMES_H
+
 #include <gtk/gtk.h>
 #include "rfitem.h"
 /*----------------------------------------------------------------------------*/

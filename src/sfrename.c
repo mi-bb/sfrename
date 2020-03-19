@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date March 1, 2020
+ * @date March 19, 2020
  *
- * @version 1.2.4
+ * @version 1.2.5
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */

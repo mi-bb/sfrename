@@ -23,6 +23,7 @@
  */
 #ifndef RINSOVR_H
 #define RINSOVR_H
+
 #include <stdint.h>
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
@@ -54,7 +55,7 @@ RInsOvr {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RInsOvr * rinsovr_new  (void) __attribute__ ((returns_nonnull));
+RInsOvr * rinsovr_new  (void) __attribute__ ((malloc, returns_nonnull));
 
 void      rinsovr_free (RInsOvr *r_insovr);
 /*----------------------------------------------------------------------------*/

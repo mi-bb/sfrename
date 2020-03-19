@@ -23,6 +23,7 @@
  */
 #ifndef RDELETE_H
 #define RDELETE_H
+
 #include <stdint.h>
 /*----------------------------------------------------------------------------*/
 /**
@@ -53,7 +54,7 @@ RDelete {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RDelete * rdelete_new  (void) __attribute__ ((returns_nonnull));
+RDelete * rdelete_new  (void) __attribute__ ((malloc, returns_nonnull));
 
 void      rdelete_free (RDelete *r_delete);
 /*----------------------------------------------------------------------------*/

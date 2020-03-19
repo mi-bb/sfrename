@@ -23,6 +23,7 @@
  */
 #ifndef RREPLACE_H
 #define RREPLACE_H
+
 #include <stdint.h>
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
@@ -54,7 +55,7 @@ RReplace {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RReplace * rreplace_new  (void) __attribute__ ((returns_nonnull));
+RReplace * rreplace_new  (void) __attribute__ ((malloc, returns_nonnull));
 
 void       rreplace_free (RReplace *r_replace);
 /*----------------------------------------------------------------------------*/
