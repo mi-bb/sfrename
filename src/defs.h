@@ -54,7 +54,7 @@
 #define WIN_WIDTH  600
 #define WIN_HEIGHT 800
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.2.5"
+#define APP_VER    "1.2.6"
 #define APP_WEB    "http://www.nongnu.org/small-file-renamer/"
 #define APP_DSC    "Program for renaming files and directories."
 #define DEF_UPLO   2

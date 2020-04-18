@@ -26,7 +26,7 @@
  *
  * @date March 19, 2020
  *
- * @version 1.2.5
+ * @version 1.2.6
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -760,12 +760,9 @@ create_image_widget (const IconImg i_but)
     GtkWidget *gw_img = NULL; /* GtkImage widget to return */
     GdkPixbuf *gd_pix = NULL; /* Pigbuf to load graphics */
 
-    if (i_but < W_ICON_COUNT) {
-        gd_pix = get_image (i_but);
-        if (gd_pix != NULL) {
-            gw_img = gtk_image_new_from_pixbuf (gd_pix);
-            g_object_unref (gd_pix);
-        }
+    if (i_but < W_ICON_COUNT && (gd_pix = get_image (i_but)) != NULL) {
+        gw_img = gtk_image_new_from_pixbuf (gd_pix);
+        g_object_unref (gd_pix);
     }
     return gw_img;
 }
@@ -790,8 +787,7 @@ create_img_menu_item (const char    *s_label,
     gw_item = gtk_menu_item_new ();
     gw_box  = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 
-    gw_img = create_image_widget (i_but);
-    if (gw_img != NULL) {
+    if ((gw_img = create_image_widget (i_but)) != NULL) {
         gtk_box_pack_start (GTK_BOX (gw_box), gw_img, FALSE, FALSE, 4);
     }
     if (s_label != NULL && s_label[0] != '\0') {
@@ -1468,8 +1464,7 @@ create_window (GtkWidget        **window,
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
 
     /* Set default application icon */
-    gd_pix = get_image (W_ICON_ABOUT);
-    if (gd_pix != NULL) {
+    if ((gd_pix = get_image (W_ICON_ABOUT)) != NULL) {
         gtk_window_set_default_icon (gd_pix);
         g_object_unref (gd_pix);
     }

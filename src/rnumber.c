@@ -23,6 +23,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <err.h>
 #include "rnumber.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -47,12 +48,9 @@ rnumber_new (void)
 {
     RNumber *r_num = NULL;
 
-    r_num = malloc (sizeof (RNumber));
+    if ((r_num = malloc (sizeof (RNumber))) == NULL)
+        err (EXIT_FAILURE, NULL);
 
-    if (r_num == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
     rnumber_init (r_num);
     return r_num;
 }

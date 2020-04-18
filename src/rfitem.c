@@ -21,6 +21,7 @@
  * 
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
+#include <err.h>
 #include "defs.h"
 #include "rfitem.h"
 /*----------------------------------------------------------------------------*/
@@ -195,12 +196,9 @@ rfitem_new_from_gfile (GFile *g_file)
     const char *s_path  = NULL; /* Full file path dir + file name */
     const char *s_fn    = NULL; /* File name only */
 
-    rf_item = malloc (sizeof (RFitem));
+    if ((rf_item = malloc (sizeof (RFitem))) == NULL)
+        err (EXIT_FAILURE, NULL);
 
-    if (rf_item == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
     rfitem_init (rf_item);
 
     rf_item->s_org = malloc ((FN_LEN + 1) * sizeof (char));
@@ -208,9 +206,8 @@ rfitem_new_from_gfile (GFile *g_file)
     rf_item->s_pth = malloc ((FN_LEN + 1) * sizeof (char));
     if (rf_item->s_org == NULL || rf_item->s_new == NULL ||
         rf_item->s_pth == NULL) {
-        fputs ("Alloc error\n", stderr);
         free (rf_item);
-        exit (EXIT_FAILURE);
+        err (EXIT_FAILURE, NULL);
     }
     rf_item->s_org[0] = '\0';
     rf_item->s_new[0] = '\0';

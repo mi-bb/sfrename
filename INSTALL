@@ -17,13 +17,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 Basic Installation
 -------------------
 
-You need to have autotools installed for autogen.sh script to add
-configure and make scripts.
-Otherwise this scripts are included in standard program package.
+A most simple way to install application is to unpack archive,
+go to sources directory and type:
 
-Commands to configure, build and install program:
-
-    ./autogen.sh
     ./configure
     make
     make install
@@ -37,9 +33,13 @@ Compilers and Options
 
 For a normal daily use of this program a good option should be:
 
+    ./configure CFLAGS="-march=native -O2 -pipe"
+
+or more specific:
+
     ./configure CC="gcc" CFLAGS="-march=native -O2 -pipe -std=gnu11"
 
-Or with Clang
+with CLANG:
 
     ./configure CC="clang" CFLAGS="-march=native -O2 -pipe -std=gnu11"
 

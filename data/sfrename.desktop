@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Small File Renamer
+GenericName=File Renamer
+Comment=Multiple file renaming application
+Icon=sfrename
+Exec=sfrename
+Terminal=false
+Categories=GTK;Utility;FileTools;

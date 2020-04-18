@@ -16,11 +16,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 AC_PREREQ([2.69])
-AC_INIT([sfrename], [1.2.5], [michalb1981@o2.pl], [sfrename],\
+AC_INIT([sfrename], [1.2.6], [michalb1981@o2.pl], [sfrename],\
         [https://www.nongnu.org/small-file-renamer/])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/sfrename.c])
 AC_CONFIG_HEADERS([config.h])
+AC_GNU_SOURCE
 
 # Checks for programs.
 AC_PROG_CC
@@ -44,6 +45,6 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memmove memset strrchr strstr])
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile data/Makefile])
 AC_OUTPUT
 

@@ -13,6 +13,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2020-04-18  Michal Babik  <michalb1981@o2.pl>
+
+	* data/sfrename.desktop: New desktop entry.
+	* data/sfrename.png: New pixmap.
+
 2020-03-19  Michal Babik  <michalb1981@o2.pl>
 
 	* defs.h: Added default options DEF_UPLO DEF_SPACES DEF_APPLTO DEF_RENEXT

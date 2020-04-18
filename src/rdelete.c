@@ -23,6 +23,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <err.h>
 #include "rdelete.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -48,12 +49,9 @@ rdelete_new (void)
 {
     RDelete *rd_new = NULL;
 
-    rd_new = malloc (sizeof (RDelete));
+    if ((rd_new = malloc (sizeof (RDelete))) == NULL)
+        err (EXIT_FAILURE, NULL);
 
-    if (rd_new == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
     rdelete_init (rd_new);
     return rd_new;
 }

@@ -21,6 +21,7 @@
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
+#include <err.h>
 #include "strfn.h"
 #include "rendata.h"
 /*----------------------------------------------------------------------------*/
@@ -58,11 +59,9 @@ rendata_new (void)
 {
     RenData *rd_data = NULL;
 
-    rd_data = malloc (sizeof (RenData));
-    if (rd_data == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
+    if ((rd_data = malloc (sizeof (RenData))) == NULL)
+        err (EXIT_FAILURE, NULL);
+
     rendata_init (rd_data);
 
     rd_data->uplo    = DEF_UPLO;

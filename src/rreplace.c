@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <err.h>
 #include "strfn.h"
 #include "rreplace.h"
 /*----------------------------------------------------------------------------*/
@@ -48,12 +49,9 @@ rreplace_new (void)
 {
     RReplace *r_rep = NULL;
 
-    r_rep = malloc (sizeof (RReplace));
+    if ((r_rep = malloc (sizeof (RReplace))) == NULL)
+        err (EXIT_FAILURE, NULL);
 
-    if (r_rep == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
     rreplace_init (r_rep);
     return r_rep;
 }

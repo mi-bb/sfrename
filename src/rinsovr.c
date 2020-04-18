@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <err.h>
 #include "strfn.h"
 #include "rinsovr.h"
 /*----------------------------------------------------------------------------*/
@@ -48,12 +49,9 @@ rinsovr_new (void)
 {
     RInsOvr *r_ins = NULL;
 
-    r_ins = malloc (sizeof (RInsOvr));
+    if ((r_ins = malloc (sizeof (RInsOvr))) == NULL)
+        err (EXIT_FAILURE, NULL);
 
-    if (r_ins == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
     rinsovr_init (r_ins);
     return r_ins;
 }

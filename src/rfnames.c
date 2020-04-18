@@ -22,6 +22,7 @@
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
 #include <stdint.h>
+#include <err.h>
 #include "defs.h"
 #include "rfnames.h"
 /*----------------------------------------------------------------------------*/
@@ -112,12 +113,9 @@ rfnames_new (void)
 {
     RFnames *rf_names = NULL;
 
-    rf_names = malloc (sizeof (RFnames));
+    if ((rf_names = malloc (sizeof (RFnames))) == NULL)
+        err (EXIT_FAILURE, NULL);
 
-    if (rf_names == NULL) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
     rfnames_init (rf_names);
 
     return rf_names;
@@ -155,8 +153,7 @@ rfnames_append (RFnames *rf_names,
                 rfitem_free (rf_names->rf_items[i]);
             }
             free (rf_names->rf_items);
-            fputs ("Alloc error\n", stderr);
-            exit (EXIT_FAILURE);
+            err (EXIT_FAILURE, NULL);
         }
         else {
             rf_names->rf_items = rf_tmp;
@@ -205,8 +202,7 @@ rfnames_delete_at_pos (RFnames             *rf_names,
             rfitem_free (rf_names->rf_items[i]);
         }
         free (rf_names->rf_items);
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
+        err (EXIT_FAILURE, NULL);
     }
     else {
         rf_names->rf_items = rf_tmp;
