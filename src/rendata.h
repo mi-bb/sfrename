@@ -81,12 +81,16 @@ RenData {
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**
- * @fn     RenData *rendata_new (void)
+ * @fn  RenData *rendata_new (void)
+ *
  * @brief  Create and return new RenData item.
+ *
  * @return RenData item
  *
- * @fn         void rendata_free (RenData *rd_data)
- * @brief      Free allocated memory.
+ * @fn  void rendata_free (RenData *rd_data)
+ *
+ * @brief  Free allocated memory.
+ *
  * @param[out] rd_data RenData object
  * @return     none
  */
@@ -96,81 +100,139 @@ RenData * rendata_new  (void) __attribute__ ((returns_nonnull));
 void      rendata_free (RenData *rd_data);
 /*----------------------------------------------------------------------------*/
 /**
+ * @fn  const RFnames * rendata_get_rfnames (const RenData *rd_data)
+ *
  * @brief  Get names object with file list.
  *
- * @param[in] rd_data RenData object with RFnames list
+ * @param[in] rd_data RenData object
  * @return    RFnames item
+ *
+ * @fn  const RDelete * rendata_get_rdelete (const RenData *rd_data)
+ *
+ * @brief  Get delete chars info structure.
+ *
+ * @param[in] rd_data RenData object
+ * @return    RDelete item
+ *
+ * @fn  const RInsOvr * rendata_get_rinsert (const RenData *rd_data)
+ *
+ * @brief  Get insert info structure.
+ *
+ * @param[in] rd_data RenData object
+ * @return    RInsOvr item
+ *
+ * @fn  const RInsOvr * rendata_get_roverwr (const RenData *rd_data)
+ *
+ * @brief  Get overwrite info structure.
+ *
+ * @param[in] rd_data RenData object
+ * @return    RInsOvr item
+ *
+ * @fn  const RReplace * rendata_get_rreplace (const RenData *rd_data)
+ *
+ * @brief  Get replace strings info structure.
+ *
+ * @param[in] rd_data RenData object
+ * @return    RReplace item
+ *
+ * @fn  const RNumber * rendata_get_rnumber (const RenData *rd_data)
+ *
+ * @brief  Get numbering strings info structure.
+ *
+ * @param[in] rd_data RenData object
+ * @return    RNumber item
  */
+/*----------------------------------------------------------------------------*/
 const RFnames * rendata_get_rfnames (const RenData *rd_data)
                 __attribute__ ((pure));
+
 const RDelete * rendata_get_rdelete (const RenData *rd_data)
                 __attribute__ ((pure));
+
 const RInsOvr * rendata_get_rinsert (const RenData *rd_data)
                 __attribute__ ((pure));
+
 const RInsOvr * rendata_get_roverwr (const RenData *rd_data)
                 __attribute__ ((pure));
+
 const RReplace * rendata_get_rreplace (const RenData *rd_data)
                 __attribute__ ((pure));
+
 const RNumber * rendata_get_rnumber (const RenData *rd_data)
                 __attribute__ ((pure));
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         int8_t rendata_get_uplo (const RenData *rd_data)
- * @brief      Get uplo value.
+ * @fn  int8_t rendata_get_uplo (const RenData *rd_data)
+ *
+ * @brief  Get uplo value.
+ *
  * @param[in]  rd_data  RenData object
  * @return     uplo value
  *
- * @fn         void rendata_set_uplo (RenData *rd_data,
- *                                    int8_t   val)
- * @brief      Set uplo value.
+ * @fn  void rendata_set_uplo (RenData *rd_data,
+ *                             int8_t   val)
+ * @brief  Set uplo value.
+ *
  * @param[out] rd_data  RenData object
  * @param[in]  val      New uplo value
  * @return     none
  *
- * @fn         int8_t rendata_get_spaces (const RenData *rd_data)
- * @brief      Get spaces value.
+ * @fn  int8_t rendata_get_spaces (const RenData *rd_data)
+ *
+ * @brief  Get spaces value.
+ *
  * @param[in]  rd_data  RenData object
  * @return     spaces value
  *
- * @fn         void rendata_set_spaces (RenData *rd_data,
- *                                      int8_t   val)
- * @brief      Set spaces value.
+ * @fn  void rendata_set_spaces (RenData *rd_data,
+ *                               int8_t   val)
+ * @brief  Set spaces value.
+ *
  * @param[out] rd_data  RenData object
  * @param[in]  val      New spaces value
  * @return     none
  *
- * @fn         int8_t rendata_get_applyto (const RenData *rd_data)
- * @brief      Get applyto value.
+ * @fn  int8_t rendata_get_applyto (const RenData *rd_data)
+ *
+ * @brief  Get applyto value.
+ *
  * @param[in]  rd_data  RenData object
  * @return     applyto value
  *
- * @fn         void rendata_set_applyto (RenData *rd_data,
- *                                       int8_t   val)
- * @brief      Set applyto value.
+ * @fn  void rendata_set_applyto (RenData *rd_data,
+ *                                int8_t   val)
+ * @brief  Set applyto value.
+ *
  * @param[out] rd_data  RenData object
  * @param[in]  val      New applyto value
  * @return     none
  *
- * @fn         int8_t rendata_get_renexit (const RenData *rd_data)
- * @brief      Get renexit value.
+ * @fn  int8_t rendata_get_renexit (const RenData *rd_data)
+ *
+ * @brief  Get renexit value.
+ *
  * @param[in]  rd_data  RenData object
  * @return     renexit value
  *
- * @fn         void rendata_set_renexit (RenData *rd_data,
- *                                       int8_t   val)
- * @brief      Set renexit value.
+ * @fn  void rendata_set_renexit (RenData *rd_data,
+ *                                int8_t   val)
+ * @brief  Set renexit value.
+ *
  * @param[out] rd_data  RenData object
  * @param[in]  val      New renexit value
  * @return     none
  *
- * @fn         int8_t rendata_get_dirsel (const RenData *rd_data)
- * @brief      Get dirsel value.
+ * @fn  int8_t rendata_get_dirsel (const RenData *rd_data)
+ *
+ * @brief  Get dirsel value.
+ *
  * @param[in]  rd_data  RenData object
  * @return     dirsel value
  *
- * @fn         void rendata_set_dirsel  (RenData *rd_data,
- *                                       int8_t   val)
- * @brief      Set dirsel value.
+ * @fn  void rendata_set_dirsel  (RenData *rd_data,
+ *                                int8_t   val)
+ * @brief  Set dirsel value.
+ *
  * @param[out] rd_data  RenData object
  * @param[in]  val      New dirsel value
  * @return     none

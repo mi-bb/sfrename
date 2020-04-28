@@ -103,42 +103,63 @@ rendata_get_rfnames (const RenData *rd_data)
     return (const RFnames *) rd_data->names;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get delete chars info structure.
+ */
 const RDelete *
 rendata_get_rdelete (const RenData *rd_data)
 {
     return (const RDelete *) rd_data->del;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get insert info structure.
+ */
 const RInsOvr *
 rendata_get_rinsert (const RenData *rd_data)
 {
     return (const RInsOvr *) rd_data->ins;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get overwrite info structure.
+ */
 const RInsOvr *
 rendata_get_roverwr (const RenData *rd_data)
 {
     return (const RInsOvr *) rd_data->ovrw;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get replace strings info structure.
+ */
 const RReplace *
 rendata_get_rreplace (const RenData *rd_data)
 {
     return (const RReplace *) rd_data->replace;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get numbering strings info structure.
+ */
 const RNumber *
 rendata_get_rnumber (const RenData *rd_data)
 {
     return (const RNumber *) rd_data->number;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get uplo value.
+ */
 int8_t
 rendata_get_uplo (const RenData *rd_data)
 {
     return rd_data->uplo;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set uplo value.
+ */
 void
 rendata_set_uplo (RenData *rd_data,
                   int8_t   val)
@@ -146,12 +167,18 @@ rendata_set_uplo (RenData *rd_data,
     rd_data->uplo = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get spaces value.
+ */
 int8_t
 rendata_get_spaces (const RenData *rd_data)
 {
     return rd_data->spaces;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set spaces value.
+ */
 void
 rendata_set_spaces (RenData *rd_data,
                     int8_t   val)
@@ -159,12 +186,18 @@ rendata_set_spaces (RenData *rd_data,
     rd_data->spaces = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get applyto value.
+ */
 int8_t
 rendata_get_applyto (const RenData *rd_data)
 {
     return rd_data->applyto;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set applyto value.
+ */
 void
 rendata_set_applyto (RenData *rd_data,
                      int8_t   val)
@@ -172,12 +205,18 @@ rendata_set_applyto (RenData *rd_data,
     rd_data->applyto = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get renexit value.
+ */
 int8_t
 rendata_get_renexit (const RenData *rd_data)
 {
     return rd_data->renexit;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set renexit value.
+ */
 void
 rendata_set_renexit (RenData *rd_data,
                      int8_t   val)
@@ -185,12 +224,18 @@ rendata_set_renexit (RenData *rd_data,
     rd_data->renexit = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get dirsel value.
+ */
 int8_t
 rendata_get_dirsel (const RenData *rd_data)
 {
     return rd_data->dirsel;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set dirsel value.
+ */
 void
 rendata_set_dirsel (RenData *rd_data,
                     int8_t   val)

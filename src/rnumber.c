@@ -21,7 +21,6 @@
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
 #include "rnumber.h"
@@ -64,12 +63,18 @@ rnumber_free (RNumber *r_number)
     free (r_number);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get opt value.
+ */
 int8_t
 rnumber_get_opt (const RNumber *r_number)
 {
     return r_number->opt;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set opt value.
+ */
 void
 rnumber_set_opt (RNumber      *r_number,
                  const int8_t  val)
@@ -77,12 +82,18 @@ rnumber_set_opt (RNumber      *r_number,
     r_number->opt = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get start value.
+ */
 uint_fast32_t
 rnumber_get_start (const RNumber *r_number)
 {
     return r_number->start;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set start value.
+ */
 void
 rnumber_set_start (RNumber             *r_number,
                    const uint_fast32_t  val)
@@ -90,12 +101,18 @@ rnumber_set_start (RNumber             *r_number,
     r_number->start = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get pos value.
+ */
 uint8_t
 rnumber_get_pos (const RNumber *r_number)
 {
     return r_number->pos;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set pos value.
+ */
 void
 rnumber_set_pos (RNumber       *r_number,
                  const uint8_t  val)

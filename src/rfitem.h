@@ -37,6 +37,14 @@
  * @brief Original file name string
  * @var   RFitem::s_pth
  * @brief Path to directory with file to rename
+ * @var   RFitem::new_len
+ * @brief Total length in bytes of s_new string
+ * @var   RFitem::new_u8len
+ * @brief Number of unicode chars in s_new string
+ * @var   RFitem::org_len
+ * @brief Total length in bytes of s_org string
+ * @var   RFitem::org_u8len
+ * @brief Number of unicode chars in s_org string
  * @var   RFitem::f_type
  * @brief File type in GFileType value
  * @var   RFitem::b_slink
@@ -61,6 +69,10 @@ RFitem {
     char      *s_new;
     char      *s_org;
     char      *s_pth;
+    size_t     new_len;
+    size_t     new_u8len;
+    size_t     org_len;
+    size_t     org_u8len;
     GFileType  f_type;
     gboolean   b_slink;
     gboolean   b_hidden;
@@ -131,6 +143,26 @@ void     rfitem_set_checked    (RFitem         *rf_item,
                                 const gboolean  b_val);
 
 void     rfitem_invert_checked (RFitem         *rf_item);
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn  void rfitem_set_snew_from_sorg (RFitem *rf_item)
+ *
+ * @brief  Copy s_org string and length values to s_new.
+ *
+ * @param[in]  rf_item  RFitem object
+ * @return     none
+ *
+ * @fn  void rfitem_set_sorg_from_snew (RFitem *rf_item)
+ *
+ * @brief  Copy s_new string and length values to s_org.
+ *
+ * @param[in]  rf_item  RFitem object
+ * @return     none
+ */
+/*----------------------------------------------------------------------------*/
+void     rfitem_set_snew_from_sorg (RFitem *rf_item);
+
+void     rfitem_set_sorg_from_snew (RFitem *rf_item);
 /*----------------------------------------------------------------------------*/
 /**
  * @fn         const char * rfitem_get_snew (const RFitem *rf_item)

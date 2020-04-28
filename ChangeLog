@@ -13,6 +13,23 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2020-04-28  Michal Babik  <michalb1981@o2.pl>
+
+	* rfitem.h: In RFitem structure added length of s_new string new_len
+	  for total length in bytes and new_u8len for length in unicode chars.
+	* rfitem.c (rfitem_set_snew): Setting string length values when
+	  changing s_new value.
+	  (rfitem_set_sorg_from_snew, rfitem_set_snew_from_sorg): New functions
+	  to copy s_new string and length to s_org and vice versa.
+	* rinsovr.h: In RInsOvr structure added length of s_text string len,
+	  u8len for total and unicode length.
+	* rinsovr.c (rinsovr_set_text): Setting string length values when
+	  changing s_text value.
+	  (rinsovr_get_len, rinsovr_get_u8len): Added length getters.
+	* strfn.h: Modified ProcessData structure, added string to modify
+	  s_srcdst value, added length of strings. Changed all callers to
+	  this structure.
+
 2020-04-18  Michal Babik  <michalb1981@o2.pl>
 
 	* data/sfrename.desktop: New desktop entry.

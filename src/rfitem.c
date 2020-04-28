@@ -93,7 +93,7 @@ get_name_dir_len (const char *s_pth,
         s_fn = s_pth;
     }
     else {
-        s_fn++;
+        ++s_fn;
         *ui_len = (size_t) (s_fn - s_pth);
     }
     return s_fn;
@@ -169,18 +169,20 @@ rfitem_label_set_markup (RFitem *rf_item)
 static void
 rfitem_init (RFitem *rf_item)
 {
-    rf_item->s_org    = NULL;  /* original name */
-    rf_item->s_new    = NULL;  /* new name */
-    rf_item->s_pth    = NULL;  /* file path */
-    rf_item->label    = NULL;  /* type label */
-    rf_item->entry    = NULL;  /* entry */
-    rf_item->check    = NULL;  /* checkbutton */
-    rf_item->rbut     = NULL;  /* restore button */
-    rf_item->dbut     = NULL;  /* delete button */
-    rf_item->box      = NULL;  /* box for widgets */
-    rf_item->f_type   = 0;     /* file type */
-    rf_item->b_slink  = FALSE; /* symlink */
-    rf_item->b_hidden = FALSE; /* hidden */
+    rf_item->s_org     = NULL;  /* original name */
+    rf_item->s_new     = NULL;  /* new name */
+    rf_item->s_pth     = NULL;  /* file path */
+    rf_item->label     = NULL;  /* type label */
+    rf_item->entry     = NULL;  /* entry */
+    rf_item->check     = NULL;  /* checkbutton */
+    rf_item->rbut      = NULL;  /* restore button */
+    rf_item->dbut      = NULL;  /* delete button */
+    rf_item->box       = NULL;  /* box for widgets */
+    rf_item->f_type    = 0;     /* file type */
+    rf_item->new_len   = 0;     /* file type */
+    rf_item->new_u8len = 0;     /* file type */
+    rf_item->b_slink   = FALSE; /* symlink */
+    rf_item->b_hidden  = FALSE; /* hidden */
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -254,12 +256,17 @@ rfitem_new_from_gfile (GFile *g_file)
     gtk_widget_set_margin_bottom (rf_item->box, 4);
 
     /* Copy verified file names to original and new file name string */
-    strncpy (rf_item->s_org, s_fn, FN_LEN);
-    strncpy (rf_item->s_new, s_fn, FN_LEN);
-    rf_item->s_org[FN_LEN] = '\0';
-    rf_item->s_new[FN_LEN] = '\0';
     memcpy (rf_item->s_pth, s_path, ui_len);
     rf_item->s_pth[ui_len] = '\0';
+    strncpy (rf_item->s_org, s_fn, FN_LEN);
+    rf_item->s_org[FN_LEN] = '\0';
+    rf_item->org_len = strlen (s_fn);
+    rf_item->org_u8len = (size_t) g_utf8_strlen (s_fn, -1);
+    strncpy (rf_item->s_new, s_fn, FN_LEN);
+    rf_item->s_new[FN_LEN] = '\0';
+    rf_item->new_len = rf_item->org_len;
+    rf_item->new_u8len = rf_item->org_u8len;
+    /* rfitem_set_snew_from_sorg (rf_item); */
 
     gtk_box_pack_start (GTK_BOX (rf_item->box), rf_item->check, FALSE, FALSE,0);
     gtk_box_pack_start (GTK_BOX (rf_item->box), rf_item->label, FALSE, FALSE,0);
@@ -324,25 +331,61 @@ rfitem_delete (RFitem *rf_item)
     free (rf_item);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Copy s_org string and length values to s_new.
+ */
+void
+rfitem_set_snew_from_sorg (RFitem *rf_item)
+{
+    rf_item->new_len = rf_item->org_len;
+    rf_item->new_u8len = rf_item->org_u8len;
+    memcpy (rf_item->s_new, rf_item->s_org, rf_item->org_len + 1);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Copy s_new string and length values to s_org.
+ */
+void
+rfitem_set_sorg_from_snew (RFitem *rf_item)
+{
+    rf_item->org_len = rf_item->new_len;
+    rf_item->org_u8len = rf_item->new_u8len;
+    memcpy (rf_item->s_org, rf_item->s_new, rf_item->new_len + 1);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief      Get s_new value.
+ */
 const char *
 rfitem_get_snew (const RFitem *rf_item)
 {
     return (const char *) rf_item->s_new;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set s_new value.
+ */
 void
 rfitem_set_snew (RFitem     *rf_item,
                  const char *val)
 {
-    strcpy (rf_item->s_new, val);
+    rf_item->new_len = strlen (val);
+    memcpy (rf_item->s_new, val, rf_item->new_len+1);
+    rf_item->new_u8len = (size_t) g_utf8_strlen (val, -1);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get s_org value.
+ */
 const char *
 rfitem_get_sorg (const RFitem *rf_item)
 {
     return (const char *) rf_item->s_org;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set s_org value.
+ */
 void
 rfitem_set_sorg (RFitem     *rf_item,
                  const char *val)
@@ -350,12 +393,18 @@ rfitem_set_sorg (RFitem     *rf_item,
     strcpy (rf_item->s_org, val);
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get s_pth value.
+ */
 const char *
 rfitem_get_spth (const RFitem *rf_item)
 {
     return (const char *) rf_item->s_pth;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set s_pth value.
+ */
 void
 rfitem_set_spth (RFitem     *rf_item,
                  const char *val)

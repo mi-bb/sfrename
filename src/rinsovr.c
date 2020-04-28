@@ -21,9 +21,9 @@
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gmodule.h>
 #include <err.h>
 #include "strfn.h"
 #include "rinsovr.h"
@@ -37,7 +37,9 @@
 static void
 rinsovr_init (RInsOvr *r_insovr)
 {
-    r_insovr->pos = 0;
+    r_insovr->pos   = 0;
+    r_insovr->len   = 0;
+    r_insovr->u8len = 0;
     memset (r_insovr->s_text, '\0', sizeof (r_insovr->s_text));
 }
 /*----------------------------------------------------------------------------*/
@@ -85,6 +87,8 @@ rinsovr_set_text (RInsOvr    *rio_item,
 
     memcpy (rio_item->s_text, val, ui_len);
     rio_item->s_text[ui_len] = '\0';
+    rio_item->len = ui_len;
+    rio_item->u8len = (size_t) g_utf8_strlen (val, -1);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -106,10 +110,31 @@ rinsovr_set_pos (RInsOvr       *rio_item,
     rio_item->pos = val;
 }
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check if insert/overwrite text is an empty string.
+ */
 int
 rinsovr_empty (const RInsOvr *rio_item)
 {
     return (rio_item->s_text[0] == '\0');
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get string length value.
+ */
+size_t
+rinsovr_get_len (const RInsOvr *rio_item)
+{
+    return rio_item->len;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Get string unicode length value.
+ */
+size_t
+rinsovr_get_u8len (const RInsOvr *rio_item)
+{
+    return rio_item->u8len;
 }
 /*----------------------------------------------------------------------------*/
 

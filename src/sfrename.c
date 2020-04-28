@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date March 19, 2020
+ * @date April 28, 2020
  *
- * @version 1.2.6
+ * @version 1.2.7
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -40,8 +40,6 @@
 #include "dlgs.h"
 #include "strfn.h"
 #include "rendata.h"
-#include "rfnames.h"
-#include "rfitem.h"
 #include "namefn.h"
 #include "imgs.h"
 #include "defs.h"
@@ -113,20 +111,20 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *rd_data)
 {
-    RFitem        *rf_item;    /* RFitem object to process */
-    uint_fast32_t  ui_cnt = 0; /* Number of file items */
+    RFitem        *rf_item; /* RFitem object to process */
+    uint_fast32_t  i = 0;   /* i */
 
-    ui_cnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
+    i = rfnames_get_cnt (rendata_get_rfnames (rd_data));
 
     /* Check if file is checked and skip to next one if it is not */
-    for (uint_fast32_t i = 0; i < ui_cnt; ++i) {
+    while (i--) {
         rf_item = rd_data->names->rf_items[i];
 
         if (!rfitem_get_checked (rf_item))
             continue;
 
         /* copy original name to new to process */
-        rfitem_set_snew (rf_item, rfitem_get_sorg (rf_item));
+        rfitem_set_snew_from_sorg (rf_item);
 
         /* Execute rename functions */
         name_to_upcase_lowercase (rd_data, i);
@@ -320,7 +318,7 @@ event_click_rename (GtkWidget *widget,
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", s_old, s_new);
                 /* copy new name to original in buffer */
-                rfitem_set_sorg (rf_item, s_new);
+                rfitem_set_sorg_from_snew (rf_item);
                 ++ui_ren_count;
                 break;
 
@@ -341,7 +339,7 @@ event_click_rename (GtkWidget *widget,
         }
         if (i_renamed != REN_OK && i_renamed != REN_NC) {
             /* Revert old file names to new */
-            rfitem_set_snew (rf_item, s_old);
+            rfitem_set_snew_from_sorg (rf_item);
 
             /* Update file name in entry */
             rfitem_entry_check_and_update (rf_item, s_old);
