@@ -23,7 +23,6 @@
  */
 #include <string.h>
 #include "strfn.h"
-#include "rendata.h"
 #include "namefn.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -34,8 +33,13 @@ name_delete_chars (RenData             *rd_data,
                    const uint_fast32_t  i)
 {
     ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
         NULL,
+        0,0,
         NULL,
+        0,0,
         rdelete_get_pos (rendata_get_rdelete (rd_data)),
         rdelete_get_cnt (rendata_get_rdelete (rd_data)),
         0,
@@ -46,7 +50,6 @@ name_delete_chars (RenData             *rd_data,
     /* exit if no chars to delete */
     if (rdelete_get_cnt (rendata_get_rdelete (rd_data))) {
         string_process_filename (string_delete_chars,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
@@ -60,8 +63,15 @@ name_insert_string (RenData             *rd_data,
                     const uint_fast32_t  i)
 {
     ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
         rinsovr_get_text (rendata_get_rinsert (rd_data)),
+        rinsovr_get_len (rendata_get_rinsert (rd_data)),
+        rinsovr_get_u8len (rendata_get_rinsert (rd_data)),
         NULL,
+        0,
+        0,
         rinsovr_get_pos (rendata_get_rinsert (rd_data)),
         0,
         0,
@@ -71,7 +81,6 @@ name_insert_string (RenData             *rd_data,
 
     if (!rinsovr_empty (rendata_get_rinsert (rd_data))) {
         string_process_filename (string_insert_string,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
@@ -85,9 +94,16 @@ name_overwrite_string (RenData             *rd_data,
                        const uint_fast32_t  i)
 {
     ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
         rinsovr_get_text (rendata_get_roverwr (rd_data)),
+        rinsovr_get_len (rendata_get_roverwr (rd_data)),
+        rinsovr_get_u8len (rendata_get_roverwr (rd_data)),
         NULL,
-        (size_t) rinsovr_get_pos (rendata_get_roverwr (rd_data)),
+        0,
+        0,
+        rinsovr_get_pos (rendata_get_roverwr (rd_data)),
         0,
         0,
         0,
@@ -96,7 +112,6 @@ name_overwrite_string (RenData             *rd_data,
 
     if (!rinsovr_empty (rendata_get_roverwr (rd_data))) {
         string_process_filename (string_overwrite_string,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
@@ -110,9 +125,14 @@ name_number_string (RenData             *rd_data,
                     const uint_fast32_t  i)
 {
     ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
         NULL,
+        0,0,
         NULL,
-        (size_t) rnumber_get_pos (rendata_get_rnumber (rd_data)),
+        0,0,
+        rnumber_get_pos (rendata_get_rnumber (rd_data)),
         0,
         i,
         rnumber_get_start (rendata_get_rnumber (rd_data)),
@@ -121,7 +141,6 @@ name_number_string (RenData             *rd_data,
 
     if (rnumber_get_opt (rendata_get_rnumber (rd_data))) {
         string_process_filename (string_add_number,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
@@ -134,19 +153,23 @@ void
 name_to_upcase_lowercase (RenData             *rd_data,
                           const uint_fast32_t  i)
 {
-    ProcessData pd_data = { NULL, NULL, 0, 0, 0, 0, 0 };
+    ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
+        NULL, 0,0,
+        NULL, 0, 0,
+        0, 0, 0, 0, 0 };
 
     /* to uppercase */
     if (rendata_get_uplo (rd_data) == 0) {
         string_process_filename (string_to_upper,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
     /* to lowercase */
     else if (rendata_get_uplo (rd_data) == 1) {
         string_process_filename (string_to_lower,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
@@ -162,17 +185,27 @@ name_spaces_underscores (RenData             *rd_data,
 {
     /* underscores to spaces */
     if (rendata_get_spaces (rd_data) == 0) {
-        ProcessData pd_data = { "_", " ", 0, 0, 0, 0, 0 };
+        ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
+            "_", 1, 1,
+            " ", 1, 1,
+            0, 0, 0, 0, 0 };
         string_process_filename (string_replace_in,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
     /* spaces to underscores */
     else if (rendata_get_spaces (rd_data) == 1) {
-        ProcessData pd_data = { " ", "_", 0, 0, 0, 0, 0 };
+        ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
+            " ", 1, 1,
+            "_", 1, 1,
+            0, 0, 0, 0, 0 };
         string_process_filename (string_replace_in,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }
@@ -187,8 +220,15 @@ name_replace_strings (RenData             *rd_data,
                       const uint_fast32_t  i)
 {
     ProcessData pd_data = {
+        rd_data->names->rf_items[i]->s_new,
+        &rd_data->names->rf_items[i]->new_len,
+        &rd_data->names->rf_items[i]->new_u8len,
         rreplace_get_from (rendata_get_rreplace (rd_data)),
+        rreplace_get_from_len (rendata_get_rreplace (rd_data)),
+        rreplace_get_from_u8len (rendata_get_rreplace (rd_data)),
         rreplace_get_to (rendata_get_rreplace (rd_data)),
+        rreplace_get_to_len (rendata_get_rreplace (rd_data)),
+        rreplace_get_to_u8len (rendata_get_rreplace (rd_data)),
         0,
         0,
         0,
@@ -198,7 +238,6 @@ name_replace_strings (RenData             *rd_data,
 
     if (!rreplace_empty_from (rendata_get_rreplace (rd_data))) {
         string_process_filename (string_replace_in,
-                                 rd_data->names->rf_items[i]->s_new,
                                  &pd_data,
                                  rendata_get_applyto (rd_data));
     }

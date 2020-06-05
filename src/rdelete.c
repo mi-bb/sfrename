@@ -21,7 +21,6 @@
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
 #include "rdelete.h"
@@ -41,8 +40,6 @@ rdelete_init (RDelete *r_delete)
 /*----------------------------------------------------------------------------*/
 /**
  * @brief   Create new RDelete object.
- *
- * @return  New RDelete object
  */
 RDelete *
 rdelete_new (void)

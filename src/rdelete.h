@@ -44,12 +44,16 @@ RDelete {
 } RDelete;
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         RDelete * rdelete_new (void)
- * @brief      Create new RDelete object.
- * @return     New RDelete object
+ * @fn  RDelete * rdelete_new (void)
  *
- * @fn         void rdelete_free (RDelete *r_delete)
- * @brief      Free allocated memory.
+ * @brief  Create new RDelete object.
+ *
+ * @return  New RDelete object
+ *
+ * @fn  void rdelete_free (RDelete *r_delete)
+ *
+ * @brief  Free allocated memory.
+ *
  * @param[out] r_delete Pointer to RDelete object
  * @return     none
  */
@@ -59,26 +63,32 @@ RDelete * rdelete_new  (void) __attribute__ ((malloc, returns_nonnull));
 void      rdelete_free (RDelete *r_delete);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         uint8_t rdelete_get_cnt (const RDelete *r_delete)
- * @brief      Get cnt value.
+ * @fn  uint8_t rdelete_get_cnt (const RDelete *r_delete)
+ *
+ * @brief  Get cnt value.
+ *
  * @param[in]  r_delete  RDelete object
  * @return     cnt value
  *
- * @fn         void rdelete_set_cnt (RDelete *r_delete,
- *                                   uint8_t  val)
- * @brief      Set cnt value.
+ * @fn  void rdelete_set_cnt (RDelete *r_delete,
+ *                            uint8_t  val)
+ * @brief  Set cnt value.
+ *
  * @param[out] r_delete  RDelete object
  * @param[in]  val       New cnt value
  * @return     none
  *
- * @fn         uint8_t rdelete_get_pos (const RDelete *r_delete)
- * @brief      Get pos value.
+ * @fn  uint8_t rdelete_get_pos (const RDelete *r_delete)
+ *
+ * @brief  Get pos value.
+ *
  * @param[in]  r_delete  RDelete object
  * @return     pos value
  *
- * @fn         void rdelete_set_pos (RDelete *r_delete,
- *                                   uint8_t  val)
- * @brief      Set pos value.
+ * @fn  void rdelete_set_pos (RDelete *r_delete,
+ *                            uint8_t  val)
+ * @brief  Set pos value.
+ *
  * @param[out] r_delete  RDelete object
  * @param[in]  val       New pos value
  * @return     none

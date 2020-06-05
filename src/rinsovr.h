@@ -25,6 +25,7 @@
 #define RINSOVR_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -37,20 +38,32 @@
  *
  * @var   RInsOvr::pos
  * @brief Position to put string
+ *
+ * @var   RInsOvr::len
+ * @brief Number of chars (bytes) in s_text
+ *
+ * @var   RInsOvr::u8len
+ * @brief Number of unicode chars in s_text
  */
 typedef struct
 RInsOvr {
     char      s_text [FN_LEN + 1];
     uint8_t   pos;
+    size_t    len;
+    size_t    u8len;
 } RInsOvr;
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         RInsOvr * rinsovr_new  (void)
- * @brief      Create new RInsOvr object.
+ * @fn  RInsOvr * rinsovr_new  (void)
+ *
+ * @brief  Create new RInsOvr object.
+ *
  * @return     New RInsOvr object
  *
- * @fn         void rinsovr_free (RInsOvr *r_insovr)
- * @brief      Free allocated memory.
+ * @fn  void rinsovr_free (RInsOvr *r_insovr)
+ *
+ * @brief  Free allocated memory.
+ *
  * @param[out] r_insovr Pointer to RInsOvr object
  * @return     none
  */
@@ -60,46 +73,71 @@ RInsOvr * rinsovr_new  (void) __attribute__ ((malloc, returns_nonnull));
 void      rinsovr_free (RInsOvr *r_insovr);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         const char * rinsovr_get_text (const RInsOvr *rio_item)
- * @brief      Get text string.
+ * @fn  const char * rinsovr_get_text (const RInsOvr *rio_item)
+ *
+ * @brief  Get text string.
+ *
  * @param[in]  rio_item  RInsOvr object
  * @return     text string
  *
- * @fn         void rinsovr_set_text (RInsOvr    *rio_item,
- *                                    const char *val)
- * @brief      Set text string.
+ * @fn  void rinsovr_set_text (RInsOvr    *rio_item,
+ *                             const char *val)
+ * @brief  Set text string.
+ *
  * @param[out] rio_item  RInsOvr object
  * @param[in]  val       New text string
  * @return     none
  *
- * @fn         uint8_t rinsovr_get_pos (const RInsOvr *rio_item)
- * @brief      Get pos value.
+ * @fn  uint8_t rinsovr_get_pos (const RInsOvr *rio_item)
+ *
+ * @brief  Get pos value.
+ *
  * @param[in]  rio_item  RInsOvr object
  * @return     pos value
  *
- * @fn         void rinsovr_set_pos  (RInsOvr       *rio_item,
- *                                    const uint8_t  val)
-* @brief      Set pos value.
-* @param[out] rio_item  RInsOvr object
-* @param[in]  val       New pos value
-* @return     none
-*
-* @fn         int rinsovr_empty (const RInsOvr *rio_item)
-* @brief      Check if insert/overwrite text is an empty string.
-* @param[in]  rio_item  RInsOvr object
-* @return     Check result
+ * @fn  void rinsovr_set_pos  (RInsOvr       *rio_item,
+ *                             const uint8_t  val)
+ * @brief  Set pos value.
+ *
+ * @param[out] rio_item  RInsOvr object
+ * @param[in]  val       New pos value
+ * @return     none
+ *
+ * @fn  size_t rinsovr_get_len (const RInsOvr *rio_item)
+ *
+ * @brief  Get string length value.
+ *
+ * @param[in]  rio_item  RInsOvr object
+ * @return     String length in chars (bytes) value
+ *
+ * @fn  size_t rinsovr_get_u8len (const RInsOvr *rio_item)
+ *
+ * @brief  Get string unicode length value.
+ *
+ * @param[in]  rio_item  RInsOvr object
+ * @return     String length in unicode chars value
  */
 /*----------------------------------------------------------------------------*/
-const char * rinsovr_get_text (const RInsOvr *rio_item);
+const char * rinsovr_get_text  (const RInsOvr *rio_item);
 
-void         rinsovr_set_text (RInsOvr       *rio_item,
-                               const char    *val);
+void         rinsovr_set_text  (RInsOvr       *rio_item,
+                                const char    *val);
 
-uint8_t      rinsovr_get_pos  (const RInsOvr *rio_item) __attribute__ ((pure));
+uint8_t      rinsovr_get_pos   (const RInsOvr *rio_item) __attribute__ ((pure));
 
-void         rinsovr_set_pos  (RInsOvr       *rio_item,
-                               const uint8_t  val);
+void         rinsovr_set_pos   (RInsOvr       *rio_item,
+                                const uint8_t  val);
+
+size_t       rinsovr_get_len   (const RInsOvr *rio_item) __attribute__ ((pure));
+
+size_t       rinsovr_get_u8len (const RInsOvr *rio_item) __attribute__ ((pure));
 /*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check if insert/overwrite text is an empty string.
+ *
+ * @param[in]  rio_item  RInsOvr object
+ * @return     Check result
+ */
 int          rinsovr_empty    (const RInsOvr *rio_item) __attribute__ ((pure));
 /*----------------------------------------------------------------------------*/
 #endif

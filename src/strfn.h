@@ -26,35 +26,57 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "rendata.h"
 /*----------------------------------------------------------------------------*/
 /**
  * @struct ProcessData
  * @brief  Structure with data to string process functions
  *
+ * @var   ProcessData::s_srcdst
+ * @brief String to process
+ * @var   ProcessData::srcdst_len
+ * @brief String to process length
+ * @var   ProcessData::srcdst_u8len
+ * @brief String to process unicode length
  * @var   ProcessData::s_str1
- * @brief Input string
+ * @brief Input string 1
+ * @var   ProcessData::str1_len
+ * @brief String 1 length
+ * @var   ProcessData::str1_u8len
+ * @brief String 1 unicode length
  * @var   ProcessData::s_str2
- * @brief Input string
+ * @brief Input string 2
+ * @var   ProcessData::str2_len
+ * @brief String 2 length
+ * @var   ProcessData::str2_u8len
+ * @brief String 2 unicode length
  * @var   ProcessData::ui_pos
  * @brief Position to insert/overwrite/delete
  * @var   ProcessData::ui_cnt
  * @brief Character count
- * @var   ProcessData::i_no
+ * @var   ProcessData::ui_no
  * @brief Number
- * @var   ProcessData::i_start
+ * @var   ProcessData::ui_start
  * @brief Start numbering value
- * @var   ProcessData::i_max
+ * @var   ProcessData::ui_max
  * @brief Maximum numbering range
  */ 
 typedef struct
 ProcessData {
-    const char    *s_str1;        /* Input string */
-    const char    *s_str2;        /* Input string */
+    char          *s_srcdst;      /* String to process */
+    size_t        *srcdst_len;    /* String to process length */
+    size_t        *srcdst_u8len;  /* String to process uni length */
+    const char    *s_str1;        /* Input string 1 */
+    size_t         str1_len;      /* String 1 length */
+    size_t         str1_u8len;    /* String 1 uni length */
+    const char    *s_str2;        /* Input string 2 */
+    size_t         str2_len;      /* String 2 length */
+    size_t         str2_u8len;    /* String 2 uni length */
     size_t         ui_pos;        /* Position to insert/overwrite/delete */
     size_t         ui_cnt;        /* Character count */
-    uint_fast32_t  i_no;          /* Number */
-    uint_fast32_t  i_start;       /* Start numbering value */
-    uint_fast32_t  i_max;         /* Maximum numbering range */
+    uint_fast32_t  ui_no;         /* Number */
+    uint_fast32_t  ui_start;      /* Start numbering value */
+    uint_fast32_t  ui_max;        /* Maximum numbering range */
 } ProcessData;
 /*----------------------------------------------------------------------------*/
 /**
@@ -80,79 +102,58 @@ size_t string_get_valid_length (const char         *s_str,
  * Function searches in s_src_dst string for s_fr and replaces it with s_to
  * string. The final result is copied into s_src_dst string.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */ 
-void   string_replace_in       (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_replace_in       (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /** 
  * @brief  Detele chars in string.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */ 
-void   string_delete_chars     (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_delete_chars     (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string to existing string at specified position.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
-void   string_insert_string    (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_insert_string    (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Overwrite string in existing string at specified position.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
-void   string_overwrite_string (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_overwrite_string (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Add number to string.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
-void   string_add_number       (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_add_number       (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to lower case.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
-void   string_to_lower         (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_to_lower         (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to upper case.
  *
- * @param[in,out] s_src_dst  Pointer to source and destination string to change
  * @param[in]     pd_data    ProcessData object with process values
  * @return        none
  */
-void   string_to_upper         (char               *s_src_dst,
-                                const ProcessData  *pd_data)
-                                __attribute__ ((nonnull (1)));
+void   string_to_upper         (const ProcessData  *pd_data);
 /*----------------------------------------------------------------------------*/
 /**
  * @fn void string_extract_name_ext (const char   *s_name_ext,
@@ -197,16 +198,13 @@ void   string_combine_name_ext (char         *s_name_ext,
  * or ext and and calls on it passed as value "fun" function.
  *
  * @param[in]     fun       Pointer to a string change function 
- * @param[in,out] s_src_dst Pointer to processed string
  * @param[in]     pd_data   ProcessData object with process values
  * @param[in]     ne        Value tells to change file name, ext or both
  * @return        none
  */
-void string_process_filename (void           (*fun) (char*, const ProcessData*),
-                              char              *s_src_dst,
+void string_process_filename (void      (*fun) (const ProcessData*),
                               const ProcessData *pd_data,
-                              const int8_t       ne)
-                              __attribute__ ((nonnull (2)));
+                              const int8_t       ne);
 /*----------------------------------------------------------------------------*/
 #endif
 

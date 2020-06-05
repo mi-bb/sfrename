@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date March 19, 2020
+ * @date June 05, 2020
  *
- * @version 1.2.6
+ * @version 1.2.8
  *
  * @author Michał Bąbik <michalb1981@o2.pl>
  */
@@ -40,8 +40,6 @@
 #include "dlgs.h"
 #include "strfn.h"
 #include "rendata.h"
-#include "rfnames.h"
-#include "rfitem.h"
 #include "namefn.h"
 #include "imgs.h"
 #include "defs.h"
@@ -113,20 +111,20 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *rd_data)
 {
-    RFitem        *rf_item;    /* RFitem object to process */
-    uint_fast32_t  ui_cnt = 0; /* Number of file items */
+    RFitem        *rf_item; /* RFitem object to process */
+    uint_fast32_t  i = 0;   /* i */
 
-    ui_cnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
+    i = rfnames_get_cnt (rendata_get_rfnames (rd_data));
 
     /* Check if file is checked and skip to next one if it is not */
-    for (uint_fast32_t i = 0; i < ui_cnt; ++i) {
+    while (i--) {
         rf_item = rd_data->names->rf_items[i];
 
         if (!rfitem_get_checked (rf_item))
             continue;
 
         /* copy original name to new to process */
-        rfitem_set_snew (rf_item, rfitem_get_sorg (rf_item));
+        rfitem_set_snew_from_sorg (rf_item);
 
         /* Execute rename functions */
         name_to_upcase_lowercase (rd_data, i);
@@ -320,7 +318,7 @@ event_click_rename (GtkWidget *widget,
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", s_old, s_new);
                 /* copy new name to original in buffer */
-                rfitem_set_sorg (rf_item, s_new);
+                rfitem_set_sorg_from_snew (rf_item);
                 ++ui_ren_count;
                 break;
 
@@ -341,7 +339,7 @@ event_click_rename (GtkWidget *widget,
         }
         if (i_renamed != REN_OK && i_renamed != REN_NC) {
             /* Revert old file names to new */
-            rfitem_set_snew (rf_item, s_old);
+            rfitem_set_snew_from_sorg (rf_item);
 
             /* Update file name in entry */
             rfitem_entry_check_and_update (rf_item, s_old);
@@ -1302,7 +1300,7 @@ create_toolbar (GtkWidget **gw_container,
 
     /* RES button with menu */
     ti_menu_button = gtk_menu_tool_button_new (
-            create_image_widget (W_ICON_REVERT), "DEL");
+            create_image_widget (W_ICON_REVERT), "RES");
     gtk_tool_item_set_tooltip_text (ti_menu_button,
             "Restore original names for selected items");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
@@ -1314,10 +1312,37 @@ create_toolbar (GtkWidget **gw_container,
     menu_item = create_img_menu_item ("Restore all",
                                       NULL,
                                       W_ICON_REVERT);
-    //menu_item = gtk_menu_item_new_with_label ("Restore all");
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_restore_all), rd_data->names);
+    /* Restore original names for all files menu entry */
+    menu_item = create_img_menu_item ("Restore all files",
+                                      NULL,
+                                      W_ICON_REVERT);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_restore_all_files), rd_data->names);
+    /* Restore original names for all folders menu entry */
+    menu_item = create_img_menu_item ("Restore all directories",
+                                      NULL,
+                                      W_ICON_REVERT);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_restore_all_folders), rd_data->names);
+    /* Restore original names for all symlinks menu entry */
+    menu_item = create_img_menu_item ("Restore all symlinks",
+                                      NULL,
+                                      W_ICON_REVERT);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_restore_all_symlinks), rd_data->names);
+    /* Restore original names for all hidden files/dirs menu entry */
+    menu_item = create_img_menu_item ("Restore all hidden",
+                                      NULL,
+                                      W_ICON_REVERT);
+    gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
+    g_signal_connect_swapped (menu_item, "activate",
+            G_CALLBACK (rfnames_restore_all_hidden), rd_data->names);
     /* Assign menu to menu tool button and show menu */
     gtk_menu_tool_button_set_menu (GTK_MENU_TOOL_BUTTON (ti_menu_button),
                                    gw_menu);

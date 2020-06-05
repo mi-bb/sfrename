@@ -27,14 +27,16 @@
 #include "rfnames.h"
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      RFnames initialization.
+ * @brief  RFnames initialization.
+ *
  * @param[out] rf_names Pointer to RFnames object
  * @return     none
  */
 static void rfnames_init (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      Append RFitem object to RFnames.
+ * @brief  Append RFitem object to RFnames.
+ *
  * @param[out] rf_names Pointer to RFnames object
  * @param[in]  rf_item RFitem object to add
  * @return     none
@@ -43,7 +45,8 @@ static void rfnames_append (RFnames *rf_names,
                             RFitem  *rf_item);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      Delete RFitem object from RFnames list at given position.
+ * @brief  Delete RFitem object from RFnames list at given position.
+ *
  * @param[out] rf_names Pointer to RFnames object
  * @param[in]  ui_pos   Position of RFitem to delete
  * @return     none
@@ -52,7 +55,8 @@ static void rfnames_delete_at_pos (RFnames             *rf_names,
                                    const uint_fast32_t  ui_pos);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      Delete item from file list clicked.
+ * @brief  Delete item from file list clicked.
+ *
  * @param[in]  widget   The object which received the signal
  * @param[out] rf_names Pointer to RFnames object
  * @return     none
@@ -62,6 +66,7 @@ static void event_click_del (GtkWidget *widget,
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select items on RFnames list if they match the fun return value.
+ *
  * @param[in,out] rf_names Pointer to RFnames object
  * @param[in]     fun      Function to examine RFitem object
  * @param[in]     b_sel    Boolean value to select or not select item
@@ -72,14 +77,16 @@ static void rfnames_select_unselect (RFnames         *rf_names,
                                      const gboolean   b_sel);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      Select all check items on list.
+ * @brief  Select all check items on list.
+ *
  * @param[out] rf_names Pointer to RFnames object
  * @return     none
  */
 static void rfnames_select_all (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      Unselect all check items on list.
+ * @brief  Unselect all check items on list.
+ *
  * @param[out] rf_names Pointer to RFnames object
  * @return     none
  */
@@ -87,6 +94,7 @@ static void rfnames_unselect_all (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove item from RFnames list if it matches the fun return value.
+ *
  * @param[in,out] rf_names Pointer to RFnames object
  * @param[in]     fun      Function to examine RFitem object.
  * @return     none
@@ -349,6 +357,17 @@ rfnames_select_files (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Invert selection of items on list.
+ */
+void
+rfnames_select_invert (RFnames *rf_names)
+{
+    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
+        rfitem_invert_checked (rf_names->rf_items[i]);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Unselect all items with file type on list.
  */
 void
@@ -409,17 +428,6 @@ void
 rfnames_unselect_hidden (RFnames *rf_names)
 {
     rfnames_select_unselect (rf_names, rfitem_is_hidden, FALSE);
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Invert selection of items on list.
- */
-void
-rfnames_select_invert (RFnames *rf_names)
-{
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_invert_checked (rf_names->rf_items[i]);
-    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -495,13 +503,16 @@ rfnames_remove_all_hidden (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Restore original file name in selected RFitem objects on list.
+ * @brief  Restore original file name of selected RFitem on list if it matches
+ *         the fun return value.
  */
-void
-rfnames_restore_selected (RFnames *rf_names)
+static void
+rfnames_restore (RFnames   *rf_names,
+                 gboolean (*fun) (const RFitem *rf_item))
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rfitem_get_checked (rf_names->rf_items[i])) {
+    uint_fast32_t i = rf_names->cnt;
+    while (i--) {
+        if (fun (rf_names->rf_items[i])) {
             rfitem_entry_restore (rf_names->rf_items[i]);
         }
     }
@@ -516,6 +527,51 @@ rfnames_restore_all (RFnames *rf_names)
     for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
         rfitem_entry_restore (rf_names->rf_items[i]);
     }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name in selected RFitem objects on list.
+ */
+void
+rfnames_restore_selected (RFnames *rf_names)
+{
+    rfnames_restore (rf_names, rfitem_get_checked);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name for all files from list.
+ */
+void
+rfnames_restore_all_files (RFnames *rf_names)
+{
+    rfnames_restore (rf_names, rfitem_is_file);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name for all folders from list.
+ */
+void
+rfnames_restore_all_folders (RFnames *rf_names)
+{
+    rfnames_restore (rf_names, rfitem_is_folder);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name for all symlinks from list.
+ */
+void
+rfnames_restore_all_symlinks (RFnames *rf_names)
+{
+    rfnames_restore (rf_names, rfitem_is_symlink);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Restore original file name for all hidden files/folders from list.
+ */
+void
+rfnames_restore_all_hidden (RFnames *rf_names)
+{
+    rfnames_restore (rf_names, rfitem_is_hidden);
 }
 /*----------------------------------------------------------------------------*/
 /**
