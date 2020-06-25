@@ -19,7 +19,7 @@
  *
  * @brief  RFitem struncture and functions.
  * 
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #include <err.h>
 #include "defs.h"
@@ -135,7 +135,6 @@ static void
 rfitem_label_set_markup (RFitem *rf_item)
 {
     char s_mark [100];
-    s_mark[0] = '\0';
 
     strcpy (s_mark, "<span font_family=\"monospace\"");
 
@@ -211,9 +210,9 @@ rfitem_new_from_gfile (GFile *g_file)
         free (rf_item);
         err (EXIT_FAILURE, NULL);
     }
-    rf_item->s_org[0] = '\0';
-    rf_item->s_new[0] = '\0';
-    rf_item->s_pth[0] = '\0';
+    //rf_item->s_org[0] = '\0';
+    //rf_item->s_new[0] = '\0';
+    //rf_item->s_pth[0] = '\0';
     s_path  = g_file_peek_path (g_file);
     s_fn    = get_name_dir_len (s_path, &ui_len);
 
@@ -256,16 +255,18 @@ rfitem_new_from_gfile (GFile *g_file)
     gtk_widget_set_margin_bottom (rf_item->box, 4);
 
     /* Copy verified file names to original and new file name string */
-    memcpy (rf_item->s_pth, s_path, ui_len);
-    rf_item->s_pth[ui_len] = '\0';
-    strncpy (rf_item->s_org, s_fn, FN_LEN);
-    rf_item->s_org[FN_LEN] = '\0';
     rf_item->org_len = strlen (s_fn);
     rf_item->org_u8len = (size_t) g_utf8_strlen (s_fn, -1);
-    strncpy (rf_item->s_new, s_fn, FN_LEN);
-    rf_item->s_new[FN_LEN] = '\0';
     rf_item->new_len = rf_item->org_len;
     rf_item->new_u8len = rf_item->org_u8len;
+    memcpy (rf_item->s_pth, s_path, ui_len);
+    rf_item->s_pth[ui_len] = '\0';
+    memcpy (rf_item->s_org, s_fn, rf_item->org_len + 1);
+    memcpy (rf_item->s_new, s_fn, rf_item->org_len + 1);
+    //strncpy (rf_item->s_org, s_fn, FN_LEN);
+    //rf_item->s_org[FN_LEN] = '\0';
+    //strncpy (rf_item->s_new, s_fn, FN_LEN);
+    //rf_item->s_new[FN_LEN] = '\0';
     /* rfitem_set_snew_from_sorg (rf_item); */
 
     gtk_box_pack_start (GTK_BOX (rf_item->box), rf_item->check, FALSE, FALSE,0);

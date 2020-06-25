@@ -19,7 +19,7 @@
  *
  * @brief  RDelete struncture and functions.
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #ifndef RDELETE_H
 #define RDELETE_H

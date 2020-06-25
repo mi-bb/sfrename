@@ -19,7 +19,7 @@
  *
  * @brief  Functions to modify strings
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #include <glib.h>
 #include <inttypes.h>
@@ -37,9 +37,7 @@ string_get_valid_length (const char   *s_str,
     const char *s_end  = NULL; /* Pointer to last valid char in string */
     size_t      ui_len = 0;    /* Valid length to return */
 
-    ui_len = strlen (s_str);
-
-    if (ui_len > ui_max)
+    if ((ui_len = strlen (s_str)) > ui_max)
         ui_len = ui_max;
 
     g_utf8_validate (s_str, (gssize) ui_len, &s_end);
@@ -65,15 +63,14 @@ string_replace_in (const ProcessData *pd_data)
     char         *fp       = NULL;              /* find string pointer */
     const char   *sp       = s_srcdst;          /* copy src_dest pointer */
     char         *dp       = s_tmp;             /* copy s_tmp pointer */
+    const char   *tp       = NULL;              /* pointer to s_to */
 
-    fp = strstr (sp, s_fr);
-
-    if (fp == NULL)
+    if ((fp = strstr (sp, s_fr)) == NULL)
         return; 
 
     while (fp != NULL) {
 
-        const char *tp = s_to;  /* pointer to s_to */
+        tp = s_to;
 
         while (sp != fp && i++ < ui_max)
             *dp++ = *sp++;
@@ -300,7 +297,7 @@ string_add_number (const ProcessData *pd_data)
     for (uint_fast32_t i = 0; i < ui_z; ++i)
         s_no[i] = '0';
 
-    sprintf (s_tmp, "%" PRIdFAST32, ui_no);
+    sprintf (s_tmp, "%" PRIuFAST32, ui_no);
     strcat (s_no, s_tmp);
 
     pd_data2.s_str1 = s_no;

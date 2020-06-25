@@ -28,7 +28,7 @@
  *
  * @version 1.2.8
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #include <ctype.h>
 #include <inttypes.h>
@@ -85,16 +85,12 @@ file_check_and_rename (const char *old_name,
 
     /* Check if file with new file name don't exist */
     if (access (s_new, F_OK) != 0) {
-        /* Renaming file */
-        if (rename (s_old, s_new) == 0) {
-            i_res = REN_OK;      /* OK */
-        }
-        else {
-            i_res = REN_NOT_REN; /* Could not rename */
-        }
+        i_res = rename (s_old, s_new) == 0 ? 
+                REN_OK :     /* OK */
+                REN_NOT_REN; /* Could not rename */
     }
     else {
-        i_res = REN_EXISTS;      /* File exists */
+        i_res = REN_EXISTS;  /* File exists */
     }
     free (s_new);
     free (s_old);
@@ -538,7 +534,7 @@ static void
 event_replace_from_entry_changed (GtkWidget *widget,
                                   RenData   *rd_data)
 {
-    const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
     rreplace_set_from (rd_data->replace, s_en);
 
@@ -559,7 +555,7 @@ static void
 event_replace_to_entry_changed (GtkWidget *widget,
                                 RenData   *rd_data)
 {
-    const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
     rreplace_set_to (rd_data->replace, s_en);
 
@@ -989,8 +985,7 @@ create_delete_chars_box (GtkWidget **gw_container,
     gtk_widget_set_tooltip_text (gw_del_cnt, "Count");
 
     gw_del_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
-
-    gw_del_pos = gtk_spin_button_new (gw_del_adj_pos, 1.0, 0);
+    gw_del_pos     = gtk_spin_button_new (gw_del_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_del_pos, "At position");
 
@@ -1026,14 +1021,14 @@ create_insert_string_box (GtkWidget **gw_container,
     GtkWidget     *gw_ins_pos;     /* Insert text position spin button */
     GtkAdjustment *gw_ins_adj_pos; /* Adjustment for spin button */
 
-    gw_lab = gtk_label_new ("Insert text:");
+    gw_lab       = gtk_label_new ("Insert text:");
     gw_ins_entry = gtk_entry_new ();
 
     gtk_entry_set_max_length (GTK_ENTRY (gw_ins_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ins_entry), 6);
 
     gw_ins_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
-    gw_ins_pos = gtk_spin_button_new (gw_ins_adj_pos, 1.0, 0);
+    gw_ins_pos     = gtk_spin_button_new (gw_ins_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_ins_pos, "At position");
 
@@ -1069,14 +1064,14 @@ create_overwrite_string_box (GtkWidget **gw_container,
     GtkWidget     *gw_ovr_pos;     /* Insert text position spin button */
     GtkAdjustment *gw_ovr_adj_pos; /* Adjustment for spin button */
 
-    gw_lab = gtk_label_new ("Overwrite text:");
+    gw_lab       = gtk_label_new ("Overwrite text:");
     gw_ovr_entry = gtk_entry_new ();
 
     gtk_entry_set_max_length (GTK_ENTRY (gw_ovr_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ovr_entry), 6);
 
     gw_ovr_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
-    gw_ovr_pos = gtk_spin_button_new (gw_ovr_adj_pos, 1.0, 0);
+    gw_ovr_pos     = gtk_spin_button_new (gw_ovr_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_ovr_pos, "At position");
 
@@ -1117,10 +1112,10 @@ create_number_string_box (GtkWidget **gw_container,
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_check), FALSE);
 
     gw_num_start_spin_adj = gtk_adjustment_new (0.0, 0.0, 1000, 1.0, 5.0, 0.0);
-    gw_num_start_spin = gtk_spin_button_new (gw_num_start_spin_adj, 1.0, 0);
+    gw_num_start_spin     = gtk_spin_button_new (gw_num_start_spin_adj, 1.0, 0);
 
-    gw_num_pos_spin_adj = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
-    gw_num_pos_spin = gtk_spin_button_new (gw_num_pos_spin_adj, 1.0, 0);
+    gw_num_pos_spin_adj   = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_num_pos_spin       = gtk_spin_button_new (gw_num_pos_spin_adj, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_num_start_spin, "Start numbering from");
     gtk_widget_set_tooltip_text (gw_num_pos_spin, "Number posistion in name");

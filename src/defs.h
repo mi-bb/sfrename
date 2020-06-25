@@ -19,7 +19,7 @@
  *
  * @brief  Defines
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #ifndef DEFS_H
 #define DEFS_H

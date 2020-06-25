@@ -19,7 +19,7 @@
  *
  * @brief  Functions to modify file names
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #include <string.h>
 #include "strfn.h"

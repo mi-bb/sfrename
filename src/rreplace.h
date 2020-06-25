@@ -19,7 +19,7 @@
  *
  * @brief  RReplace struncture and functions.
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #ifndef RREPLACE_H
 #define RREPLACE_H

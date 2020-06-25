@@ -19,7 +19,7 @@
  *
  * @brief  RenData struncture with data to rename files.
  *
- * @author Michał Bąbik <michalb1981@o2.pl>
+ * @author Michal Babik <michal.babik@pm.me>
  */
 #include <err.h>
 #include "strfn.h"
