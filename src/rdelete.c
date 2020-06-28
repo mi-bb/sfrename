@@ -62,42 +62,4 @@ rdelete_free (RDelete *r_delete)
     free (r_delete);
 }
 /*----------------------------------------------------------------------------*/
-/**
- * @brief  Get cnt value.
- */
-uint8_t
-rdelete_get_cnt (const RDelete *r_delete)
-{
-    return r_delete->cnt;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Set cnt value.
- */
-void
-rdelete_set_cnt (RDelete *r_delete,
-                 uint8_t  val)
-{
-    r_delete->cnt = val;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get pos value.
- */
-uint8_t
-rdelete_get_pos (const RDelete *r_delete)
-{
-    return r_delete->pos;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Set pos value.
- */
-void
-rdelete_set_pos (RDelete *r_delete,
-                 uint8_t  val)
-{
-    r_delete->pos = val;
-}
-/*----------------------------------------------------------------------------*/
 

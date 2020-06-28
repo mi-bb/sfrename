@@ -70,15 +70,6 @@ rreplace_free (RReplace *r_replace)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get "from" string.
- */
-const char *
-rreplace_get_from (const RReplace *r_replace)
-{
-    return (const char *) r_replace->s_from;
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Set "from" string.
  */
 void
@@ -94,15 +85,6 @@ rreplace_set_from (RReplace   *r_replace,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get "to" string.
- */
-const char *
-rreplace_get_to (const RReplace *r_replace)
-{
-    return (const char *) r_replace->s_to;
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Set "to" string.
  */
 void
@@ -115,60 +97,6 @@ rreplace_set_to (RReplace   *r_replace,
     r_replace->s_to[ui_len] = '\0';
     r_replace->to_len   = ui_len;
     r_replace->to_u8len = (size_t) g_utf8_strlen (val, -1);
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get s_from string length value.
- */
-size_t
-rreplace_get_from_len (const RReplace *r_replace)
-{
-    return r_replace->from_len;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get s_from string unicode length value.
- */
-size_t
-rreplace_get_from_u8len (const RReplace *r_replace)
-{
-    return r_replace->from_u8len;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get s_to string length value.
- */
-size_t
-rreplace_get_to_len (const RReplace *r_replace)
-{
-    return r_replace->to_len;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get s_to string unicode length value.
- */
-size_t
-rreplace_get_to_u8len (const RReplace *r_replace)
-{
-    return r_replace->to_u8len;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if "from" string is an empty string.
- */
-int
-rreplace_empty_from (const RReplace *r_replace)
-{
-    return (r_replace->s_from[0] == '\0');
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if "to" string is an empty string.
- */
-int
-rreplace_empty_to (const RReplace *r_replace)
-{
-    return (r_replace->s_to[0] == '\0');
 }
 /*----------------------------------------------------------------------------*/
 

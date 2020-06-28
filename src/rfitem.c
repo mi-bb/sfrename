@@ -213,8 +213,8 @@ rfitem_new_from_gfile (GFile *g_file)
     //rf_item->s_org[0] = '\0';
     //rf_item->s_new[0] = '\0';
     //rf_item->s_pth[0] = '\0';
-    s_path  = g_file_peek_path (g_file);
-    s_fn    = get_name_dir_len (s_path, &ui_len);
+    s_path = g_file_peek_path (g_file);
+    s_fn   = get_name_dir_len (s_path, &ui_len);
 
     f_info = g_file_query_info (g_file,
                                 "standard::*",
@@ -355,18 +355,8 @@ rfitem_set_sorg_from_snew (RFitem *rf_item)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief      Get s_new value.
- */
-const char *
-rfitem_get_snew (const RFitem *rf_item)
-{
-    return (const char *) rf_item->s_new;
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Set s_new value.
- */
-void
+static void
 rfitem_set_snew (RFitem     *rf_item,
                  const char *val)
 {
@@ -374,44 +364,27 @@ rfitem_set_snew (RFitem     *rf_item,
     memcpy (rf_item->s_new, val, rf_item->new_len+1);
     rf_item->new_u8len = (size_t) g_utf8_strlen (val, -1);
 }
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get s_org value.
  */
-const char *
-rfitem_get_sorg (const RFitem *rf_item)
-{
-    return (const char *) rf_item->s_org;
-}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set s_org value.
- */
-void
+static void
 rfitem_set_sorg (RFitem     *rf_item,
                  const char *val)
 {
     strcpy (rf_item->s_org, val);
 }
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get s_pth value.
  */
-const char *
-rfitem_get_spth (const RFitem *rf_item)
-{
-    return (const char *) rf_item->s_pth;
-}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set s_pth value.
- */
-void
+static void
 rfitem_set_spth (RFitem     *rf_item,
                  const char *val)
 {
     strcpy (rf_item->s_pth, val);
 }
+ */
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Restore original file name button clicked.
@@ -426,11 +399,11 @@ event_click_rev (GtkWidget *widget __attribute__ ((unused)),
 /**
  * @brief  Get check button checked value.
  */
-gboolean
-rfitem_get_checked (const RFitem *rf_item)
-{
-    return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check));
-}
+//gboolean
+//rfitem_get_checked (const RFitem *rf_item)
+//{
+//    return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check));
+//}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set check button checked value.
@@ -450,15 +423,6 @@ rfitem_invert_checked (RFitem *rf_item)
 {
     rfitem_set_checked (rf_item,
             !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check)));
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get text from entry.
- */
-const char *
-rfitem_entry_get_text (const RFitem *rf_item)
-{
-    return gtk_entry_get_text (GTK_ENTRY (rf_item->entry));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -504,38 +468,38 @@ rfitem_compare (const RFitem *rf_item1,
 /**
  * @brief  Check if RFitem type is a file.
  */
-gboolean
-rfitem_is_file (const RFitem *rf_item)
-{
-    return (rf_item->f_type == G_FILE_TYPE_REGULAR);
-}
+//gboolean
+//rfitem_is_file (const RFitem *rf_item)
+//{
+//    return (rf_item->f_type == G_FILE_TYPE_REGULAR);
+//}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Check if RFitem type is a directory.
  */
-gboolean
-rfitem_is_folder (const RFitem *rf_item)
-{
-    return (rf_item->f_type == G_FILE_TYPE_DIRECTORY);
-}
+//gboolean
+//rfitem_is_folder (const RFitem *rf_item)
+//{
+//    return (rf_item->f_type == G_FILE_TYPE_DIRECTORY);
+//}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Check if RFitem file/dir type is a symlink.
  */
-gboolean
-rfitem_is_symlink (const RFitem *rf_item)
-{
-    return rf_item->b_slink;
-}
+//gboolean
+//rfitem_is_symlink (const RFitem *rf_item)
+//{
+//    return rf_item->b_slink;
+//}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Check if RFitem file/dir is hidden.
  */
-gboolean
-rfitem_is_hidden (const RFitem *rf_item)
-{
-    return rf_item->b_hidden;
-}
+//gboolean
+//rfitem_is_hidden (const RFitem *rf_item)
+//{
+//    return rf_item->b_hidden;
+//}
 /*----------------------------------------------------------------------------*/
 
 

@@ -100,42 +100,42 @@ RenData * rendata_new  (void) __attribute__ ((returns_nonnull));
 void      rendata_free (RenData *rd_data);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  const RFnames * rendata_get_rfnames (const RenData *rd_data)
+ * @fn  RFnames * rendata_get_rfnames (const RenData *rd_data)
  *
  * @brief  Get names object with file list.
  *
  * @param[in] rd_data RenData object
  * @return    RFnames item
  *
- * @fn  const RDelete * rendata_get_rdelete (const RenData *rd_data)
+ * @fn  RDelete * rendata_get_rdelete (const RenData *rd_data)
  *
  * @brief  Get delete chars info structure.
  *
  * @param[in] rd_data RenData object
  * @return    RDelete item
  *
- * @fn  const RInsOvr * rendata_get_rinsert (const RenData *rd_data)
+ * @fn  RInsOvr * rendata_get_rinsert (const RenData *rd_data)
  *
  * @brief  Get insert info structure.
  *
  * @param[in] rd_data RenData object
  * @return    RInsOvr item
  *
- * @fn  const RInsOvr * rendata_get_roverwr (const RenData *rd_data)
+ * @fn  RInsOvr * rendata_get_roverwr (const RenData *rd_data)
  *
  * @brief  Get overwrite info structure.
  *
  * @param[in] rd_data RenData object
  * @return    RInsOvr item
  *
- * @fn  const RReplace * rendata_get_rreplace (const RenData *rd_data)
+ * @fn  RReplace * rendata_get_rreplace (const RenData *rd_data)
  *
  * @brief  Get replace strings info structure.
  *
  * @param[in] rd_data RenData object
  * @return    RReplace item
  *
- * @fn  const RNumber * rendata_get_rnumber (const RenData *rd_data)
+ * @fn  RNumber * rendata_get_rnumber (const RenData *rd_data)
  *
  * @brief  Get numbering strings info structure.
  *
@@ -143,23 +143,24 @@ void      rendata_free (RenData *rd_data);
  * @return    RNumber item
  */
 /*----------------------------------------------------------------------------*/
-const RFnames * rendata_get_rfnames (const RenData *rd_data)
-                __attribute__ ((pure));
-
-const RDelete * rendata_get_rdelete (const RenData *rd_data)
-                __attribute__ ((pure));
-
-const RInsOvr * rendata_get_rinsert (const RenData *rd_data)
-                __attribute__ ((pure));
-
-const RInsOvr * rendata_get_roverwr (const RenData *rd_data)
-                __attribute__ ((pure));
-
-const RReplace * rendata_get_rreplace (const RenData *rd_data)
-                __attribute__ ((pure));
-
-const RNumber * rendata_get_rnumber (const RenData *rd_data)
-                __attribute__ ((pure));
+static inline const RFnames * rendata_get_rfnames   (const RenData *rd_data) {
+    return (const RFnames *) rd_data->names;
+}
+static inline const RDelete * rendata_get_rdelete   (const RenData *rd_data) {
+    return (const RDelete *) rd_data->del;
+}
+static inline const RInsOvr * rendata_get_rinsert   (const RenData *rd_data) {
+    return (const RInsOvr *) rd_data->ins;
+}
+static inline const RInsOvr * rendata_get_roverwr   (const RenData *rd_data) {
+    return (const RInsOvr *) rd_data->ovrw;
+}
+static inline const RReplace * rendata_get_rreplace (const RenData *rd_data) {
+    return (const RReplace *) rd_data->replace;
+}
+static inline const RNumber * rendata_get_rnumber   (const RenData *rd_data) {
+    return (const RNumber *) rd_data->number;
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @fn  int8_t rendata_get_uplo (const RenData *rd_data)
@@ -238,30 +239,41 @@ const RNumber * rendata_get_rnumber (const RenData *rd_data)
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-int8_t    rendata_get_uplo    (const RenData *rd_data) __attribute__ ((pure));
-
-void      rendata_set_uplo    (RenData       *rd_data,
-                               int8_t         val);
-
-int8_t    rendata_get_spaces  (const RenData *rd_data) __attribute__ ((pure));
-
-void      rendata_set_spaces  (RenData       *rd_data,
-                               int8_t         val);
-
-int8_t    rendata_get_applyto (const RenData *rd_data) __attribute__ ((pure));
-
-void      rendata_set_applyto (RenData       *rd_data,
-                               int8_t         val);
-
-int8_t    rendata_get_renexit (const RenData *rd_data) __attribute__ ((pure));
-
-void      rendata_set_renexit (RenData       *rd_data,
-                               int8_t         val);
-
-int8_t    rendata_get_dirsel  (const RenData *rd_data) __attribute__ ((pure));
-
-void      rendata_set_dirsel  (RenData       *rd_data,
-                               int8_t         val);
+static inline int8_t rendata_get_uplo    (const RenData *rd_data) {
+    return rd_data->uplo;
+}
+static inline void   rendata_set_uplo    (RenData       *rd_data,
+                                          int8_t         val) {
+    rd_data->uplo = val;
+}
+static inline int8_t rendata_get_spaces  (const RenData *rd_data) {
+    return rd_data->spaces;
+}
+static inline void   rendata_set_spaces  (RenData       *rd_data,
+                                          int8_t         val) {
+    rd_data->spaces = val;
+}
+static inline int8_t rendata_get_applyto (const RenData *rd_data) {
+    return rd_data->applyto;
+}
+static inline void   rendata_set_applyto (RenData       *rd_data,
+                                          int8_t         val) {
+    rd_data->applyto = val;
+}
+static inline int8_t rendata_get_renexit (const RenData *rd_data) {
+    return rd_data->renexit;
+}
+static inline void   rendata_set_renexit (RenData       *rd_data,
+                                          int8_t         val) {
+    rd_data->renexit = val;
+}
+static inline int8_t rendata_get_dirsel  (const RenData *rd_data) {
+    return rd_data->dirsel;
+}
+static inline void   rendata_set_dirsel  (RenData       *rd_data,
+                                          int8_t         val) {
+    rd_data->dirsel = val;
+}
 /*----------------------------------------------------------------------------*/
 #endif
 

@@ -111,7 +111,9 @@ void rfnames_add_sfile_to_file_box (RFnames    *rf_names,
  * @param[in] rf_names Pointer to RFnames object
  * @return    Length of list
  */
-uint_fast32_t rfnames_get_cnt (const RFnames *rf_names) __attribute__ ((pure));
+static inline uint_fast32_t rfnames_get_cnt (const RFnames *rf_names) {
+    return rf_names->cnt;
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @fn  void rfnames_select_unselect_all (RFnames *rf_names)

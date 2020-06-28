@@ -109,18 +109,20 @@ void       rreplace_free (RReplace *r_replace);
  * @param[out] r_replace  RReplace object
  * @param[in]  val        New "to" string
  * @return     none
- *
  */
 /*----------------------------------------------------------------------------*/
-const char * rreplace_get_from       (const RReplace *r_replace);
+static inline const char * rreplace_get_from (const RReplace *r_replace) {
+    return r_replace->s_from;
+}
+static inline const char * rreplace_get_to   (const RReplace *r_replace) {
+    return r_replace->s_to;
+}
 
-void         rreplace_set_from       (RReplace       *r_replace,
-                                      const char     *val);
+void                       rreplace_set_from (RReplace       *r_replace,
+                                              const char     *val);
 
-const char * rreplace_get_to         (const RReplace *r_replace);
-
-void         rreplace_set_to         (RReplace       *r_replace,
-                                      const char     *val);
+void                       rreplace_set_to   (RReplace       *r_replace,
+                                              const char     *val);
 /*----------------------------------------------------------------------------*/
 /**
  * @fn  size_t rreplace_get_from_len (const RReplace *r_replace)
@@ -152,17 +154,18 @@ void         rreplace_set_to         (RReplace       *r_replace,
  * @return     String length in unicode chars value
  */
 /*----------------------------------------------------------------------------*/
-size_t       rreplace_get_from_len   (const RReplace *r_replace)
-                                      __attribute__ ((pure));
-
-size_t       rreplace_get_from_u8len (const RReplace *r_replace)
-                                      __attribute__ ((pure));
-
-size_t       rreplace_get_to_len     (const RReplace *r_replace)
-                                      __attribute__ ((pure));
-
-size_t       rreplace_get_to_u8len   (const RReplace *r_replace)
-                                      __attribute__ ((pure));
+static inline size_t rreplace_get_from_len   (const RReplace *r_replace) {
+    return r_replace->from_len;
+}
+static inline size_t rreplace_get_from_u8len (const RReplace *r_replace) {
+    return r_replace->from_u8len;
+}
+static inline size_t rreplace_get_to_len     (const RReplace *r_replace) {
+    return r_replace->to_len;
+}
+static inline size_t rreplace_get_to_u8len   (const RReplace *r_replace) {
+    return r_replace->to_u8len;
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @fn  int rreplace_empty_from (const RReplace *r_replace)
@@ -180,11 +183,12 @@ size_t       rreplace_get_to_u8len   (const RReplace *r_replace)
  * @return     Check result
  */
 /*----------------------------------------------------------------------------*/
-int          rreplace_empty_from     (const RReplace *r_replace)
-                                      __attribute__ ((pure));
-
-int          rreplace_empty_to       (const RReplace *r_replace)
-                                      __attribute__ ((pure));
+static inline int rreplace_empty_from (const RReplace *r_replace) {
+    return (r_replace->s_from[0] == '\0');
+}
+static inline int rreplace_empty_to   (const RReplace *r_replace) {
+    return (r_replace->s_to[0] == '\0');
+}
 /*----------------------------------------------------------------------------*/
 #endif
 

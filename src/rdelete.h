@@ -94,15 +94,20 @@ void      rdelete_free (RDelete *r_delete);
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-uint8_t rdelete_get_cnt (const RDelete *r_delete) __attribute__ ((pure));
-
-void    rdelete_set_cnt (RDelete       *r_delete,
-                         uint8_t        val);
-
-uint8_t rdelete_get_pos (const RDelete *r_delete) __attribute__ ((pure));
-
-void    rdelete_set_pos (RDelete       *r_delete,
-                         uint8_t        val);
+static inline uint8_t rdelete_get_cnt (const RDelete *r_delete) {
+    return r_delete->cnt;
+}
+static inline void    rdelete_set_cnt (RDelete       *r_delete,
+                                       uint8_t        val) {
+    r_delete->cnt = val;
+}
+static inline uint8_t rdelete_get_pos (const RDelete *r_delete) {
+    return r_delete->pos;
+}
+static inline void    rdelete_set_pos (RDelete       *r_delete,
+                                       uint8_t        val) {
+    r_delete->pos = val;
+}
 /*----------------------------------------------------------------------------*/
 #endif
 

@@ -283,15 +283,6 @@ rfnames_add_sfile_to_file_box (RFnames    *rf_names,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get length of rf_items list
- */
-uint_fast32_t
-rfnames_get_cnt (const RFnames *rf_names)
-{
-    return rf_names->cnt;
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Select all check items on list.
  */
 static void

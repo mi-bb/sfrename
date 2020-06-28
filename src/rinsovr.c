@@ -68,15 +68,6 @@ rinsovr_free (RInsOvr *r_insovr)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get text string.
- */
-const char *
-rinsovr_get_text (const RInsOvr *rio_item)
-{
-    return (const char *) rio_item->s_text;
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Set text string.
  */
 void 
@@ -89,52 +80,6 @@ rinsovr_set_text (RInsOvr    *rio_item,
     rio_item->s_text[ui_len] = '\0';
     rio_item->len = ui_len;
     rio_item->u8len = (size_t) g_utf8_strlen (val, -1);
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get pos value.
- */
-uint8_t
-rinsovr_get_pos (const RInsOvr *rio_item)
-{
-    return rio_item->pos;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Set pos value.
- */
-void
-rinsovr_set_pos (RInsOvr       *rio_item,
-                 const uint8_t  val)
-{
-    rio_item->pos = val;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if insert/overwrite text is an empty string.
- */
-int
-rinsovr_empty (const RInsOvr *rio_item)
-{
-    return (rio_item->s_text[0] == '\0');
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get string length value.
- */
-size_t
-rinsovr_get_len (const RInsOvr *rio_item)
-{
-    return rio_item->len;
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Get string unicode length value.
- */
-size_t
-rinsovr_get_u8len (const RInsOvr *rio_item)
-{
-    return rio_item->u8len;
 }
 /*----------------------------------------------------------------------------*/
 

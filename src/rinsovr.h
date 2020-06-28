@@ -118,19 +118,26 @@ void      rinsovr_free (RInsOvr *r_insovr);
  * @return     String length in unicode chars value
  */
 /*----------------------------------------------------------------------------*/
-const char * rinsovr_get_text  (const RInsOvr *rio_item);
+static inline const char * rinsovr_get_text  (const RInsOvr *rio_item) {
+    return (const char *) rio_item->s_text;
+}
 
-void         rinsovr_set_text  (RInsOvr       *rio_item,
-                                const char    *val);
+void                       rinsovr_set_text  (RInsOvr    *rio_item,
+                                              const char *val);
 
-uint8_t      rinsovr_get_pos   (const RInsOvr *rio_item) __attribute__ ((pure));
-
-void         rinsovr_set_pos   (RInsOvr       *rio_item,
-                                const uint8_t  val);
-
-size_t       rinsovr_get_len   (const RInsOvr *rio_item) __attribute__ ((pure));
-
-size_t       rinsovr_get_u8len (const RInsOvr *rio_item) __attribute__ ((pure));
+static inline uint8_t      rinsovr_get_pos   (const RInsOvr *rio_item) {
+    return rio_item->pos;
+}
+static inline void         rinsovr_set_pos   (RInsOvr       *rio_item,
+                                              const uint8_t  val) {
+    rio_item->pos = val;
+}
+static inline size_t       rinsovr_get_len   (const RInsOvr *rio_item) {
+    return rio_item->len;
+}
+static inline size_t       rinsovr_get_u8len (const RInsOvr *rio_item) {
+    return rio_item->u8len;
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Check if insert/overwrite text is an empty string.
@@ -138,7 +145,9 @@ size_t       rinsovr_get_u8len (const RInsOvr *rio_item) __attribute__ ((pure));
  * @param[in]  rio_item  RInsOvr object
  * @return     Check result
  */
-int          rinsovr_empty    (const RInsOvr *rio_item) __attribute__ ((pure));
+static inline int          rinsovr_empty    (const RInsOvr *rio_item) {
+    return (rio_item->s_text[0] == '\0');
+}
 /*----------------------------------------------------------------------------*/
 #endif
 
