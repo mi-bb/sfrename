@@ -263,10 +263,8 @@ rfitem_new_from_gfile (GFile *g_file)
     rf_item->s_pth[ui_len] = '\0';
     memcpy (rf_item->s_org, s_fn, rf_item->org_len + 1);
     memcpy (rf_item->s_new, s_fn, rf_item->org_len + 1);
-    //strncpy (rf_item->s_org, s_fn, FN_LEN);
-    //rf_item->s_org[FN_LEN] = '\0';
-    //strncpy (rf_item->s_new, s_fn, FN_LEN);
-    //rf_item->s_new[FN_LEN] = '\0';
+    /*rf_item->s_org[FN_LEN] = '\0';*/
+    /*rf_item->s_new[FN_LEN] = '\0';*/
     /* rfitem_set_snew_from_sorg (rf_item); */
 
     gtk_box_pack_start (GTK_BOX (rf_item->box), rf_item->check, FALSE, FALSE,0);
@@ -397,25 +395,6 @@ event_click_rev (GtkWidget *widget __attribute__ ((unused)),
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get check button checked value.
- */
-//gboolean
-//rfitem_get_checked (const RFitem *rf_item)
-//{
-//    return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check));
-//}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Set check button checked value.
- */
-void
-rfitem_set_checked (RFitem       *rf_item,
-                    const gboolean  b_val)
-{
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rf_item->check), b_val);
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Invert check item check value
  */
 void
@@ -438,15 +417,6 @@ rfitem_entry_check_and_update (RFitem     *rf_item,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Restore original file name to entry
- */
-void
-rfitem_entry_restore (RFitem *rf_item)
-{
-    gtk_entry_set_text (GTK_ENTRY (rf_item->entry), rf_item->s_org);
-}
-/*----------------------------------------------------------------------------*/
-/**
  * @brief  Compare 2 RFitem objects.
  */
 int
@@ -465,41 +435,4 @@ rfitem_compare (const RFitem *rf_item1,
     return i_res;
 }
 /*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if RFitem type is a file.
- */
-//gboolean
-//rfitem_is_file (const RFitem *rf_item)
-//{
-//    return (rf_item->f_type == G_FILE_TYPE_REGULAR);
-//}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if RFitem type is a directory.
- */
-//gboolean
-//rfitem_is_folder (const RFitem *rf_item)
-//{
-//    return (rf_item->f_type == G_FILE_TYPE_DIRECTORY);
-//}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if RFitem file/dir type is a symlink.
- */
-//gboolean
-//rfitem_is_symlink (const RFitem *rf_item)
-//{
-//    return rf_item->b_slink;
-//}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if RFitem file/dir is hidden.
- */
-//gboolean
-//rfitem_is_hidden (const RFitem *rf_item)
-//{
-//    return rf_item->b_hidden;
-//}
-/*----------------------------------------------------------------------------*/
-
 

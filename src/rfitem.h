@@ -137,13 +137,13 @@ void rfitem_delete (RFitem *rf_item);
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-static inline gboolean rfitem_get_checked    (const RFitem   *rf_item) {
+static inline gboolean rfitem_get_checked (const RFitem   *rf_item) {
     return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check));
 }
-
-void     rfitem_set_checked    (RFitem         *rf_item,
-                                const gboolean  b_val);
-
+static inline void rfitem_set_checked     (RFitem         *rf_item,
+                                           const gboolean  b_val) {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rf_item->check), b_val);
+}
 void     rfitem_invert_checked (RFitem         *rf_item);
 /*----------------------------------------------------------------------------*/
 /**
@@ -199,6 +199,11 @@ static inline const char * rfitem_get_spth (const RFitem *rf_item) {
  * @param[in] rf_item RFitem with entry
  * @return    String with entry text
  *
+ * @fn            void rfitem_entry_restore (RFitem *rf_item)
+ * @brief         Restore original file name to entry
+ * @param[in,out] rf_item Pointer to RFitem object
+ * @return        none
+ *
  * @fn            void rfitem_entry_check_and_update (RFitem     *rf_item,
                                                       const char *new_str)
  * @brief         Checks if the new entry text is equal to the previous value
@@ -206,20 +211,16 @@ static inline const char * rfitem_get_spth (const RFitem *rf_item) {
  * @param[in,out] rf_item RFitem with entry
  * @param[in]     new_str New entry value
  * @return        none
- *
- * @fn            void rfitem_entry_restore (RFitem *rf_item)
- * @brief         Restore original file name to entry
- * @param[in,out] rf_item Pointer to RFitem object
- * @return        none
  */
 /*----------------------------------------------------------------------------*/
 static inline const char * rfitem_entry_get_text (const RFitem *rf_item) {
     return gtk_entry_get_text (GTK_ENTRY (rf_item->entry));
 }
-void         rfitem_entry_check_and_update (RFitem       *rf_item,
-                                            const char   *new_str);
-
-void         rfitem_entry_restore          (RFitem       *rf_item);
+static inline void         rfitem_entry_restore  (RFitem       *rf_item) {
+    gtk_entry_set_text (GTK_ENTRY (rf_item->entry), rf_item->s_org);
+}
+void rfitem_entry_check_and_update (RFitem       *rf_item,
+                                    const char   *new_str);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Compare 2 RFitem objects.
