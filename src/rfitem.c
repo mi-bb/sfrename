@@ -210,9 +210,6 @@ rfitem_new_from_gfile (GFile *g_file)
         free (rf_item);
         err (EXIT_FAILURE, NULL);
     }
-    //rf_item->s_org[0] = '\0';
-    //rf_item->s_new[0] = '\0';
-    //rf_item->s_pth[0] = '\0';
     s_path = g_file_peek_path (g_file);
     s_fn   = get_name_dir_len (s_path, &ui_len);
 

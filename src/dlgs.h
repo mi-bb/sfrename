@@ -36,11 +36,11 @@
  * @def   FOLDER_SCAN_RECURSIVELY
  * @brief Option for scanning directory recursively
  */
-#define FOLDER_SELECT_FILES      1
-#define FOLDER_SELECT_FOLDERS    2
-#define FOLDER_SELECT_SYMLINKS   4
-#define FOLDER_SELECT_HIDDEN     8
-#define FOLDER_SCAN_RECURSIVELY  16
+#define FOLDER_SELECT_FILES      0x01
+#define FOLDER_SELECT_FOLDERS    0x02
+#define FOLDER_SELECT_SYMLINKS   0x04
+#define FOLDER_SELECT_HIDDEN     0x08
+#define FOLDER_SCAN_RECURSIVELY  0x10
 
 #include <gtk/gtk.h>
 /*----------------------------------------------------------------------------*/

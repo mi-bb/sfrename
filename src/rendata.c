@@ -85,12 +85,12 @@ rendata_new (void)
 void
 rendata_free (RenData *rd_data)
 {
-    rfnames_free (rd_data->names);
-    rdelete_free (rd_data->del);
-    rinsovr_free (rd_data->ins);
-    rinsovr_free (rd_data->ovrw);
+    rfnames_free  (rd_data->names);
+    rdelete_free  (rd_data->del);
+    rinsovr_free  (rd_data->ins);
+    rinsovr_free  (rd_data->ovrw);
     rreplace_free (rd_data->replace);
-    rnumber_free (rd_data->number);
+    rnumber_free  (rd_data->number);
     free (rd_data);
 }
 /*----------------------------------------------------------------------------*/

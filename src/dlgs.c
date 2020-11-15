@@ -56,16 +56,16 @@ add_files_folder_dialog (GtkWindow *gw_parent,
     GtkWidget *gw_chk_r = gtk_check_button_new_with_label (
             "Scan folders recursively");
 
-    if (*i_opt & FOLDER_SELECT_FILES)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_f), TRUE);
-    if (*i_opt & FOLDER_SELECT_FOLDERS)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_d), TRUE);
-    if (*i_opt & FOLDER_SELECT_SYMLINKS)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_s), TRUE);
-    if (*i_opt & FOLDER_SELECT_HIDDEN)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_h), TRUE);
-    if (*i_opt & FOLDER_SCAN_RECURSIVELY)
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_r), TRUE);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_f), 
+                                  *i_opt & FOLDER_SELECT_FILES);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_d),
+                                  *i_opt & FOLDER_SELECT_FOLDERS);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_s),
+                                  *i_opt & FOLDER_SELECT_SYMLINKS);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_h),
+                                  *i_opt & FOLDER_SELECT_HIDDEN);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_chk_r),
+                                  *i_opt & FOLDER_SCAN_RECURSIVELY);
 
     gtk_box_pack_start (GTK_BOX (gw_box), gw_chk_f, FALSE, FALSE, 0);
     gtk_box_pack_start (GTK_BOX (gw_box), gw_chk_d, FALSE, FALSE, 0);

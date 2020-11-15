@@ -24,9 +24,9 @@
  *
  * Program renames files.
  *
- * @date June 05, 2020
+ * @date November 15, 2020
  *
- * @version 1.2.8
+ * @version 1.2.9
  *
  * @author Michal Babik <michal.babik@pm.me>
  */
@@ -428,7 +428,7 @@ static void
 event_overwrite_string_entry_changed (GtkWidget *widget,
                                       RenData   *rd_data)
 {
-    const char *s_en   = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
 
     rinsovr_set_text (rd_data->ovrw, s_en);
 
