@@ -1,0 +1,30 @@
+# Autoconf / Automake generated files
+/Makefile
+/Makefile.in
+/aclocal.m4
+/autom4te.cache/
+/compile
+/config.guess
+/config.h
+/config.h.in
+/config.h.in~
+/config.log
+/config.status
+/config.sub
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+/data/Makefile
+/data/Makefile.in
+/src/Makefile
+/src/Makefile.in
+/src/.deps/
+
+# Build output
+*.o
+*.lo
+*.la
+.libs/
+.deps/
