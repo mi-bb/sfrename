@@ -13,6 +13,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2026-07-13  Michal Babik  <michal.babik@pm.me>
+
+	* configure.ac: Bump version to 1.2.10.
+	* src/defs.h (APP_VER): Bump version to 1.2.10.
+	* .gitignore: New file, ignore autotools build artifacts.
+	* CLAUDE.md: New file, project documentation for Claude Code.
+
 2020-11-15  Michal Babik  <michal.babik@pm.me>
 
 	* imgs.c: Changed some icons to svg.
