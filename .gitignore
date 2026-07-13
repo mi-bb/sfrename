@@ -28,3 +28,12 @@
 *.la
 .libs/
 .deps/
+
+# CMake build directory
+/build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+compile_commands.json
