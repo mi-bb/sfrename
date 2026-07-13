@@ -19,6 +19,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	* src/defs.h (APP_VER): Bump version to 1.2.10.
 	* .gitignore: New file, ignore autotools build artifacts.
 	* CLAUDE.md: New file, project documentation for Claude Code.
+	* CMakeLists.txt: New file, CMake build environment as an
+	  alternative to Autotools. Builds sfrename against GTK+3 (>=3.22)
+	  and installs the binary, desktop file, and pixmap icon.
+	* .gitignore: Ignore CMake build directory and generated files.
 
 2020-11-15  Michal Babik  <michal.babik@pm.me>
 
