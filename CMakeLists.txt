@@ -45,3 +45,27 @@ include(GNUInstallDirs)
 install(TARGETS sfrename RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(FILES data/sfrename.desktop DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
 install(FILES data/sfrename.png DESTINATION ${CMAKE_INSTALL_DATADIR}/pixmaps)
+
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(test_strfn
+        tests/test_strfn.c
+        src/strfn.c
+    )
+    target_include_directories(test_strfn PRIVATE src)
+    target_link_libraries(test_strfn PRIVATE PkgConfig::GTK)
+    add_test(NAME strfn COMMAND test_strfn)
+
+    add_executable(test_namefn
+        tests/test_namefn.c
+        src/namefn.c
+        src/strfn.c
+        src/rdelete.c
+        src/rinsovr.c
+        src/rreplace.c
+        src/rnumber.c
+    )
+    target_include_directories(test_namefn PRIVATE src)
+    target_link_libraries(test_namefn PRIVATE PkgConfig::GTK)
+    add_test(NAME namefn COMMAND test_namefn)
+endif()

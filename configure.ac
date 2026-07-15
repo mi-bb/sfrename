@@ -18,7 +18,7 @@
 AC_PREREQ([2.69])
 AC_INIT([sfrename], [1.2.10], [michal.babik@pm.me], [sfrename],\
         [https://www.nongnu.org/small-file-renamer/])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_SRCDIR([src/sfrename.c])
 AC_CONFIG_HEADERS([config.h])
 AC_GNU_SOURCE
@@ -45,6 +45,6 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memmove memset strrchr strstr])
 
-AC_CONFIG_FILES([Makefile src/Makefile data/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile data/Makefile tests/Makefile])
 AC_OUTPUT
 

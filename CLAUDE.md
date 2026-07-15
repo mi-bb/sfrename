@@ -30,7 +30,30 @@ Suggested release build flags (from INSTALL):
 
 Build dependency: GTK+ 3 >= 3.22 (checked via `pkg-config` in `configure.ac`).
 
-There is no test suite and no linter configured in this repository.
+There is no linter configured in this repository.
+
+Unit tests live in `tests/` and use the GLib Testing framework (`GTest`,
+`glib.h`) — no new dependency, since GLib is already pulled in transitively
+through GTK. They cover the GTK-independent logic layer only (`strfn.c`,
+`namefn.c`, and the `rdelete`/`rinsovr`/`rreplace`/`rnumber` settings
+structs), built by constructing `RenData`/`RFnames`/`RFitem` by hand rather
+than via `rendata_new()`/`rfitem_new_from_gfile()` — those constructors
+create real GTK widgets and need a display, whereas the functions under test
+never touch the widget fields. The GTK-facing code (`sfrename.c`,
+`rfnames.c`, `rfitem.c`, `dlgs.c`) has no automated coverage and relies on
+manual/UI verification.
+
+Run tests with Autotools:
+
+```sh
+make check
+```
+
+Run tests with CMake:
+
+```sh
+cmake -S . -B build && cmake --build build && ctest --test-dir build
+```
 
 Run the built binary directly, e.g.:
 

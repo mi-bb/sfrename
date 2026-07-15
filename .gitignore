@@ -21,6 +21,16 @@
 /src/Makefile
 /src/Makefile.in
 /src/.deps/
+/src/.dirstamp
+/src/sfrename
+/tests/Makefile
+/tests/Makefile.in
+/tests/.deps/
+/tests/test_strfn
+/tests/test_namefn
+/tests/*.log
+/tests/*.trs
+/test-driver
 
 # Build output
 *.o
