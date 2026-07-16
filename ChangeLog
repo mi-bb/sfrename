@@ -23,6 +23,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  alternative to Autotools. Builds sfrename against GTK+3 (>=3.22)
 	  and installs the binary, desktop file, and pixmap icon.
 	* .gitignore: Ignore CMake build directory and generated files.
+	* tests/test_strfn.c, tests/test_namefn.c: New files, GLib-based
+	  (GTest) unit tests for strfn.c and namefn.c. Cover the
+	  GTK-independent logic layer only; RenData/RFnames/RFitem
+	  fixtures are built by hand rather than via their real
+	  constructors, since those create GTK widgets and need a
+	  display.
+	* tests/Makefile.am, CMakeLists.txt: Wire test_strfn/test_namefn
+	  into "make check" and "ctest".
+	* tests/test_rsettings.c: New file, GLib-based unit tests for
+	  rdelete.c, rinsovr.c, rreplace.c, and rnumber.c. These structs
+	  hold no GTK widgets, so they are exercised through their real
+	  rXXX_new()/rXXX_free() constructors. Covers defaults,
+	  getter/setter round-trips, UTF-8 byte/char length accounting,
+	  FN_LEN truncation, and the empty_* predicates.
+	* tests/Makefile.am, CMakeLists.txt: Wire test_rsettings into
+	  "make check" and "ctest".
 
 2020-11-15  Michal Babik  <michal.babik@pm.me>
 
