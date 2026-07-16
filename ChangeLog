@@ -39,6 +39,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  FN_LEN truncation, and the empty_* predicates.
 	* tests/Makefile.am, CMakeLists.txt: Wire test_rsettings into
 	  "make check" and "ctest".
+	* rfnames.c (rfnames_delete_at_pos): Free the RFitem** array
+	  before dropping the pointer when the last item is removed,
+	  instead of leaking it. Fixed the cleanup loop on realloc()
+	  failure iterating one slot past the live range and double-
+	  freeing a stale/duplicate RFitem.
+	* sfrename.c (event_click_add_folder_files): Free the selected
+	  folder path even when all "select ..." checkboxes are
+	  unchecked (i_opt == 0), not only when files were actually
+	  added.
 
 2020-11-15  Michal Babik  <michal.babik@pm.me>
 

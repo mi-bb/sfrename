@@ -23,6 +23,12 @@ v1.2.10                                                     2026-07-13
     * Added a GLib-based unit test suite (tests/), covering strfn.c,
       namefn.c, and the rdelete/rinsovr/rreplace/rnumber settings
       structs. Runnable via "make check" or "ctest".
+    * Fixed memory leaks in the add/remove file list code path: the
+      file item array was leaked when the last item was removed, and
+      the selected folder path was leaked when adding files from a
+      folder with all "select ..." options unchecked.
+    * Fixed a double-free that could occur on realloc() failure while
+      removing a file from the list.
 
 ----------------------------------------------------------------------
 v1.2.9                                                      2020-11-15
