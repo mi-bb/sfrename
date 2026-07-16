@@ -16,6 +16,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ----------------------------------------------------------------------
 v1.2.11                                                     2026-07-16
 
+    * Added "Remember options on exit" checkbox. When enabled, all rename
+      settings are saved to a JSON config file on exit and restored on
+      the next launch.
+
 ----------------------------------------------------------------------
 v1.2.10                                                     2026-07-13
 

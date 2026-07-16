@@ -13,6 +13,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2026-07-17  Michal Babik  <michal.babik@pm.me>
+
+	* rconfig.c, rconfig.h: New files, hand-rolled minimal JSON
+	  writer/parser for saving and restoring rename settings. No new
+	  build dependency: uses only GLib facilities already pulled in via
+	  GTK+3. The parser uses a parse-then-apply strategy so a missing or
+	  malformed config file never partially updates RenData.
+	* rendata.c, rendata.h: Added rememberopt field with matching
+	  getter/setter.
+	* defs.h: Added DEF_REMEMBEROPT default and RCONFIG_DIR_NAME /
+	  RCONFIG_FILE_NAME constants for the config file path.
+	* sfrename.c: Added "Remember options on exit" checkbox next to
+	  "Exit after rename". Wired rconfig_load() into main() and
+	  rconfig_save() into shutdown(). Every settings widget (delete,
+	  insert, overwrite, replace, number, case/spaces/apply-to radio
+	  groups) now seeds its initial value from the loaded RenData instead
+	  of a hardcoded default.
+	* tests/test_rconfig.c: New file, GLib-based unit tests for
+	  rconfig.c covering round-trips (defaults, non-defaults, UTF-8 and
+	  JSON-escaped text), a missing config file, a malformed config file
+	  leaving RenData untouched, and save/load toggling the config file's
+	  existence based on rememberopt.
+	* tests/Makefile.am, CMakeLists.txt: Wire test_rconfig into
+	  "make check" and "ctest".
+	* .gitignore: Ignore the tests/test_rconfig binary.
+
 2026-07-16  Michal Babik  <michal.babik@pm.me>
 
 	* configure.ac: Bump version to 1.2.11.
