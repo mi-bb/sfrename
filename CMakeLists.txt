@@ -68,4 +68,16 @@ if(BUILD_TESTING)
     target_include_directories(test_namefn PRIVATE src)
     target_link_libraries(test_namefn PRIVATE PkgConfig::GTK)
     add_test(NAME namefn COMMAND test_namefn)
+
+    add_executable(test_rsettings
+        tests/test_rsettings.c
+        src/strfn.c
+        src/rdelete.c
+        src/rinsovr.c
+        src/rreplace.c
+        src/rnumber.c
+    )
+    target_include_directories(test_rsettings PRIVATE src)
+    target_link_libraries(test_rsettings PRIVATE PkgConfig::GTK)
+    add_test(NAME rsettings COMMAND test_rsettings)
 endif()
