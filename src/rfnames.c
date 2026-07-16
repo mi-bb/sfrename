@@ -200,6 +200,7 @@ rfnames_delete_at_pos (RFnames             *rf_names,
     }
 
     if (rf_names->cnt == 0) {
+        free (rf_names->rf_items);
         rf_names->rf_items = NULL;
         return;
     }

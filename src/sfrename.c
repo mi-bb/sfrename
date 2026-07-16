@@ -729,9 +729,11 @@ event_click_add_folder_files (RenData *rd_data)
     i_opt   = i_opt < 1 ? 1 : i_opt;
     s_dir   = add_files_folder_dialog (NULL, &i_opt);
 
-    if (s_dir != NULL && i_opt > 0) {
-        get_folder_content (rd_data->names, s_dir, i_opt);
-        rendata_set_dirsel (rd_data, (int8_t) i_opt);
+    if (s_dir != NULL) {
+        if (i_opt > 0) {
+            get_folder_content (rd_data->names, s_dir, i_opt);
+            rendata_set_dirsel (rd_data, (int8_t) i_opt);
+        }
         free (s_dir);
     }
     gtk_widget_show_all (rd_data->names->file_box);
