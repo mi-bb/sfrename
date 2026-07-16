@@ -207,7 +207,11 @@ rfnames_delete_at_pos (RFnames             *rf_names,
 
     rf_tmp = realloc (rf_names->rf_items, (rf_names->cnt) * sizeof (RFitem*));
     if (rf_tmp == NULL) {
-        for (uint_fast32_t i = 0; i < rf_names->cnt+1; ++i) {
+        /* The item at index rf_names->cnt is stale: either already freed
+         * by rfitem_delete() above, or a duplicate of index cnt-1 left
+         * behind by the reorder loop. Only the cnt live entries need
+         * freeing here. */
+        for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
             rfitem_free (rf_names->rf_items[i]);
         }
         free (rf_names->rf_items);
