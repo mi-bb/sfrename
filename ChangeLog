@@ -13,6 +13,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+2026-07-16  Michal Babik  <michal.babik@pm.me>
+
+	* configure.ac: Bump version to 1.2.11.
+	* src/defs.h (APP_VER): Bump version to 1.2.11.
+	* CMakeLists.txt: Bump version to 1.2.11.
+
 2026-07-13  Michal Babik  <michal.babik@pm.me>
 
 	* configure.ac: Bump version to 1.2.10.
