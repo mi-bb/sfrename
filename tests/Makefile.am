@@ -17,7 +17,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src
 AM_CFLAGS   = $(GTK_CFLAGS)
 LDADD       = $(GTK_LIBS)
 
-check_PROGRAMS = test_strfn test_namefn test_rsettings
+check_PROGRAMS = test_strfn test_namefn test_rsettings test_rconfig
 
 test_strfn_SOURCES = test_strfn.c \
                      ../src/strfn.c
@@ -36,5 +36,13 @@ test_rsettings_SOURCES = test_rsettings.c \
                           ../src/rinsovr.c \
                           ../src/rreplace.c \
                           ../src/rnumber.c
+
+test_rconfig_SOURCES = test_rconfig.c \
+                        ../src/rconfig.c \
+                        ../src/strfn.c \
+                        ../src/rdelete.c \
+                        ../src/rinsovr.c \
+                        ../src/rreplace.c \
+                        ../src/rnumber.c
 
 TESTS = $(check_PROGRAMS)

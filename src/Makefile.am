@@ -20,6 +20,7 @@ sfrename_SOURCES = sfrename.c\
                    rreplace.c rreplace.h\
                    rnumber.c rnumber.h\
                    rendata.c rendata.h\
+                   rconfig.c rconfig.h\
                    rfnames.c rfnames.h\
                    rfitem.c rfitem.h\
                    namefn.c namefn.h\

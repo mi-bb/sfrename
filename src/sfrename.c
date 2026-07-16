@@ -40,6 +40,7 @@
 #include "dlgs.h"
 #include "strfn.h"
 #include "rendata.h"
+#include "rconfig.h"
 #include "namefn.h"
 #include "imgs.h"
 #include "defs.h"
@@ -659,6 +660,24 @@ event_toggle_rename_exit (GtkToggleButton *toggleb,
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Remember options on exit CheckBox state changed.
+ *
+ * Sets rememberopt value in r_files structure based on the value of
+ * ChackBox.
+ *
+ * @param[in]  toggleb ToggleButton which received the signal
+ * @param[out] rd_data RenData object with file list and settings
+ * @return     none
+ */
+static void
+event_toggle_remember_options (GtkToggleButton *toggleb,
+                               RenData         *rd_data)
+{
+    rendata_set_rememberopt (rd_data,
+            (int8_t) gtk_toggle_button_get_active (toggleb));
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  React to key pressed in main window.
  *
  * @param[in]     widget    The object which received the signal
@@ -819,6 +838,12 @@ create_upcase_lowercase_box (GtkWidget **gw_container,
     gw_upc = gtk_radio_button_new_with_label_from_widget (
              GTK_RADIO_BUTTON (gw_ncc), "To uppercase");
 
+    switch (rendata_get_uplo (rd_data)) {
+    case 0:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_upc), TRUE); break;
+    case 1:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_lcc), TRUE); break;
+    default: gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_ncc), TRUE); break;
+    }
+
     g_signal_connect (G_OBJECT(gw_ncc), "toggled",
                       G_CALLBACK (event_case_radio_active), rd_data);
     g_signal_connect (G_OBJECT (gw_lcc), "toggled",
@@ -859,6 +884,12 @@ create_spaces_to_underscores_box (GtkWidget **gw_container,
     gw_utosp   = gtk_radio_button_new_with_label_from_widget(
                  GTK_RADIO_BUTTON (gw_sptounc), "Underscore to space");
 
+    switch (rendata_get_spaces (rd_data)) {
+    case 0:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_utosp), TRUE); break;
+    case 1:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_sptou), TRUE); break;
+    default: gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_sptounc), TRUE); break;
+    }
+
     g_signal_connect (G_OBJECT (gw_sptounc), "toggled",
                       G_CALLBACK (event_spaces_radio_active), rd_data);
     g_signal_connect (G_OBJECT (gw_sptou), "toggled",
@@ -898,6 +929,12 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
                GTK_RADIO_BUTTON (gw_appne), "Apply to name");
     gw_appe  = gtk_radio_button_new_with_label_from_widget (
                GTK_RADIO_BUTTON (gw_appne), "Apply to ext");
+
+    switch (rendata_get_applyto (rd_data)) {
+    case 0:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_appe), TRUE); break;
+    case 1:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_appn), TRUE); break;
+    default: gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_appne), TRUE); break;
+    }
 
     g_signal_connect (G_OBJECT (gw_appne), "toggled",
                       G_CALLBACK (event_apply_radio_active), rd_data);
@@ -942,6 +979,11 @@ create_replace_str_with_str_box (GtkWidget **gw_container,
     gtk_entry_set_max_length (GTK_ENTRY (gw_sto), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_sto), 6);
 
+    gtk_entry_set_text (GTK_ENTRY (gw_sfrom),
+                        rreplace_get_from (rendata_get_rreplace (rd_data)));
+    gtk_entry_set_text (GTK_ENTRY (gw_sto),
+                        rreplace_get_to (rendata_get_rreplace (rd_data)));
+
     gw_lab1 = gtk_label_new ("Replace text");
     gw_lab2 = gtk_label_new ("with");
 
@@ -981,12 +1023,16 @@ create_delete_chars_box (GtkWidget **gw_container,
     GtkAdjustment *gw_del_adj_pos; /* Adjustment for spin button */
 
     gw_lab         = gtk_label_new ("Delete text:");
-    gw_del_adj_cnt = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_del_adj_cnt = gtk_adjustment_new (
+            rdelete_get_cnt (rendata_get_rdelete (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_del_cnt     = gtk_spin_button_new (gw_del_adj_cnt, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_del_cnt, "Count");
 
-    gw_del_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_del_adj_pos = gtk_adjustment_new (
+            rdelete_get_pos (rendata_get_rdelete (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_del_pos     = gtk_spin_button_new (gw_del_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_del_pos, "At position");
@@ -1029,7 +1075,12 @@ create_insert_string_box (GtkWidget **gw_container,
     gtk_entry_set_max_length (GTK_ENTRY (gw_ins_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ins_entry), 6);
 
-    gw_ins_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gtk_entry_set_text (GTK_ENTRY (gw_ins_entry),
+                        rinsovr_get_text (rendata_get_rinsert (rd_data)));
+
+    gw_ins_adj_pos = gtk_adjustment_new (
+            rinsovr_get_pos (rendata_get_rinsert (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_ins_pos     = gtk_spin_button_new (gw_ins_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_ins_pos, "At position");
@@ -1072,7 +1123,12 @@ create_overwrite_string_box (GtkWidget **gw_container,
     gtk_entry_set_max_length (GTK_ENTRY (gw_ovr_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ovr_entry), 6);
 
-    gw_ovr_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gtk_entry_set_text (GTK_ENTRY (gw_ovr_entry),
+                        rinsovr_get_text (rendata_get_roverwr (rd_data)));
+
+    gw_ovr_adj_pos = gtk_adjustment_new (
+            rinsovr_get_pos (rendata_get_roverwr (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_ovr_pos     = gtk_spin_button_new (gw_ovr_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_ovr_pos, "At position");
@@ -1111,12 +1167,17 @@ create_number_string_box (GtkWidget **gw_container,
     GtkAdjustment *gw_num_pos_spin_adj;   /* Adjustment for spin button */
 
     gw_check = gtk_check_button_new_with_label ("Number files");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_check), FALSE);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_check),
+            rnumber_get_opt (rendata_get_rnumber (rd_data)) != 0);
 
-    gw_num_start_spin_adj = gtk_adjustment_new (0.0, 0.0, 1000, 1.0, 5.0, 0.0);
+    gw_num_start_spin_adj = gtk_adjustment_new (
+            rnumber_get_start (rendata_get_rnumber (rd_data)),
+            0.0, 1000, 1.0, 5.0, 0.0);
     gw_num_start_spin     = gtk_spin_button_new (gw_num_start_spin_adj, 1.0, 0);
 
-    gw_num_pos_spin_adj   = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_num_pos_spin_adj   = gtk_adjustment_new (
+            rnumber_get_pos (rendata_get_rnumber (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_num_pos_spin       = gtk_spin_button_new (gw_num_pos_spin_adj, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_num_start_spin, "Start numbering from");
@@ -1151,9 +1212,10 @@ static void
 create_rename_close_exit_box (GtkWidget **gw_container,
                               RenData    *rd_data)
 {
-    GtkWidget *gw_but_ok;  /* Rename button */
-    GtkWidget *gw_but_cc;  /* Close button */
-    GtkWidget *gw_renexit; /* Exit after rename check button */
+    GtkWidget *gw_but_ok;   /* Rename button */
+    GtkWidget *gw_but_cc;   /* Close button */
+    GtkWidget *gw_renexit;  /* Exit after rename check button */
+    GtkWidget *gw_remember; /* Remember options on exit check button */
 
     gw_but_ok = gtk_button_new_with_label ("Rename");
     gw_but_cc = gtk_button_new_with_label ("Close");
@@ -1165,10 +1227,19 @@ create_rename_close_exit_box (GtkWidget **gw_container,
 
     gw_renexit = gtk_check_button_new_with_label ("Exit after rename");
 
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_renexit), TRUE);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_renexit),
+            rendata_get_renexit (rd_data));
 
     g_signal_connect (G_OBJECT (gw_renexit), "toggled",
                       G_CALLBACK (event_toggle_rename_exit), rd_data);
+
+    gw_remember = gtk_check_button_new_with_label ("Remember options on exit");
+
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_remember),
+            rendata_get_rememberopt (rd_data));
+
+    g_signal_connect (G_OBJECT (gw_remember), "toggled",
+                      G_CALLBACK (event_toggle_remember_options), rd_data);
 
     *gw_container = gtk_grid_new ();
 
@@ -1179,6 +1250,8 @@ create_rename_close_exit_box (GtkWidget **gw_container,
             gw_but_cc, gw_but_ok, GTK_POS_RIGHT, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_renexit, gw_but_cc, GTK_POS_RIGHT, 1, 1);
+    gtk_grid_attach_next_to (GTK_GRID (*gw_container),
+            gw_remember, gw_renexit, GTK_POS_RIGHT, 1, 1);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1506,6 +1579,7 @@ static void
 shutdown (GtkApplication *application __attribute__ ((unused)),
           RenData        *rd_data)
 {
+    rconfig_save (rd_data);
     rendata_free (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -1647,6 +1721,8 @@ main (int    argc,
     int             status;
 
     rd_data = rendata_new ();
+    rconfig_load (rd_data);
+
     app = gtk_application_new ("org.nongnu.SmallFileRenamer",
                                G_APPLICATION_HANDLES_OPEN);
 

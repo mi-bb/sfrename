@@ -64,20 +64,23 @@
  * @brief Exit after rename option
  * @var   RenData::dirsel
  * @brief Select files from directory options
- */ 
+ * @var   RenData::rememberopt
+ * @brief Remember options on exit option
+ */
 typedef struct
 RenData {
-    RFnames   *names;    /* File names, old, new, entries */
-    RDelete   *del;      /* Delete chars properties */
-    RInsOvr   *ins;      /* Insert text properties */
-    RInsOvr   *ovrw;     /* Overwrite text properties */
-    RReplace  *replace;  /* Replace string with string settings */
-    RNumber   *number;   /* Numbering names settings */
-    int8_t     uplo;     /* Upper/lower case option */
-    int8_t     spaces;   /* Spaces/underscores option */
-    int8_t     applyto;  /* Apply to file names/ext or both option */
-    int8_t     renexit;  /* Exit after rename option */
-    int8_t     dirsel;   /* Select files from directory options */
+    RFnames   *names;       /* File names, old, new, entries */
+    RDelete   *del;         /* Delete chars properties */
+    RInsOvr   *ins;         /* Insert text properties */
+    RInsOvr   *ovrw;        /* Overwrite text properties */
+    RReplace  *replace;     /* Replace string with string settings */
+    RNumber   *number;      /* Numbering names settings */
+    int8_t     uplo;        /* Upper/lower case option */
+    int8_t     spaces;      /* Spaces/underscores option */
+    int8_t     applyto;     /* Apply to file names/ext or both option */
+    int8_t     renexit;     /* Exit after rename option */
+    int8_t     dirsel;      /* Select files from directory options */
+    int8_t     rememberopt; /* Remember options on exit option */
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**
@@ -237,6 +240,21 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *rd_data) {
  * @param[out] rd_data  RenData object
  * @param[in]  val      New dirsel value
  * @return     none
+ *
+ * @fn  int8_t rendata_get_rememberopt (const RenData *rd_data)
+ *
+ * @brief  Get rememberopt value.
+ *
+ * @param[in]  rd_data  RenData object
+ * @return     rememberopt value
+ *
+ * @fn  void rendata_set_rememberopt (RenData *rd_data,
+ *                                    int8_t   val)
+ * @brief  Set rememberopt value.
+ *
+ * @param[out] rd_data  RenData object
+ * @param[in]  val      New rememberopt value
+ * @return     none
  */
 /*----------------------------------------------------------------------------*/
 static inline int8_t rendata_get_uplo    (const RenData *rd_data) {
@@ -273,6 +291,13 @@ static inline int8_t rendata_get_dirsel  (const RenData *rd_data) {
 static inline void   rendata_set_dirsel  (RenData       *rd_data,
                                           int8_t         val) {
     rd_data->dirsel = val;
+}
+static inline int8_t rendata_get_rememberopt (const RenData *rd_data) {
+    return rd_data->rememberopt;
+}
+static inline void   rendata_set_rememberopt (RenData       *rd_data,
+                                              int8_t         val) {
+    rd_data->rememberopt = val;
 }
 /*----------------------------------------------------------------------------*/
 #endif

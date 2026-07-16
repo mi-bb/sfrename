@@ -49,6 +49,12 @@
  * @brief Default exit after rename option
  * @def   DEF_DIRSEL
  * @brief Default select files from directory options
+ * @def   DEF_REMEMBEROPT
+ * @brief Default remember options on exit option
+ * @def   RCONFIG_DIR_NAME
+ * @brief Name of the config directory created under the user's XDG config dir
+ * @def   RCONFIG_FILE_NAME
+ * @brief Name of the JSON config file holding remembered options
  */
 #define FN_LEN     255
 #define WIN_WIDTH  600
@@ -57,11 +63,14 @@
 #define APP_VER    "1.2.11"
 #define APP_WEB    "http://www.nongnu.org/small-file-renamer/"
 #define APP_DSC    "Program for renaming files and directories."
-#define DEF_UPLO   2
-#define DEF_SPACES 2
-#define DEF_APPLTO 2
-#define DEF_RENEXT 1
-#define DEF_DIRSEL 1
+#define DEF_UPLO         2
+#define DEF_SPACES       2
+#define DEF_APPLTO       2
+#define DEF_RENEXT       1
+#define DEF_DIRSEL       1
+#define DEF_REMEMBEROPT  0
+#define RCONFIG_DIR_NAME  "sfrename"
+#define RCONFIG_FILE_NAME "config.json"
 /*----------------------------------------------------------------------------*/
 enum {
     REN_OK,       /**< File renamed */

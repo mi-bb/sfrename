@@ -29,6 +29,7 @@
 /tests/test_strfn
 /tests/test_namefn
 /tests/test_rsettings
+/tests/test_rconfig
 /tests/*.log
 /tests/*.trs
 /test-driver

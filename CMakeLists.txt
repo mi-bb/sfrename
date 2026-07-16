@@ -30,6 +30,7 @@ add_executable(sfrename
     src/rreplace.c
     src/rnumber.c
     src/rendata.c
+    src/rconfig.c
     src/rfnames.c
     src/rfitem.c
     src/namefn.c
@@ -80,4 +81,17 @@ if(BUILD_TESTING)
     target_include_directories(test_rsettings PRIVATE src)
     target_link_libraries(test_rsettings PRIVATE PkgConfig::GTK)
     add_test(NAME rsettings COMMAND test_rsettings)
+
+    add_executable(test_rconfig
+        tests/test_rconfig.c
+        src/rconfig.c
+        src/strfn.c
+        src/rdelete.c
+        src/rinsovr.c
+        src/rreplace.c
+        src/rnumber.c
+    )
+    target_include_directories(test_rconfig PRIVATE src)
+    target_link_libraries(test_rconfig PRIVATE PkgConfig::GTK)
+    add_test(NAME rconfig COMMAND test_rconfig)
 endif()
