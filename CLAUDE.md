@@ -125,7 +125,7 @@ default option values) and the `REN_OK` / `REN_NOT_REN` / `REN_EXISTS` /
 
 ## Conventions
 
-- License headers (GPLv3, `Copyright (C) 2019-2020 Michal Babik`) are
+- License headers (GPLv3, `Copyright (C) 2019-2026 Michal Babik`) are
   present at the top of every source file — preserve them when editing
   existing files or creating new ones in `src/`.
 - Doxygen-style `/** @brief ... */` comments document every public struct,

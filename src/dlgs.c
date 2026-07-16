@@ -1,6 +1,6 @@
 /**
  * @file  dlgs.c
- * @copyright Copyright (C) 2019-2020 Michal Babik
+ * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
  *
@@ -151,7 +151,7 @@ about_app_dialog (gpointer data __attribute__ ((unused)))
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (gw_dialog), APP_VER);
 
     gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (gw_dialog), 
-            "Copyright (C) 2019-2020 Michal Babik");
+            "Copyright (C) 2019-2026 Michal Babik");
 
     gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (gw_dialog), APP_DSC);
     gtk_about_dialog_set_license_type (GTK_ABOUT_DIALOG (gw_dialog),

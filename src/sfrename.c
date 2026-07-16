@@ -5,7 +5,7 @@
  * |_____|_|_|_|__,|_|_|  |__|  |_|_|___|  |__|__|___|_|_|__,|_|_|_|___|_|  
  *                                                                          
  * @file  sfrename.c
- * @copyright Copyright (C) 2019-2020 Michal Babik
+ * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
