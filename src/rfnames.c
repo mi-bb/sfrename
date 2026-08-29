@@ -570,6 +570,26 @@ rfnames_restore_all_hidden (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  GCompareFunc adapter for rfitem_compare().
+ *
+ * g_list_sort() takes a gint (*) (gconstpointer, gconstpointer), which is not
+ * a compatible type with rfitem_compare()'s RFitem-typed signature. Calling
+ * a function through an incompatible pointer type is undefined behaviour, so
+ * the conversion happens here, in a function that genuinely has the signature
+ * GLib calls it with.
+ *
+ * @param[in] a First RFitem object
+ * @param[in] b Second RFitem object
+ * @return    Compare result
+ */
+static gint
+rfitem_compare_glist (gconstpointer a,
+                      gconstpointer b)
+{
+    return rfitem_compare ((const RFitem *) a, (const RFitem *) b);
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Sort RFitem objects in RFnames list by the original path string.
  */
 void
@@ -605,10 +625,10 @@ rfnames_sort (RFnames *rf_names)
             }
         }
     }
-    gl_dirs    = g_list_sort (gl_dirs,    (GCompareFunc) rfitem_compare);
-    gl_dirs_h  = g_list_sort (gl_dirs_h,  (GCompareFunc) rfitem_compare);
-    gl_files   = g_list_sort (gl_files,   (GCompareFunc) rfitem_compare);
-    gl_files_h = g_list_sort (gl_files_h, (GCompareFunc) rfitem_compare);
+    gl_dirs    = g_list_sort (gl_dirs,    rfitem_compare_glist);
+    gl_dirs_h  = g_list_sort (gl_dirs_h,  rfitem_compare_glist);
+    gl_files   = g_list_sort (gl_files,   rfitem_compare_glist);
+    gl_files_h = g_list_sort (gl_files_h, rfitem_compare_glist);
 
     gl_items = g_list_concat (gl_items, gl_dirs_h);
     gl_items = g_list_concat (gl_items, gl_dirs);

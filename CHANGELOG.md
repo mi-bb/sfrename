@@ -152,6 +152,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 - `rconfig.c` (`skip_value`): stopped reserving a 1020-byte stack buffer used
   only as a discard sink. `parse_json_string` now accepts a null output
   pointer, meaning "parse and validate, but discard".
+- `rfnames.c` (`rfnames_sort`): the four `g_list_sort` calls cast
+  `rfitem_compare` to `GCompareFunc`. Calling a function through an
+  incompatible pointer type is undefined behaviour, and it silently disabled
+  argument type checking on the comparison. Added a small
+  `rfitem_compare_glist` adapter that genuinely has the signature GLib calls,
+  so no cast is needed. Clang's `-Wcast-function-type-strict` reported four
+  warnings here and now reports none; the resulting sort order is unchanged.
 
 ## [1.2.10] - 2026-07-13
 
