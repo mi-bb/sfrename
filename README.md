@@ -25,6 +25,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 * [Installation](#installation)
   * [Basic installation](#basic-installation)
   * [Compilers and options](#compilers-and-options)
+  * [Building with CMake](#building-with-cmake)
 * [Running](#running)
 * [Contact and help](#contact-and-help)
 
@@ -106,6 +107,30 @@ Running:
 
 will print a detailed description of the available initial values for the
 configuration parameters.
+
+### Building with CMake
+
+As an alternative to Autotools, the program can also be configured, built,
+and installed with CMake (3.10 or later):
+
+```sh
+cmake -S . -B build
+cmake --build build
+sudo cmake --install build
+```
+
+Compiler and optimization flags are set the same way as with any other
+CMake project, for example:
+
+```sh
+cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
+```
+
+The unit tests can be built and run with CTest:
+
+```sh
+ctest --test-dir build
+```
 
 ## Running
 
