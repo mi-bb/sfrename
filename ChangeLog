@@ -13,7 +13,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-2026-07-13  Michal Babik  <michal.babik@pm.me>
+2026-07-13  Michal Babik  <michal.babik@protonmail.com>
 
 	* configure.ac: Bump version to 1.2.10.
 	* src/defs.h (APP_VER): Bump version to 1.2.10.
@@ -49,12 +49,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  unchecked (i_opt == 0), not only when files were actually
 	  added.
 
-2020-11-15  Michal Babik  <michal.babik@pm.me>
+2020-11-15  Michal Babik  <michal.babik@protonmail.com>
 
 	* imgs.c: Changed some icons to svg.
 	* Some code updates.
 
-2020-06-05  Michal Babik  <michal.babik@pm.me>
+2020-06-05  Michal Babik  <michal.babik@protonmail.com>
 
 	* rfnames.c (rfnames_restore_all_files, rfnames_restore_all_folders,
 	  rfnames_restore_all_symlinks, rfnames_restore_all_hidden):
@@ -62,7 +62,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	* sfrename.c (create_toolbar): Added creating tollbar entries for
 	  different restoring options.
 
-2020-04-28  Michal Babik  <michal.babik@pm.me>
+2020-04-28  Michal Babik  <michal.babik@protonmail.com>
 
 	* rfitem.h: In RFitem structure added length of s_new string new_len
 	  for total length in bytes and new_u8len for length in unicode chars.
@@ -79,12 +79,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  s_srcdst value, added length of strings. Changed all callers to
 	  this structure.
 
-2020-04-18  Michal Babik  <michal.babik@pm.me>
+2020-04-18  Michal Babik  <michal.babik@protonmail.com>
 
 	* data/sfrename.desktop: New desktop entry.
 	* data/sfrename.png: New pixmap.
 
-2020-03-19  Michal Babik  <michal.babik@pm.me>
+2020-03-19  Michal Babik  <michal.babik@protonmail.com>
 
 	* defs.h: Added default options DEF_UPLO DEF_SPACES DEF_APPLTO DEF_RENEXT
 	  DEF_DIRSEL.
@@ -111,7 +111,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	* rreplace.c (rreplace_empty_from, rreplace_empty_to): New functions
 	  for checking "from" and "to" string.
 
-2020-03-01  Michal Babik  <michal.babik@pm.me>
+2020-03-01  Michal Babik  <michal.babik@protonmail.com>
 
 	* rfnames.c (rfnames_unselect_files): New function to unselect files
 	  on list.
@@ -148,11 +148,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	* strfn.c (string_replace_in, string_insert_string,
 	  string_overwrite_string): Some changes in pointer iterating.
 
-2020-02-20  Michal Babik  <michal.babik@pm.me>
+2020-02-20  Michal Babik  <michal.babik@protonmail.com>
 
 	* dlgs.c (about_app_dialog): Updated link to my page.
 
-2020-02-18  Michal Babik  <michal.babik@pm.me>
+2020-02-18  Michal Babik  <michal.babik@protonmail.com>
 
 	* dlgs.c (add_files_folder_dialog): Changed to set toggle buttons based
 	  on i_opt value.
@@ -170,12 +170,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  file.
 	* Some comment updates.
 
-2020-02-10  Michal Babik  <michal.babik@pm.me>
+2020-02-10  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c (event_click_add_files, event_click_add_folder_files,
 	  open): Added setting focus on first entry.
 
-2020-02-05  Michal Babik  <michal.babik@pm.me>
+2020-02-05  Michal Babik  <michal.babik@protonmail.com>
 
 	* imgs.c, imgs.h: New files with graphics.
 	* sfrename.c (create_file_name_entries): Added forgotten checkig
@@ -186,7 +186,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  (rfitem_new_from_gfile): Added call to function rfitem_label_set_markup.
 	* rfnames.c (rfnames_sort): Improved sorting.
 
-2020-01-20  Michal Babik  <michal.babik@pm.me>
+2020-01-20  Michal Babik  <michal.babik@protonmail.com>
 	
 	* cres.c: New file with frunctions to create or resize dynamic array.
 	* rfnames.c: RFnames structure and functions moved here.
@@ -201,13 +201,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  (file_check_and_rename): Function changed to work with files from
 	  different directory paths.
 
-2020-01-03  Michal Babik  <michal.babik@pm.me>
+2020-01-03  Michal Babik  <michal.babik@protonmail.com>
 
 	* strfn.c (string_replace_in, string_insert_string,
 	  string_overwrite_string, ): Small updates to improve performance.
 	* Cosmetic code updates.
 
-2019-12-09  Michal Babik  <michal.babik@pm.me>
+2019-12-09  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrfn.c, strfn.h: New files for string modify functions.
 	* namefn.c, namefn.h: New file for functions to modify file name strings.
@@ -221,11 +221,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  name_number_string, name_to_upcase_lowercase, name_spaces_underscores,
 	  name_replace_strings): Functions moved to namefn.c
 
-2019-12-07  Michal Babik  <michal.babik@pm.me>
+2019-12-07  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c (create_window): Changed app ver string passing method.
 
-2019-12-02  Michal Babik  <michal.babik@pm.me>
+2019-12-02  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c: new structure ProcessData used by functions that
 	  manupulate strings.
@@ -245,7 +245,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  (file_names_update_changes): inserted functions to overwrite and
 	  number strings.
 
-2019-12-01  Michal Babik  <michal.babik@pm.me>
+2019-12-01  Michal Babik  <michal.babik@protonmail.com>
 
 	* Small performance updates
 	* sfrename.c (string_insert_string): changed string iteration to work
@@ -255,7 +255,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  (string_process_filename): changed size of f_ext for better
 	  compatibility with string process functions.
 
-2019-11-28  Michal Babik  <michal.babik@pm.me>
+2019-11-28  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c (string_insert_string): Little changed function to insert
 	  string in file name.
@@ -264,11 +264,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  (string_to_lower): Added string length validation.
 	  (string_to_upper): Added string length validation.
 
-2019-10-10  Michal Babik  <michal.babik@pm.me>
+2019-10-10  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c (free_stuff): Removed not needed print command.
 
-2019-06-13  Michal Babik  <michal.babik@pm.me>
+2019-06-13  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c: include <gio/gio.h>
 	  (main): Changed GTK app starting mode.
@@ -285,7 +285,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	  (open): New function.
 	  (rfiles_init): New function.
 
-2019-01-25  Michal Babik  <michal.babik@pm.me>
+2019-01-25  Michal Babik  <michal.babik@protonmail.com>
 
 	* sfrename.c: First relase.
 

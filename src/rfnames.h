@@ -19,7 +19,7 @@
  *
  * @brief  RFnames struncture and functions.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #ifndef RFNAMES_H
 #define RFNAMES_H

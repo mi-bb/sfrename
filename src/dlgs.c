@@ -19,7 +19,7 @@
  *
  * @brief  Application dialogs
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include "defs.h"
 #include "dlgs.h"

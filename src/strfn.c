@@ -19,7 +19,7 @@
  *
  * @brief  Functions to modify strings
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <inttypes.h>

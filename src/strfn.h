@@ -19,7 +19,7 @@
  *
  * @brief  Functions to modify strings
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #ifndef STRFN_H
 #define STRFN_H

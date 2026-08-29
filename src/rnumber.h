@@ -19,7 +19,7 @@
  *
  * @brief  RNumber struncture and functions.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #ifndef RNUMBER_H
 #define RNUMBER_H
