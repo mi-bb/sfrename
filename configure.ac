@@ -47,4 +47,3 @@ AC_CHECK_FUNCS([memmove memset strrchr strstr])
 
 AC_CONFIG_FILES([Makefile src/Makefile data/Makefile tests/Makefile])
 AC_OUTPUT
-

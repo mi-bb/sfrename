@@ -19,7 +19,7 @@
  *
  * @brief  RenData struncture with data to rename files.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #ifndef RENDATA_H
 #define RENDATA_H

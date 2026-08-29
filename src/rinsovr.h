@@ -19,7 +19,7 @@
  *
  * @brief  RInsOvr struncture and functions.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #ifndef RINSOVR_H
 #define RINSOVR_H

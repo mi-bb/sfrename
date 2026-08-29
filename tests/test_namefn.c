@@ -26,7 +26,7 @@
  * and the settings getters), so a zero-initialized fixture is sufficient
  * and keeps these tests headless.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <string.h>

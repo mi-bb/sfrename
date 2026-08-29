@@ -23,7 +23,7 @@
  * so they can be exercised through their real rXXX_new()/rXXX_free()
  * constructors instead of a hand-built fixture.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <string.h>

@@ -19,7 +19,7 @@
  *
  * @brief  Unit tests for strfn.c
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <string.h>

@@ -19,7 +19,7 @@
  *
  * @brief  Functions to modify file names
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <string.h>
 #include "strfn.h"

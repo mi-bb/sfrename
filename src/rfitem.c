@@ -19,7 +19,7 @@
  *
  * @brief  RFitem struncture and functions.
  * 
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <err.h>
 #include "defs.h"
