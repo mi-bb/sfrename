@@ -178,6 +178,10 @@ expect_char (const char **p, char c)
  * translated; higher codepoints, which this module never writes, decode to
  * '?' rather than failing). Output longer than cap-1 bytes is truncated.
  *
+ * Pass out == nullptr (with cap 0) to parse and validate the string while
+ * discarding it; skip_value() uses that to step over an unknown key's value
+ * without reserving a buffer for something it will never read.
+ *
  * @return true on a well-formed string, false on malformed/unterminated
  *         input (cursor position on failure is undefined)
  */
@@ -205,19 +209,19 @@ parse_json_string (const char **p, char *out, size_t cap)
 
             switch (c) {
             case '"':  case '\\': case '/':
-                if (i < cap - 1) out[i++] = c;
+                if (out != nullptr && i < cap - 1) out[i++] = c;
                 (*p)++;
                 break;
             case 'n':
-                if (i < cap - 1) out[i++] = '\n';
+                if (out != nullptr && i < cap - 1) out[i++] = '\n';
                 (*p)++;
                 break;
             case 't':
-                if (i < cap - 1) out[i++] = '\t';
+                if (out != nullptr && i < cap - 1) out[i++] = '\t';
                 (*p)++;
                 break;
             case 'r':
-                if (i < cap - 1) out[i++] = '\r';
+                if (out != nullptr && i < cap - 1) out[i++] = '\r';
                 (*p)++;
                 break;
             case 'u': {
@@ -233,7 +237,7 @@ parse_json_string (const char **p, char *out, size_t cap)
                     cp = (unsigned int) strtoul (hex, nullptr, 16);
                 }
                 (*p) += 4;
-                if (i < cap - 1)
+                if (out != nullptr && i < cap - 1)
                     out[i++] = (cp < 0x80) ? (char) cp : '?';
                 break;
             }
@@ -242,13 +246,14 @@ parse_json_string (const char **p, char *out, size_t cap)
             }
         }
         else {
-            if (i < cap - 1)
+            if (out != nullptr && i < cap - 1)
                 out[i++] = c;
             (*p)++;
         }
     }
     (*p)++; /* closing quote */
-    out[i] = '\0';
+    if (out != nullptr)
+        out[i] = '\0';
     return true;
 }
 /*----------------------------------------------------------------------------*/
@@ -282,14 +287,13 @@ parse_long (const char **p, long *out)
 static bool
 skip_value (const char **p)
 {
-    char scratch[FN_LEN * 4];
     char c;
 
     skip_ws (p);
     c = **p;
 
     if (c == '"')
-        return parse_json_string (p, scratch, sizeof (scratch));
+        return parse_json_string (p, nullptr, 0);
 
     if (c == '{' || c == '[') {
         char     open  = c;
@@ -608,8 +612,10 @@ rconfig_parse (RenData *rd_data, const char *path)
     if (spaces < 0 || spaces > 2)     spaces = DEF_SPACES;
     if (applyto < 0 || applyto > 2)   applyto = DEF_APPLTO;
     renexit     = renexit     ? 1 : 0;
-    dirsel      = dirsel      ? 1 : 0;
     rememberopt = rememberopt ? 1 : 0;
+    /* dirsel is a bitmask of FOLDER_SELECT_*, not a flag - clamping it to
+     * 0/1 would drop every selection option but "files". */
+    if (dirsel < 0 || dirsel > FOLDER_SELECT_ALL) dirsel = DEF_DIRSEL;
     if (del_cnt < 0 || del_cnt > FN_LEN) del_cnt = 0;
     if (del_pos < 0 || del_pos > FN_LEN) del_pos = 0;
     if (ins_pos < 0 || ins_pos > FN_LEN) ins_pos = 0;

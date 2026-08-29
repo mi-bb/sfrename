@@ -85,8 +85,6 @@ string_replace_in (const ProcessData *pd_data)
     while (*sp && i++ < ui_max)
         *dp++ = *sp++;
     *dp = '\0';
-    ui_len = (size_t) (dp - s_tmp);
-
     ui_len = string_get_valid_length (s_tmp, ui_max);
 
     memcpy (s_srcdst, s_tmp, ui_len);
@@ -295,7 +293,7 @@ string_add_number (const ProcessData *pd_data)
     for (uint_fast32_t i = 0; i < ui_z; ++i)
         s_no[i] = '0';
 
-    sprintf (s_tmp, "%" PRIuFAST32, ui_no);
+    snprintf (s_tmp, sizeof (s_tmp), "%" PRIuFAST32, ui_no);
     strcat (s_no, s_tmp);
 
     pd_data2.s_str1 = s_no;

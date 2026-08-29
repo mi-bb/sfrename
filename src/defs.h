@@ -84,6 +84,31 @@ constexpr bool   DEF_RENEXT      = true;
 constexpr int8_t DEF_DIRSEL      = 1;
 constexpr bool   DEF_REMEMBEROPT = false;
 
+/**
+ * @var   FOLDER_SELECT_FILES
+ * @brief Option for select files in folder
+ * @var   FOLDER_SELECT_FOLDERS
+ * @brief Option for select folders in folder
+ * @var   FOLDER_SELECT_SYMLINKS
+ * @brief Option for select file/dir symlinks
+ * @var   FOLDER_SELECT_HIDDEN
+ * @brief Option for select hidden files/dirs
+ * @var   FOLDER_SCAN_RECURSIVELY
+ * @brief Option for scanning directory recursively
+ * @var   FOLDER_SELECT_ALL
+ * @brief Every valid folder-selection bit; the range a stored dirsel may hold
+ */
+constexpr int8_t FOLDER_SELECT_FILES     = 0x01;
+constexpr int8_t FOLDER_SELECT_FOLDERS   = 0x02;
+constexpr int8_t FOLDER_SELECT_SYMLINKS  = 0x04;
+constexpr int8_t FOLDER_SELECT_HIDDEN    = 0x08;
+constexpr int8_t FOLDER_SCAN_RECURSIVELY = 0x10;
+constexpr int8_t FOLDER_SELECT_ALL       = FOLDER_SELECT_FILES
+                                         | FOLDER_SELECT_FOLDERS
+                                         | FOLDER_SELECT_SYMLINKS
+                                         | FOLDER_SELECT_HIDDEN
+                                         | FOLDER_SCAN_RECURSIVELY;
+
 constexpr char APP_WEB[] = "http://www.nongnu.org/small-file-renamer/";
 constexpr char APP_DSC[] = "Program for renaming files and directories.";
 constexpr char RCONFIG_DIR_NAME[]  = "sfrename";

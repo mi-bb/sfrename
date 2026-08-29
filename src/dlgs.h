@@ -24,25 +24,8 @@
 #ifndef DLGS_H
 #define DLGS_H
 /*----------------------------------------------------------------------------*/
-/**
- * @def   FOLDER_SELECT_FILES
- * @brief Option for select files in folder
- * @def   FOLDER_SELECT_FOLDERS
- * @brief Option for select folders in folder
- * @def   FOLDER_SELECT_SYMLINKS
- * @brief Option for select file/dir symlinks
- * @def   FOLDER_SELECT_HIDDEN
- * @brief Option for select hidden files/dirs
- * @def   FOLDER_SCAN_RECURSIVELY
- * @brief Option for scanning directory recursively
- */
-#define FOLDER_SELECT_FILES      0x01
-#define FOLDER_SELECT_FOLDERS    0x02
-#define FOLDER_SELECT_SYMLINKS   0x04
-#define FOLDER_SELECT_HIDDEN     0x08
-#define FOLDER_SCAN_RECURSIVELY  0x10
-
 #include <gtk/gtk.h>
+#include "defs.h"   /* FOLDER_SELECT_* flags */
 /*----------------------------------------------------------------------------*/
 /**
  * @fn  char * add_files_folder_dialog (GtkWindow *gw_parent, int *i_opt)

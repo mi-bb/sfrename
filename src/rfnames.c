@@ -136,6 +136,7 @@ rfnames_free (RFnames *rf_names)
     while (rf_names->cnt--) {
         rfitem_free (rf_names->rf_items[rf_names->cnt]);
     }
+    free (rf_names->rf_items);
     free (rf_names);
 }
 /*----------------------------------------------------------------------------*/
@@ -626,7 +627,6 @@ rfnames_sort (RFnames *rf_names)
         ++j;
     }
     g_list_free (gl_items);
-    g_list_free (gl_items1);
 }
 /*----------------------------------------------------------------------------*/
 

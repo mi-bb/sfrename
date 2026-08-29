@@ -123,6 +123,36 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     `ProcessData` initialisers became designated initialisers, and the
     repeated `rendata_get_r*()` calls inside them are hoisted into a local.
 
+### Fixed
+
+- `rconfig.c` (`rconfig_parse`): "select files from directory" options were
+  lost whenever the config was reloaded. `dirsel` is a bitmask of the
+  `FOLDER_SELECT_*` flags, but the range check clamped it with
+  `dirsel ? 1 : 0`, so any combination collapsed to `FOLDER_SELECT_FILES`.
+  It is now validated against the real flag range. The flag constants moved
+  from `dlgs.h` to `defs.h` (joining the other shared constants) so that
+  `rconfig.c` can use them without pulling in GTK, and gained a
+  `FOLDER_SELECT_ALL` mask. `tests/test_rconfig.c`: added regression tests
+  covering every `dirsel` value, out-of-range values, and unknown-key
+  skipping.
+- `rfnames.c` (`rfnames_free`): freed each `RFitem` but never the `RFitem **`
+  array holding them, leaking it on every `RFnames` teardown.
+- `rfnames.c` (`rfnames_sort`): dropped a `g_list_free (gl_items1)` that
+  always freed nothing, since the loop above had already walked `gl_items1`
+  to `nullptr` and `gl_items` owns every node the concatenation produced.
+- `strfn.c` (`string_replace_in`): removed a dead store to `ui_len` that was
+  unconditionally overwritten on the next line.
+- `strfn.c` (`string_add_number`): `sprintf` into a fixed 20-byte buffer
+  became `snprintf`.
+- `rfitem.c` (`rfitem_label_set_markup`): replaced the unchecked
+  `strcpy` + `strcat` chain into a 100-byte buffer with a single `snprintf`.
+  The old code did not actually overflow (the longest markup it can produce
+  is 57 bytes), but nothing enforced that; the output is byte-identical for
+  every flag and file-type combination.
+- `rconfig.c` (`skip_value`): stopped reserving a 1020-byte stack buffer used
+  only as a discard sink. `parse_json_string` now accepts a null output
+  pointer, meaning "parse and validate, but discard".
+
 ## [1.2.10] - 2026-07-13
 
 ### Added

@@ -22,6 +22,7 @@
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <err.h>
+#include <stdio.h>
 #include "defs.h"
 #include "rfitem.h"
 /*----------------------------------------------------------------------------*/
@@ -134,31 +135,28 @@ str_compare (const char *a,
 static void
 rfitem_label_set_markup (RFitem *rf_item)
 {
-    char s_mark [100];
-
-    strcpy (s_mark, "<span font_family=\"monospace\"");
+    char        s_mark [100];   /* Pango markup for the type label */
+    const char *s_colour = "";  /* Optional colour attribute */
+    char        c_type;         /* Single letter naming the type */
 
     if (rf_item->b_slink) {
-        strcat (s_mark, " foreground=\"blue\"");
+        s_colour = " foreground=\"blue\"";
     }
     else if (rf_item->b_hidden) {
-        strcat (s_mark, " foreground=\"green\"");
+        s_colour = " foreground=\"green\"";
     }
-    if (rf_item->f_type == G_FILE_TYPE_REGULAR) {
-        strcat (s_mark, ">F</span>");
+
+    switch (rf_item->f_type) {
+        case G_FILE_TYPE_REGULAR:       c_type = 'F'; break;
+        case G_FILE_TYPE_DIRECTORY:     c_type = 'D'; break;
+        case G_FILE_TYPE_SYMBOLIC_LINK: c_type = 'S'; break;
+        case G_FILE_TYPE_SPECIAL:       c_type = 'D'; break;
+        default:                        c_type = '?'; break;
     }
-    else if (rf_item->f_type == G_FILE_TYPE_DIRECTORY) {
-        strcat (s_mark, ">D</span>");
-    }
-    else if (rf_item->f_type == G_FILE_TYPE_SYMBOLIC_LINK) {
-        strcat (s_mark, ">S</span>");
-    }
-    else if (rf_item->f_type == G_FILE_TYPE_SPECIAL) {
-        strcat (s_mark, ">D</span>");
-    }
-    else {
-        strcat (s_mark, ">?</span>");
-    }
+
+    snprintf (s_mark, sizeof (s_mark),
+              "<span font_family=\"monospace\"%s>%c</span>", s_colour, c_type);
+
     gtk_label_set_markup (GTK_LABEL (rf_item->label), s_mark);
 }
 /*----------------------------------------------------------------------------*/

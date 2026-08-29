@@ -239,6 +239,88 @@ test_rconfig_load_corrupt_file (void)
     fixture_clear (&rd);
 }
 /*----------------------------------------------------------------------------*/
+/*
+ * dirsel is a bitmask of FOLDER_SELECT_* flags, not a boolean. A previous
+ * version clamped it with "dirsel ? 1 : 0" on load, which silently reduced any
+ * combination of options to FOLDER_SELECT_FILES.
+ */
+static void
+test_rconfig_dirsel_bitmask_survives (void)
+{
+    RenData     rd;
+    char       *path   = test_path ("dirsel_bitmask.json");
+    const int8_t dirsel = FOLDER_SELECT_FILES | FOLDER_SELECT_FOLDERS
+                        | FOLDER_SELECT_SYMLINKS | FOLDER_SCAN_RECURSIVELY;
+
+    fixture_init (&rd);
+    rendata_set_dirsel (&rd, dirsel);
+
+    g_assert_true (rconfig_write (&rd, path));
+
+    rendata_set_dirsel (&rd, 0);
+    g_assert_true (rconfig_parse (&rd, path));
+    g_assert_cmpint (rendata_get_dirsel (&rd), ==, dirsel);
+
+    /* every individual flag, and the full set, must round-trip */
+    for (int8_t v = 0; v <= FOLDER_SELECT_ALL; ++v) {
+        rendata_set_dirsel (&rd, v);
+        g_assert_true (rconfig_write (&rd, path));
+        rendata_set_dirsel (&rd, -1);
+        g_assert_true (rconfig_parse (&rd, path));
+        g_assert_cmpint (rendata_get_dirsel (&rd), ==, v);
+    }
+
+    g_free (path);
+    fixture_clear (&rd);
+}
+/*----------------------------------------------------------------------------*/
+static void
+test_rconfig_dirsel_out_of_range_defaults (void)
+{
+    RenData  rd;
+    char    *path = test_path ("dirsel_range.json");
+
+    fixture_init (&rd);
+    rendata_set_dirsel (&rd, 0);
+
+    g_assert_true (g_file_set_contents (path, "{\"dirsel\": 99}", -1, nullptr));
+    g_assert_true (rconfig_parse (&rd, path));
+    g_assert_cmpint (rendata_get_dirsel (&rd), ==, DEF_DIRSEL);
+
+    g_assert_true (g_file_set_contents (path, "{\"dirsel\": -3}", -1, nullptr));
+    g_assert_true (rconfig_parse (&rd, path));
+    g_assert_cmpint (rendata_get_dirsel (&rd), ==, DEF_DIRSEL);
+
+    g_free (path);
+    fixture_clear (&rd);
+}
+/*----------------------------------------------------------------------------*/
+/*
+ * Unknown keys are skipped by skip_value(), which parses string values with a
+ * discard sink rather than a 1 KB stack buffer. Exercise both the string and
+ * the nested-container paths, including escapes.
+ */
+static void
+test_rconfig_skips_unknown_keys (void)
+{
+    RenData  rd;
+    char    *path = test_path ("unknown_keys.json");
+
+    fixture_init (&rd);
+
+    g_assert_true (g_file_set_contents (path,
+            "{\"junk_str\": \"a \\\"quoted\\\" \\\\ value\\n\","
+            " \"junk_obj\": {\"a\": [1, 2, {\"b\": \"c\"}]},"
+            " \"junk_num\": -12,"
+            " \"uplo\": 1}", -1, nullptr));
+
+    g_assert_true (rconfig_parse (&rd, path));
+    g_assert_cmpint (rendata_get_uplo (&rd), ==, 1);
+
+    g_free (path);
+    fixture_clear (&rd);
+}
+/*----------------------------------------------------------------------------*/
 static void
 test_rconfig_save_toggles_file_existence (void)
 {
@@ -281,6 +363,9 @@ main (int argc, char *argv[])
     g_test_add_func ("/rconfig/roundtrip/utf8_and_escaping", test_rconfig_roundtrip_utf8_and_escaping);
     g_test_add_func ("/rconfig/load/missing_file", test_rconfig_load_missing_file);
     g_test_add_func ("/rconfig/load/corrupt_file", test_rconfig_load_corrupt_file);
+    g_test_add_func ("/rconfig/parse/dirsel_bitmask", test_rconfig_dirsel_bitmask_survives);
+    g_test_add_func ("/rconfig/parse/dirsel_out_of_range", test_rconfig_dirsel_out_of_range_defaults);
+    g_test_add_func ("/rconfig/parse/skips_unknown_keys", test_rconfig_skips_unknown_keys);
     g_test_add_func ("/rconfig/save/toggles_file_existence", test_rconfig_save_toggles_file_existence);
 
     status = g_test_run ();
