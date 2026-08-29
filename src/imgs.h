@@ -24,12 +24,13 @@
 #ifndef IMGS_H
 #define IMGS_H
 
+#include <stdint.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  enum for icons and images
  */
-typedef enum IconImg {
+typedef enum IconImg : uint_fast8_t {
     W_ICON_ADD,      /**< Add images icon */
     W_ICON_ADD_DIR,  /**< Add images from directory icon*/
     W_ICON_REMOVE,   /**< Remove images from list icon */

@@ -74,8 +74,8 @@ RFitem {
     size_t     org_len;
     size_t     org_u8len;
     GFileType  f_type;
-    gboolean   b_slink;
-    gboolean   b_hidden;
+    bool       b_slink;
+    bool       b_hidden;
     GtkWidget *label;
     GtkWidget *entry;
     GtkWidget *check;
@@ -96,11 +96,11 @@ RFitem {
  * @return    New RFitem object
  */
 /*----------------------------------------------------------------------------*/
-RFitem * rfitem_new_from_gfile      (GFile      *g_file)
-         __attribute__ ((returns_nonnull));
+[[nodiscard]] RFitem * rfitem_new_from_gfile (GFile      *g_file)
+              __attribute__ ((returns_nonnull));
 
-RFitem * rfitem_new_from_sfile      (const char *s_pth)
-         __attribute__ ((nonnull (1), returns_nonnull));
+[[nodiscard]] RFitem * rfitem_new_from_sfile (const char *s_pth)
+              __attribute__ ((nonnull (1), returns_nonnull));
 /*----------------------------------------------------------------------------*/
 /**
  * @fn            void rfitem_free (RFitem *rf_item)
@@ -119,13 +119,13 @@ void rfitem_free   (RFitem *rf_item);
 void rfitem_delete (RFitem *rf_item);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         gboolean rfitem_get_checked (RFitem *rf_item)
+ * @fn         bool rfitem_get_checked (RFitem *rf_item)
  * @brief      Get check button checked value.
  * @param[in]  rf_item Pointer to RFitem object
  * @return     Checked value
  *
- * @fn         void rfitem_set_checked (RFitem         *rf_item,
- *                                      const gboolean  b_val)
+ * @fn         void rfitem_set_checked (RFitem     *rf_item,
+ *                                      const bool  b_val)
  * @brief      Set check button checked value.
  * @param[out] rf_item Pointer to RFitem object
  * @param[in]  b_val   Check value
@@ -137,11 +137,11 @@ void rfitem_delete (RFitem *rf_item);
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-static inline gboolean rfitem_get_checked (const RFitem   *rf_item) {
+static inline bool rfitem_get_checked     (const RFitem   *rf_item) {
     return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check));
 }
 static inline void rfitem_set_checked     (RFitem         *rf_item,
-                                           const gboolean  b_val) {
+                                           const bool      b_val) {
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rf_item->check), b_val);
 }
 void     rfitem_invert_checked (RFitem         *rf_item);
@@ -233,45 +233,45 @@ int rfitem_compare (const RFitem *rf_item1,
                     const RFitem *rf_item2);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  gboolean rfitem_is_file (const RFitem *rf_item)
+ * @fn  bool rfitem_is_file (const RFitem *rf_item)
  *
  * @brief  Check if RFitem type is a file.
  *
  * @param[in] rf_item Pointer to RFitem object
- * @return    1 if RFitem describes a file type, 0 if not
+ * @return    true if RFitem describes a file type, false if not
  *
- * @fn  gboolean rfitem_is_folder (const RFitem *rf_item)
+ * @fn  bool rfitem_is_folder (const RFitem *rf_item)
  *
  * @brief  Check if RFitem type is a directory.
  *
  * @param[in] rf_item Pointer to RFitem object
- * @return    1 if RFitem describes a directory type, 0 if not
+ * @return    true if RFitem describes a directory type, false if not
  *
- * @fn  gboolean rfitem_is_symlink (const RFitem *rf_item)
+ * @fn  bool rfitem_is_symlink (const RFitem *rf_item)
  *
  * @brief  Check if RFitem file/dir type is a symlink.
  *
  * @param[in] rf_item Pointer to RFitem object
- * @return    1 if RFitem is a symlink, 0 if not
+ * @return    true if RFitem is a symlink, false if not
  *
- * @fn  gboolean rfitem_is_hidden  (const RFitem *rf_item)
+ * @fn  bool rfitem_is_hidden  (const RFitem *rf_item)
  *
  * @brief  Check if RFitem file/dir is hidden.
  *
  * @param[in] rf_item Pointer to RFitem object
- * @return    1 if RFitem is a hidden file/dir, 0 if not
+ * @return    true if RFitem is a hidden file/dir, false if not
  */
 /*----------------------------------------------------------------------------*/
-static inline gboolean rfitem_is_file    (const RFitem *rf_item) {
+static inline bool rfitem_is_file        (const RFitem *rf_item) {
     return (rf_item->f_type == G_FILE_TYPE_REGULAR);
 }
-static inline gboolean rfitem_is_folder  (const RFitem *rf_item) {
+static inline bool rfitem_is_folder      (const RFitem *rf_item) {
     return (rf_item->f_type == G_FILE_TYPE_DIRECTORY);
 }
-static inline gboolean rfitem_is_symlink (const RFitem *rf_item) {
+static inline bool rfitem_is_symlink     (const RFitem *rf_item) {
     return rf_item->b_slink;
 }
-static inline gboolean rfitem_is_hidden  (const RFitem *rf_item) {
+static inline bool rfitem_is_hidden      (const RFitem *rf_item) {
     return rf_item->b_hidden;
 }
 /*----------------------------------------------------------------------------*/

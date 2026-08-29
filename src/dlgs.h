@@ -50,7 +50,7 @@
  * @param[in]     gw_parent Dialog parent widget
  * @param[in,out] i_opt     Pointer to int value with options for selecting
  *                          files/dirs
- * @return        Foler path or NULL.
+ * @return        Foler path or nullptr.
  *
  * @fn  GSList * add_files_dialog (GtkWindow *gw_parent)
  * @brief     Select files dialog.

@@ -69,24 +69,24 @@ char *
 rconfig_get_path (void)
 {
     return g_build_filename (g_get_user_config_dir (),
-                              RCONFIG_DIR_NAME, RCONFIG_FILE_NAME, NULL);
+                              RCONFIG_DIR_NAME, RCONFIG_FILE_NAME, nullptr);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Serialize rd_data as JSON and write it to path.
  */
-gboolean
+bool
 rconfig_write (const RenData *rd_data, const char *path)
 {
-    const RDelete  *rdel = rendata_get_rdelete (rd_data);
-    const RInsOvr  *rins = rendata_get_rinsert (rd_data);
-    const RInsOvr  *rovr = rendata_get_roverwr (rd_data);
-    const RReplace *rrep = rendata_get_rreplace (rd_data);
-    const RNumber  *rnum = rendata_get_rnumber (rd_data);
-    GString  *gstr = g_string_new (NULL);
-    char     *dir  = NULL;
-    GError   *gerr = NULL;
-    gboolean  ok;
+    auto rdel = rendata_get_rdelete  (rd_data);
+    auto rins = rendata_get_rinsert  (rd_data);
+    auto rovr = rendata_get_roverwr  (rd_data);
+    auto rrep = rendata_get_rreplace (rd_data);
+    auto rnum = rendata_get_rnumber  (rd_data);
+    auto gstr = g_string_new (nullptr);
+    char     *dir  = nullptr;
+    GError   *gerr = nullptr;
+    bool      ok;
 
     g_string_append (gstr, "{\n");
     g_string_append_printf (gstr, "  \"uplo\": %d,\n",
@@ -158,17 +158,17 @@ skip_ws (const char **p)
 /**
  * @brief  Skip whitespace, then consume the expected literal char.
  *
- * @return TRUE if c was found and consumed, FALSE otherwise (cursor is left
+ * @return true if c was found and consumed, false otherwise (cursor is left
  *         unchanged on failure)
  */
-static gboolean
+static bool
 expect_char (const char **p, char c)
 {
     skip_ws (p);
     if (**p != c)
-        return FALSE;
+        return false;
     (*p)++;
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -178,30 +178,30 @@ expect_char (const char **p, char c)
  * translated; higher codepoints, which this module never writes, decode to
  * '?' rather than failing). Output longer than cap-1 bytes is truncated.
  *
- * @return TRUE on a well-formed string, FALSE on malformed/unterminated
+ * @return true on a well-formed string, false on malformed/unterminated
  *         input (cursor position on failure is undefined)
  */
-static gboolean
+static bool
 parse_json_string (const char **p, char *out, size_t cap)
 {
     size_t i = 0;
 
     skip_ws (p);
     if (**p != '"')
-        return FALSE;
+        return false;
     (*p)++;
 
     while (**p != '"') {
         char c = **p;
 
         if (c == '\0')
-            return FALSE;
+            return false;
 
         if (c == '\\') {
             (*p)++;
             c = **p;
             if (c == '\0')
-                return FALSE;
+                return false;
 
             switch (c) {
             case '"':  case '\\': case '/':
@@ -227,10 +227,10 @@ parse_json_string (const char **p, char *out, size_t cap)
                 (*p)++;
                 for (j = 0; j < 4; j++)
                     if (!g_ascii_isxdigit ((*p)[j]))
-                        return FALSE;
+                        return false;
                 {
                     char hex[5] = { (*p)[0], (*p)[1], (*p)[2], (*p)[3], '\0' };
-                    cp = (unsigned int) strtoul (hex, NULL, 16);
+                    cp = (unsigned int) strtoul (hex, nullptr, 16);
                 }
                 (*p) += 4;
                 if (i < cap - 1)
@@ -238,7 +238,7 @@ parse_json_string (const char **p, char *out, size_t cap)
                 break;
             }
             default:
-                return FALSE;
+                return false;
             }
         }
         else {
@@ -249,27 +249,27 @@ parse_json_string (const char **p, char *out, size_t cap)
     }
     (*p)++; /* closing quote */
     out[i] = '\0';
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Parse a signed decimal integer at the cursor.
  *
- * @return TRUE on success, FALSE if no digits were found
+ * @return true on success, false if no digits were found
  */
-static gboolean
+static bool
 parse_long (const char **p, long *out)
 {
-    char *endptr = NULL;
+    char *endptr = nullptr;
     long  val;
 
     skip_ws (p);
     val = strtol (*p, &endptr, 10);
     if (endptr == *p)
-        return FALSE;
+        return false;
     *p = endptr;
     *out = val;
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -277,9 +277,9 @@ parse_long (const char **p, long *out)
  *         whose key was not recognized, so unknown/future keys in a
  *         hand-edited file don't break parsing.
  *
- * @return TRUE on success, FALSE on malformed/unterminated input
+ * @return true on success, false on malformed/unterminated input
  */
-static gboolean
+static bool
 skip_value (const char **p)
 {
     char scratch[FN_LEN * 4];
@@ -295,221 +295,221 @@ skip_value (const char **p)
         char     open  = c;
         char     close = (c == '{') ? '}' : ']';
         int      depth = 0;
-        gboolean in_str = FALSE;
+        bool in_str = false;
 
         do {
             c = **p;
             if (c == '\0')
-                return FALSE;
+                return false;
             if (in_str) {
                 if (c == '\\') {
                     (*p)++;
                     if (**p == '\0')
-                        return FALSE;
+                        return false;
                 }
                 else if (c == '"') {
-                    in_str = FALSE;
+                    in_str = false;
                 }
             }
             else {
-                if (c == '"')       in_str = TRUE;
+                if (c == '"')       in_str = true;
                 else if (c == open)  depth++;
                 else if (c == close) depth--;
             }
             (*p)++;
         } while (depth > 0);
-        return TRUE;
+        return true;
     }
 
     if (c == '\0')
-        return FALSE;
+        return false;
 
     while (**p != '\0' && **p != ',' && **p != '}' && **p != ']' &&
            !g_ascii_isspace (**p))
         (*p)++;
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Parse a {"cnt": N, "pos": N} object (already-consumed key, cursor
  *         at the opening brace).
  */
-static gboolean
+static bool
 parse_delete_obj (const char **p, long *cnt, long *pos)
 {
     if (!expect_char (p, '{'))
-        return FALSE;
+        return false;
 
     skip_ws (p);
     if (**p == '}') {
         (*p)++;
-        return TRUE;
+        return true;
     }
 
     for (;;) {
         char key[32];
 
         if (!parse_json_string (p, key, sizeof (key)))
-            return FALSE;
+            return false;
         if (!expect_char (p, ':'))
-            return FALSE;
+            return false;
 
         if (strcmp (key, "cnt") == 0) {
-            if (!parse_long (p, cnt)) return FALSE;
+            if (!parse_long (p, cnt)) return false;
         }
         else if (strcmp (key, "pos") == 0) {
-            if (!parse_long (p, pos)) return FALSE;
+            if (!parse_long (p, pos)) return false;
         }
         else if (!skip_value (p)) {
-            return FALSE;
+            return false;
         }
 
         skip_ws (p);
         if (**p == ',') { (*p)++; continue; }
         if (**p == '}') { (*p)++; break; }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Parse a {"text": "...", "pos": N} object, used for both the
  *         "insert" and "overwrite" fields.
  */
-static gboolean
+static bool
 parse_insovr_obj (const char **p, char *text, size_t text_cap, long *pos)
 {
     if (!expect_char (p, '{'))
-        return FALSE;
+        return false;
 
     skip_ws (p);
     if (**p == '}') {
         (*p)++;
-        return TRUE;
+        return true;
     }
 
     for (;;) {
         char key[32];
 
         if (!parse_json_string (p, key, sizeof (key)))
-            return FALSE;
+            return false;
         if (!expect_char (p, ':'))
-            return FALSE;
+            return false;
 
         if (strcmp (key, "text") == 0) {
-            if (!parse_json_string (p, text, text_cap)) return FALSE;
+            if (!parse_json_string (p, text, text_cap)) return false;
         }
         else if (strcmp (key, "pos") == 0) {
-            if (!parse_long (p, pos)) return FALSE;
+            if (!parse_long (p, pos)) return false;
         }
         else if (!skip_value (p)) {
-            return FALSE;
+            return false;
         }
 
         skip_ws (p);
         if (**p == ',') { (*p)++; continue; }
         if (**p == '}') { (*p)++; break; }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Parse a {"from": "...", "to": "..."} object.
  */
-static gboolean
+static bool
 parse_replace_obj (const char **p,
                    char       *from, size_t from_cap,
                    char       *to,   size_t to_cap)
 {
     if (!expect_char (p, '{'))
-        return FALSE;
+        return false;
 
     skip_ws (p);
     if (**p == '}') {
         (*p)++;
-        return TRUE;
+        return true;
     }
 
     for (;;) {
         char key[32];
 
         if (!parse_json_string (p, key, sizeof (key)))
-            return FALSE;
+            return false;
         if (!expect_char (p, ':'))
-            return FALSE;
+            return false;
 
         if (strcmp (key, "from") == 0) {
-            if (!parse_json_string (p, from, from_cap)) return FALSE;
+            if (!parse_json_string (p, from, from_cap)) return false;
         }
         else if (strcmp (key, "to") == 0) {
-            if (!parse_json_string (p, to, to_cap)) return FALSE;
+            if (!parse_json_string (p, to, to_cap)) return false;
         }
         else if (!skip_value (p)) {
-            return FALSE;
+            return false;
         }
 
         skip_ws (p);
         if (**p == ',') { (*p)++; continue; }
         if (**p == '}') { (*p)++; break; }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Parse a {"opt": N, "start": N, "pos": N} object.
  */
-static gboolean
+static bool
 parse_number_obj (const char **p, long *opt, long *start, long *pos)
 {
     if (!expect_char (p, '{'))
-        return FALSE;
+        return false;
 
     skip_ws (p);
     if (**p == '}') {
         (*p)++;
-        return TRUE;
+        return true;
     }
 
     for (;;) {
         char key[32];
 
         if (!parse_json_string (p, key, sizeof (key)))
-            return FALSE;
+            return false;
         if (!expect_char (p, ':'))
-            return FALSE;
+            return false;
 
         if (strcmp (key, "opt") == 0) {
-            if (!parse_long (p, opt)) return FALSE;
+            if (!parse_long (p, opt)) return false;
         }
         else if (strcmp (key, "start") == 0) {
-            if (!parse_long (p, start)) return FALSE;
+            if (!parse_long (p, start)) return false;
         }
         else if (strcmp (key, "pos") == 0) {
-            if (!parse_long (p, pos)) return FALSE;
+            if (!parse_long (p, pos)) return false;
         }
         else if (!skip_value (p)) {
-            return FALSE;
+            return false;
         }
 
         skip_ws (p);
         if (**p == ',') { (*p)++; continue; }
         if (**p == '}') { (*p)++; break; }
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Read and parse a JSON config file, applying it to rd_data.
  */
-gboolean
+bool
 rconfig_parse (RenData *rd_data, const char *path)
 {
-    char       *buf = NULL;
+    char       *buf = nullptr;
     gsize       len = 0;
-    GError     *gerr = NULL;
+    GError     *gerr = nullptr;
     const char *p;
 
     long uplo        = DEF_UPLO;
@@ -535,7 +535,7 @@ rconfig_parse (RenData *rd_data, const char *path)
         g_warning ("sfrename: could not read config file %s: %s",
                    path, gerr->message);
         g_error_free (gerr);
-        return FALSE;
+        return false;
     }
 
     p = buf;
@@ -543,19 +543,19 @@ rconfig_parse (RenData *rd_data, const char *path)
     if (!expect_char (&p, '{')) {
         g_warning ("sfrename: config file %s is malformed, ignoring", path);
         g_free (buf);
-        return FALSE;
+        return false;
     }
 
     skip_ws (&p);
     if (*p != '}') {
         for (;;) {
             char key[32];
-            gboolean field_ok = TRUE;
+            bool field_ok = true;
 
             if (!parse_json_string (&p, key, sizeof (key)))
-                { field_ok = FALSE; }
+                { field_ok = false; }
             else if (!expect_char (&p, ':'))
-                { field_ok = FALSE; }
+                { field_ok = false; }
             else if (strcmp (key, "uplo") == 0)
                 field_ok = parse_long (&p, &uplo);
             else if (strcmp (key, "spaces") == 0)
@@ -585,7 +585,7 @@ rconfig_parse (RenData *rd_data, const char *path)
             if (!field_ok) {
                 g_warning ("sfrename: config file %s is malformed, ignoring", path);
                 g_free (buf);
-                return FALSE;
+                return false;
             }
 
             skip_ws (&p);
@@ -593,7 +593,7 @@ rconfig_parse (RenData *rd_data, const char *path)
             if (*p == '}') { p++; break; }
             g_warning ("sfrename: config file %s is malformed, ignoring", path);
             g_free (buf);
-            return FALSE;
+            return false;
         }
     }
     else {
@@ -620,9 +620,9 @@ rconfig_parse (RenData *rd_data, const char *path)
     rendata_set_uplo        (rd_data, (int8_t) uplo);
     rendata_set_spaces      (rd_data, (int8_t) spaces);
     rendata_set_applyto     (rd_data, (int8_t) applyto);
-    rendata_set_renexit     (rd_data, (int8_t) renexit);
+    rendata_set_renexit     (rd_data, renexit != 0);
     rendata_set_dirsel      (rd_data, (int8_t) dirsel);
-    rendata_set_rememberopt (rd_data, (int8_t) rememberopt);
+    rendata_set_rememberopt (rd_data, rememberopt != 0);
 
     rdelete_set_cnt (rd_data->del, (uint8_t) del_cnt);
     rdelete_set_pos (rd_data->del, (uint8_t) del_pos);
@@ -640,18 +640,18 @@ rconfig_parse (RenData *rd_data, const char *path)
     rnumber_set_start (rd_data->number, (uint_fast32_t) num_start);
     rnumber_set_pos   (rd_data->number, (uint8_t) num_pos);
 
-    return TRUE;
+    return true;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Save settings to the standard config path if "remember options on
  *         exit" is enabled, otherwise remove any existing config file.
  */
-gboolean
+bool
 rconfig_save (const RenData *rd_data)
 {
-    char     *path = rconfig_get_path ();
-    gboolean  ok = TRUE;
+    auto path = rconfig_get_path ();
+    bool ok   = true;
 
     if (rendata_get_rememberopt (rd_data)) {
         ok = rconfig_write (rd_data, path);
@@ -668,11 +668,11 @@ rconfig_save (const RenData *rd_data)
  * @brief  Load settings from the standard config path into rd_data, if it
  *         exists and parses successfully.
  */
-gboolean
+bool
 rconfig_load (RenData *rd_data)
 {
-    char     *path = rconfig_get_path ();
-    gboolean  ok = FALSE;
+    auto path = rconfig_get_path ();
+    bool ok   = false;
 
     if (g_file_test (path, G_FILE_TEST_EXISTS))
         ok = rconfig_parse (rd_data, path);

@@ -34,8 +34,7 @@
 static void
 rdelete_init (RDelete *r_delete)
 {
-    r_delete->cnt = 0;
-    r_delete->pos = 0;
+    *r_delete = (RDelete){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -44,10 +43,10 @@ rdelete_init (RDelete *r_delete)
 RDelete *
 rdelete_new (void)
 {
-    RDelete *rd_new = NULL;
+    RDelete *rd_new = nullptr;
 
-    if ((rd_new = malloc (sizeof (RDelete))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((rd_new = malloc (sizeof (RDelete))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rdelete_init (rd_new);
     return rd_new;

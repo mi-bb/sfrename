@@ -78,9 +78,9 @@ RenData {
     int8_t     uplo;        /* Upper/lower case option */
     int8_t     spaces;      /* Spaces/underscores option */
     int8_t     applyto;     /* Apply to file names/ext or both option */
-    int8_t     renexit;     /* Exit after rename option */
+    bool       renexit;     /* Exit after rename option */
     int8_t     dirsel;      /* Select files from directory options */
-    int8_t     rememberopt; /* Remember options on exit option */
+    bool       rememberopt; /* Remember options on exit option */
 } RenData;
 /*----------------------------------------------------------------------------*/
 /**
@@ -98,7 +98,8 @@ RenData {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RenData * rendata_new  (void) __attribute__ ((returns_nonnull));
+[[nodiscard]] RenData * rendata_new  (void)
+              __attribute__ ((returns_nonnull));
 
 void      rendata_free (RenData *rd_data);
 /*----------------------------------------------------------------------------*/
@@ -211,7 +212,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *rd_data) {
  * @param[in]  val      New applyto value
  * @return     none
  *
- * @fn  int8_t rendata_get_renexit (const RenData *rd_data)
+ * @fn  bool rendata_get_renexit (const RenData *rd_data)
  *
  * @brief  Get renexit value.
  *
@@ -241,7 +242,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *rd_data) {
  * @param[in]  val      New dirsel value
  * @return     none
  *
- * @fn  int8_t rendata_get_rememberopt (const RenData *rd_data)
+ * @fn  bool rendata_get_rememberopt (const RenData *rd_data)
  *
  * @brief  Get rememberopt value.
  *
@@ -278,11 +279,11 @@ static inline void   rendata_set_applyto (RenData       *rd_data,
                                           int8_t         val) {
     rd_data->applyto = val;
 }
-static inline int8_t rendata_get_renexit (const RenData *rd_data) {
+static inline bool   rendata_get_renexit (const RenData *rd_data) {
     return rd_data->renexit;
 }
 static inline void   rendata_set_renexit (RenData       *rd_data,
-                                          int8_t         val) {
+                                          bool           val) {
     rd_data->renexit = val;
 }
 static inline int8_t rendata_get_dirsel  (const RenData *rd_data) {
@@ -292,11 +293,11 @@ static inline void   rendata_set_dirsel  (RenData       *rd_data,
                                           int8_t         val) {
     rd_data->dirsel = val;
 }
-static inline int8_t rendata_get_rememberopt (const RenData *rd_data) {
+static inline bool   rendata_get_rememberopt (const RenData *rd_data) {
     return rd_data->rememberopt;
 }
 static inline void   rendata_set_rememberopt (RenData       *rd_data,
-                                              int8_t         val) {
+                                              bool           val) {
     rd_data->rememberopt = val;
 }
 /*----------------------------------------------------------------------------*/

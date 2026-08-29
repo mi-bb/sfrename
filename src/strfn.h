@@ -92,9 +92,9 @@ ProcessData {
  * @param[in] ui_max  Maximum possible bytes of length
  * @return    Length in bytes of correct chars up to ui_max value
  */
-size_t string_get_valid_length (const char         *s_str,
-                                const size_t        ui_max)
-                                __attribute__ ((pure, nonnull (1)));
+[[nodiscard]] size_t string_get_valid_length (const char   *s_str,
+                                              const size_t  ui_max)
+                     __attribute__ ((pure, nonnull (1)));
 /*----------------------------------------------------------------------------*/
 /** 
  * @brief  Replace one string with another in a given src_dest string.

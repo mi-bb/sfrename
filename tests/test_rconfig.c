@@ -20,7 +20,7 @@
  * @brief  Unit tests for rconfig.c
  *
  * Like test_rsettings.c, RenData is built by hand on the stack (with
- * rd.names left NULL, since rconfig.c never touches the file list) rather
+ * rd.names left nullptr, since rconfig.c never touches the file list) rather
  * than via rendata_new()/rendata_free(), avoiding an unnecessary dependency
  * on rfnames.c/rfitem.c/imgs.c for this GTK-independent logic.
  *
@@ -38,18 +38,18 @@
 #include "rconfig.h"
 #include "rendata.h"
 /*----------------------------------------------------------------------------*/
-static char *test_tmp_dir = NULL;
+static char *test_tmp_dir = nullptr;
 /*----------------------------------------------------------------------------*/
 static char *
 test_path (const char *name)
 {
-    return g_build_filename (test_tmp_dir, name, NULL);
+    return g_build_filename (test_tmp_dir, name, nullptr);
 }
 /*----------------------------------------------------------------------------*/
 static void
 fixture_init (RenData *rd)
 {
-    rd->names       = NULL;
+    rd->names       = nullptr;
     rd->del         = rdelete_new ();
     rd->ins         = rinsovr_new ();
     rd->ovrw        = rinsovr_new ();
@@ -204,7 +204,7 @@ test_rconfig_load_missing_file (void)
 
     fixture_init (&rd);
 
-    g_test_expect_message (NULL, G_LOG_LEVEL_WARNING, "*could not read config file*");
+    g_test_expect_message (nullptr, G_LOG_LEVEL_WARNING, "*could not read config file*");
     g_assert_false (rconfig_parse (&rd, path));
     g_test_assert_expected_messages ();
 
@@ -224,9 +224,9 @@ test_rconfig_load_corrupt_file (void)
     rinsovr_set_text (rd.ins, "sentinel");
 
     g_assert_true (g_file_set_contents (path,
-            "{\"uplo\": 2, \"delete\": {\"cnt\": ", -1, NULL));
+            "{\"uplo\": 2, \"delete\": {\"cnt\": ", -1, nullptr));
 
-    g_test_expect_message (NULL, G_LOG_LEVEL_WARNING, "*malformed*");
+    g_test_expect_message (nullptr, G_LOG_LEVEL_WARNING, "*malformed*");
     g_assert_false (rconfig_parse (&rd, path));
     g_test_assert_expected_messages ();
 
@@ -270,9 +270,9 @@ main (int argc, char *argv[])
 {
     int status;
 
-    g_test_init (&argc, &argv, NULL);
+    g_test_init (&argc, &argv, nullptr);
 
-    test_tmp_dir = g_dir_make_tmp ("sfrename_test_rconfig_XXXXXX", NULL);
+    test_tmp_dir = g_dir_make_tmp ("sfrename_test_rconfig_XXXXXX", nullptr);
     g_assert_nonnull (test_tmp_dir);
     g_setenv ("XDG_CONFIG_HOME", test_tmp_dir, TRUE);
 

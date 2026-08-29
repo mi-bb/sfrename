@@ -229,7 +229,7 @@ test_rnumber_set_get (void)
 int
 main (int argc, char *argv[])
 {
-    g_test_init (&argc, &argv, NULL);
+    g_test_init (&argc, &argv, nullptr);
 
     g_test_add_func ("/rdelete/defaults", test_rdelete_defaults);
     g_test_add_func ("/rdelete/set_get", test_rdelete_set_get);

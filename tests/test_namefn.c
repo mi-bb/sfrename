@@ -51,7 +51,7 @@ typedef struct {
 static void
 fixture_init (Fixture *f, const char *const *names, size_t n)
 {
-    memset (f, 0, sizeof (*f));
+    *f = (Fixture){};
 
     for (size_t i = 0; i < n; ++i) {
         strcpy (f->bufs[i], names[i]);
@@ -302,7 +302,7 @@ test_applyto_name_only (void)
 int
 main (int argc, char *argv[])
 {
-    g_test_init (&argc, &argv, NULL);
+    g_test_init (&argc, &argv, nullptr);
 
     g_test_add_func ("/namefn/delete_chars/basic", test_delete_chars);
     g_test_add_func ("/namefn/delete_chars/noop_when_count_zero", test_delete_chars_noop_when_count_zero);

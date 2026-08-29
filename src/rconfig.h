@@ -35,11 +35,12 @@
  * @return     Newly allocated path (caller must g_free() it)
  */
 /*----------------------------------------------------------------------------*/
-char * rconfig_get_path (void) __attribute__ ((malloc, returns_nonnull));
+[[nodiscard]] char * rconfig_get_path (void)
+              __attribute__ ((malloc, returns_nonnull));
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  gboolean rconfig_write (const RenData *rd_data,
- *                               const char    *path)
+ * @fn  bool rconfig_write (const RenData *rd_data,
+ *                          const char    *path)
  *
  * @brief  Serialize rd_data as JSON and write it to path.
  *
@@ -47,47 +48,47 @@ char * rconfig_get_path (void) __attribute__ ((malloc, returns_nonnull));
  *
  * @param[in] rd_data RenData object to serialize
  * @param[in] path    Destination file path
- * @return    TRUE on success, FALSE on failure
+ * @return    true on success, false on failure
  *
- * @fn  gboolean rconfig_parse (RenData    *rd_data,
- *                               const char *path)
+ * @fn  bool rconfig_parse (RenData    *rd_data,
+ *                          const char *path)
  *
  * @brief  Read and parse a JSON config file, applying it to rd_data.
  *
  * Uses a parse-then-apply strategy: if the file is missing, unreadable, or
- * malformed, rd_data is left completely unmodified and FALSE is returned.
+ * malformed, rd_data is left completely unmodified and false is returned.
  *
  * @param[out] rd_data RenData object to update
  * @param[in]  path    Source file path
- * @return     TRUE on success, FALSE on failure
+ * @return     true on success, false on failure
  */
 /*----------------------------------------------------------------------------*/
-gboolean rconfig_write (const RenData *rd_data,
-                        const char    *path);
+bool rconfig_write (const RenData *rd_data,
+                    const char    *path);
 
-gboolean rconfig_parse (RenData    *rd_data,
-                        const char *path);
+bool rconfig_parse (RenData    *rd_data,
+                    const char *path);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  gboolean rconfig_save (const RenData *rd_data)
+ * @fn  bool rconfig_save (const RenData *rd_data)
  *
  * @brief  Save settings to the standard config path if "remember options on
  *         exit" is enabled, otherwise remove any existing config file.
  *
  * @param[in] rd_data RenData object to save
- * @return    TRUE on success, FALSE on failure
+ * @return    true on success, false on failure
  *
- * @fn  gboolean rconfig_load (RenData *rd_data)
+ * @fn  bool rconfig_load (RenData *rd_data)
  *
  * @brief  Load settings from the standard config path into rd_data, if it
  *         exists and parses successfully.
  *
  * @param[out] rd_data RenData object to update
- * @return     TRUE if settings were loaded, FALSE otherwise
+ * @return     true if settings were loaded, false otherwise
  */
 /*----------------------------------------------------------------------------*/
-gboolean rconfig_save (const RenData *rd_data);
+bool rconfig_save (const RenData *rd_data);
 
-gboolean rconfig_load (RenData *rd_data);
+bool rconfig_load (RenData *rd_data);
 /*----------------------------------------------------------------------------*/
 #endif

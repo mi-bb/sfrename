@@ -72,6 +72,56 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   enables the other system extension macros. `AC_PREREQ` raised from 2.69 to
   2.72; this only affects regenerating `configure` via `autogen.sh`, not
   building from a release tarball.
+- The source now uses C23 features rather than merely compiling as C23. No
+  behavioural change is intended; the on-disk config format is unchanged and a
+  config file written by an earlier version still loads.
+  - `defs.h`: the numeric and string `#define`s became `constexpr` objects.
+    `FN_LEN` is deliberately `constexpr int`, not `size_t`: it is compared
+    against signed values in `rconfig.c`, and an unsigned type would silently
+    make those unsigned comparisons. `APP_NAME`/`APP_VER` stay macros because
+    they are pasted with adjacent string literals, which a `constexpr` array
+    cannot do. String constants use the array form, since C23 requires a
+    `constexpr` pointer to be initialised with a null pointer constant.
+  - `defs.h`: the anonymous rename-result enum is now
+    `typedef enum RenResult : int_fast8_t`, and `sfrename.c` carries the value
+    in a `RenResult` instead of an `int_fast8_t`. The switch over it lost its
+    unreachable `default:`, so `-Wswitch` now reports a missing case.
+    `imgs.h`: `IconImg` likewise gained a fixed underlying type.
+  - All 196 `NULL`s became `nullptr`. This matters most at the five variadic
+    sentinels (`dlgs.c`, `rconfig.c`, `tests/test_rconfig.c` and the
+    `g_test_init` calls), where `nullptr_t` is pointer-sized by definition.
+  - Internal `gboolean` became `bool`: the JSON parser helpers and public API
+    in `rconfig.{c,h}`, the `b_slink`/`b_hidden` fields and `rfitem_is_*` /
+    `rfitem_get_checked` predicates in `rfitem.h`, `rinsovr_empty` and
+    `rreplace_empty_*` (previously `int`), and `RenData::renexit` /
+    `RenData::rememberopt`. `gboolean` is kept wherever it crosses a GTK
+    boundary, notably the `event_win_key_press` signal handler, whose return
+    type is fixed by the marshaller. `RenData::uplo`, `spaces`, `applyto` and
+    `dirsel` stay `int8_t`: they are multi-valued, and `dirsel` is a bitmask.
+  - `rfnames.c`: unified the predicate function-pointer type on
+    `bool (*)(const RFitem *)`. The forward declarations previously said
+    `int (*fun)` while the definitions said `gboolean (*fun)`; this only
+    compiled because `gboolean` is `int`.
+  - `__attribute__ ((unused))` became `[[maybe_unused]]` at all five sites.
+    `[[nodiscard]]` was added to the nine allocating constructors plus
+    `string_get_valid_length` and `rfnames_append_gfile`, where discarding the
+    result leaks or is meaningless. The `malloc`, `nonnull`, `returns_nonnull`
+    and `pure` attributes stay as `__attribute__`, having no C23 equivalent.
+  - The seven `*_init` functions collapsed to `*obj = (T){}`, removing three
+    `memset` calls. `rfitem_init` previously left `org_len`/`org_u8len`
+    indeterminate until they were assigned later; they are now zeroed.
+  - `auto` replaces the type name in a dozen single declarations whose
+    initialiser already names the type. The aligned multi-declaration blocks
+    in `strfn.c` keep their explicit types, which serve as documentation.
+  - `imgs.c`: the nine SVGs became `static const char[]` instead of
+    `const char *`, so their length is `sizeof - 1` at compile time rather
+    than nine runtime `strlen` calls; `rev` is now `constexpr` (it was the one
+    data array that was not even `const`); and the hand-maintained
+    `rev_size`/`about_img_size` constants were dropped in favour of `sizeof`,
+    which cannot drift.
+  - `namefn.c`, `strfn.c`, `tests/test_strfn.c`: the ten 14-field positional
+    `ProcessData` initialisers became designated initialisers, and the
+    repeated `rendata_get_r*()` calls inside them are hoisted into a local.
 
 ## [1.2.10] - 2026-07-13
 

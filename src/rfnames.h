@@ -63,7 +63,8 @@ RFnames {
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-RFnames * rfnames_new  (void) __attribute__ ((returns_nonnull));
+[[nodiscard]] RFnames * rfnames_new  (void)
+              __attribute__ ((returns_nonnull));
 
 void      rfnames_free (RFnames *rf_names);
 /*----------------------------------------------------------------------------*/
@@ -74,8 +75,8 @@ void      rfnames_free (RFnames *rf_names);
  * @param[in]  g_file   GFile object for file to add
  * @return     Box widget with item widgets
  */
-GtkWidget * rfnames_append_gfile (RFnames *rf_names,
-                                  GFile   *g_file);
+[[nodiscard]] GtkWidget * rfnames_append_gfile (RFnames *rf_names,
+                                                GFile   *g_file);
 /*----------------------------------------------------------------------------*/
 /**
  * @fn  void rfnames_add_gfile_to_file_box (RFnames *rf_names,

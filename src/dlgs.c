@@ -31,9 +31,9 @@ char *
 add_files_folder_dialog (GtkWindow *gw_parent,
                          int       *i_opt)
 {
-    GtkWidget *gw_dialog;        /* Directory choose dialog */
-    char      *s_folder  = NULL; /* Selected folder name */
-    int        res       = 0;    /* Dialog run response */
+    GtkWidget *gw_dialog;           /* Directory choose dialog */
+    char      *s_folder  = nullptr; /* Selected folder name */
+    int        res       = 0;       /* Dialog run response */
 
     gw_dialog = gtk_file_chooser_dialog_new ("Select Folder",
                                           gw_parent,
@@ -42,7 +42,7 @@ add_files_folder_dialog (GtkWindow *gw_parent,
                                           GTK_RESPONSE_CANCEL,
                                           "_Open",
                                           GTK_RESPONSE_ACCEPT,
-                                          NULL);
+                                          nullptr);
 
     GtkWidget *gw_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
     GtkWidget *gw_chk_f = gtk_check_button_new_with_label (
@@ -107,10 +107,10 @@ add_files_folder_dialog (GtkWindow *gw_parent,
 GSList *
 add_files_dialog (GtkWindow *gw_parent)
 {
-    GtkFileFilter *gff_filter;       /* File filter for dialog */
-    GtkWidget     *gw_dialog;        /* Dialog widget */
-    GSList        *gsl_files = NULL; /* Result file list */
-    int            res       = 0;    /* Dialog run response */
+    GtkFileFilter *gff_filter;          /* File filter for dialog */
+    GtkWidget     *gw_dialog;           /* Dialog widget */
+    GSList        *gsl_files = nullptr; /* Result file list */
+    int            res       = 0;       /* Dialog run response */
 
     gw_dialog = gtk_file_chooser_dialog_new ("Select Files",
                                              gw_parent,
@@ -119,7 +119,7 @@ add_files_dialog (GtkWindow *gw_parent)
                                              GTK_RESPONSE_CANCEL,
                                              "_Open",
                                              GTK_RESPONSE_ACCEPT,
-                                             NULL);
+                                             nullptr);
     gff_filter = gtk_file_filter_new ();
     gtk_file_filter_set_name (gff_filter, "All files");
     gtk_file_filter_add_pattern (gff_filter, "*");
@@ -140,11 +140,11 @@ add_files_dialog (GtkWindow *gw_parent)
  * @brief  Dialog with information about application.
  */
 void
-about_app_dialog (gpointer data __attribute__ ((unused)))
+about_app_dialog ([[maybe_unused]] gpointer data)
 {
     GtkWidget *gw_dialog;
     const char *s_authors[] = {"Michal Babik <michal.babik@protonmail.com> "
-                               "http://init6.pomorze.pl", NULL};
+                               "http://init6.pomorze.pl", nullptr};
 
     gw_dialog = gtk_about_dialog_new ();
 
