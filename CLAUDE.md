@@ -22,13 +22,21 @@ make
 make install
 ```
 
-Suggested release build flags (from INSTALL):
+Suggested release build flags (from README.md):
 
 ```sh
-./configure CC="gcc" CFLAGS="-march=native -O2 -pipe -std=gnu11"
+./configure CC="gcc" CFLAGS="-march=native -O2 -pipe"
 ```
 
-Build dependency: GTK+ 3 >= 3.22 (checked via `pkg-config` in `configure.ac`).
+The project is built as C23 with GNU extensions. `configure.ac` probes the
+compiler and appends `-std=gnu23` (falling back to `-std=gnu2x`/`-std=c23`/
+`-std=c2x`) only when the compiler's default mode is older than C23, and
+errors out if no C23 mode is available; `CMakeLists.txt` sets
+`CMAKE_C_STANDARD 23`. Do not pass `-std=` in `CFLAGS` — it lands after the
+probed option and overrides it.
+
+Build dependencies: GTK+ 3 >= 3.22 (checked via `pkg-config` in
+`configure.ac`), and GCC >= 14 or Clang >= 18 for C23.
 
 There is no linter configured in this repository.
 

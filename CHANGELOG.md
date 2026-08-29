@@ -50,6 +50,29 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     `make check` and `ctest`.
   - `.gitignore`: ignore the `tests/test_rconfig` binary.
 
+### Changed
+
+- The project is now built as C23 (ISO/IEC 9899:2024) with GNU extensions
+  instead of C11. This raises the minimum compiler to GCC 14 or Clang 18.
+  - `configure.ac`: added a probe that appends `-std=gnu23` (falling back to
+    `-std=gnu2x`, `-std=c23`, `-std=c2x`) when the compiler's default mode is
+    older than C23, and fails configuration when no C23 mode is available.
+    Autoconf 2.72 has no C23 support of its own, so `AC_PROG_CC` cannot do
+    this. `CFLAGS` must no longer carry a `-std=` option.
+  - `CMakeLists.txt`: `CMAKE_C_STANDARD` raised from 11 to 23;
+    `cmake_minimum_required` raised from 3.10 to 3.21, the first release that
+    knows the C23 standard value.
+  - `strfn.c` (`string_replace_in`): made the `fp` find-pointer `const char *`.
+    C23 makes `strstr()` const-preserving, so assigning its result from a
+    `const char *` haystack to a `char *` warned under `-std=gnu23`.
+  - `README.md`: documented the C23 requirement and dropped `-std=gnu11` from
+    the suggested build flags.
+- `configure.ac`: ran `autoupdate`. Replaced the obsolete `AC_GNU_SOURCE` with
+  `AC_USE_SYSTEM_EXTENSIONS`, which still defines `_GNU_SOURCE` but also
+  enables the other system extension macros. `AC_PREREQ` raised from 2.69 to
+  2.72; this only affects regenerating `configure` via `autogen.sh`, not
+  building from a release tarball.
+
 ## [1.2.10] - 2026-07-13
 
 ### Added

@@ -15,16 +15,38 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-AC_PREREQ([2.69])
-AC_INIT([sfrename], [1.2.11], [michal.babik@pm.me], [sfrename],\
+AC_PREREQ([2.72])
+AC_INIT([sfrename], [1.2.11], [michal.babik@pm.me], [sfrename],
         [https://www.nongnu.org/small-file-renamer/])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_SRCDIR([src/sfrename.c])
 AC_CONFIG_HEADERS([config.h])
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 
 # Checks for programs.
 AC_PROG_CC
+
+# Require C23 (ISO/IEC 9899:2024) with GNU extensions.  Autoconf 2.72 does not
+# know about C23 yet, so probe the compiler for the right -std option here.
+AC_CACHE_CHECK([for $CC option to enable C23 features], [sfr_cv_prog_cc_c23],
+  [sfr_cv_prog_cc_c23=no
+   sfr_save_CC=$CC
+   for sfr_std in '' -std=gnu23 -std=gnu2x -std=c23 -std=c2x; do
+     CC="$sfr_save_CC $sfr_std"
+     AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM([[#if __STDC_VERSION__ < 202311L
+# error "C23 support is required"
+#endif]], [])],
+       [AS_IF([test -z "$sfr_std"],
+              [sfr_cv_prog_cc_c23="none needed"],
+              [sfr_cv_prog_cc_c23=$sfr_std])
+        break])
+   done
+   CC=$sfr_save_CC])
+AS_IF([test "x$sfr_cv_prog_cc_c23" = xno],
+      [AC_MSG_ERROR([a C23-capable compiler is required (GCC >= 14 or Clang >= 18)])])
+AS_IF([test "x$sfr_cv_prog_cc_c23" != "xnone needed"],
+      [CC="$CC $sfr_cv_prog_cc_c23"])
 
 # Checks for libraries.
 PKG_CHECK_MODULES(GTK, [gtk+-3.0 >= [3.22.0]])

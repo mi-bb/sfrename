@@ -60,7 +60,7 @@ string_replace_in (const ProcessData *pd_data)
     const size_t  ui_max   = FN_LEN;            /* max length of name */
     const char   *s_fr     = pd_data->s_str1;   /* "replace from" string */
     const char   *s_to     = pd_data->s_str2;   /* "replace to" string */
-    char         *fp       = NULL;              /* find string pointer */
+    const char   *fp       = NULL;              /* find string pointer */
     const char   *sp       = s_srcdst;          /* copy src_dest pointer */
     char         *dp       = s_tmp;             /* copy s_tmp pointer */
     const char   *tp       = NULL;              /* pointer to s_to */

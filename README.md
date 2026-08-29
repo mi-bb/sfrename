@@ -41,7 +41,7 @@ be used standalone or with other programs.
 ## Requirements
 
 * GNU/Linux or FreeBSD
-* GCC or Clang
+* A C23-capable compiler: GCC 14 or later, or Clang 18 or later
 * GTK+ 3 (3.22 or later)
 
 ## Installation
@@ -76,19 +76,23 @@ For normal daily use of this program, a good option is:
 or, more specifically:
 
 ```sh
-./configure CC="gcc" CFLAGS="-march=native -O2 -pipe -std=gnu11"
+./configure CC="gcc" CFLAGS="-march=native -O2 -pipe"
 ```
 
 with Clang:
 
 ```sh
-./configure CC="clang" CFLAGS="-march=native -O2 -pipe -std=gnu11"
+./configure CC="clang" CFLAGS="-march=native -O2 -pipe"
 ```
 
 Setting `CFLAGS` explicitly overrides the default flags (`-g -O2`), which
 disables the `-g` option. That option produces debugging information needed
 for gdb and enlarges the output file, so leaving it out is preferable for a
 release build.
+
+There is no need to pass `-std=` yourself: `configure` probes the compiler
+and adds `-std=gnu23` when the default mode is older than C23. Do not put a
+`-std=` option in `CFLAGS`, or it will override the one `configure` selects.
 
 * `CC="gcc"` sets the C compiler to GCC.
 * `CC="clang"` sets the C compiler to Clang.
@@ -97,7 +101,6 @@ release build.
 * `-O2` sets the code optimization level to O2.
 * `-pipe` uses pipes rather than temporary files for communication between
   the various stages of compilation.
-* `-std=gnu11` sets the C standard to C11 with GNU extensions.
 
 Running:
 
@@ -111,7 +114,7 @@ configuration parameters.
 ### Building with CMake
 
 As an alternative to Autotools, the program can also be configured, built,
-and installed with CMake (3.10 or later):
+and installed with CMake (3.21 or later):
 
 ```sh
 cmake -S . -B build
