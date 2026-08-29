@@ -26,7 +26,7 @@
  *
  * @date November 15, 2020
  *
- * @version 1.2.9
+ * @version 1.2.11
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
