@@ -30,7 +30,7 @@
  * with $XDG_CONFIG_HOME redirected to that same tmp directory so the real
  * user config file is never touched.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <glib/gstdio.h>

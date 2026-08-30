@@ -26,7 +26,7 @@
  * the parser is defensive against a hand-edited or corrupted file and
  * never partially applies a bad file (parse-then-apply).
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <string.h>
 #include <glib/gstdio.h>

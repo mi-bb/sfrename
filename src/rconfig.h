@@ -19,7 +19,7 @@
  *
  * @brief  Save/restore RenData settings to/from a local JSON config file.
  *
- * @author Michal Babik <michal.babik@pm.me>
+ * @author Michal Babik <michal.babik@protonmail.com>
  */
 #ifndef RCONFIG_H
 #define RCONFIG_H
