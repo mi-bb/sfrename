@@ -26,7 +26,7 @@
  *
  * @date November 15, 2020
  *
- * @version 1.2.9
+ * @version 1.3.0
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
@@ -40,6 +40,7 @@
 #include "dlgs.h"
 #include "strfn.h"
 #include "rendata.h"
+#include "rconfig.h"
 #include "namefn.h"
 #include "imgs.h"
 #include "defs.h"
@@ -52,14 +53,14 @@
  * @param[in] path     Path to directory where the file is located
  * @return    Renaming status
  */
-static int_fast8_t
+static RenResult
 file_check_and_rename (const char *old_name,
                        const char *new_name,
                        const char *path)
 {
-    char        *s_new   = NULL;              /* Full path for new file */
-    char        *s_old   = NULL;              /* Full path for old file */
-    int_fast8_t  i_res   = 0;                 /* Renaming result */
+    char        *s_new   = nullptr;           /* Full path for new file */
+    char        *s_old   = nullptr;           /* Full path for old file */
+    RenResult    i_res   = REN_OK;            /* Renaming result */
     size_t       ui_dlen = strlen (path);     /* Length of file dir path */
     size_t       ui_olen = strlen (old_name); /* Length of old file name */
     size_t       ui_nlen = strlen (new_name); /* Length of new file name */
@@ -72,7 +73,7 @@ file_check_and_rename (const char *old_name,
     s_new = malloc ((ui_dlen + ui_nlen + 1) * sizeof (char));
     s_old = malloc ((ui_dlen + ui_olen + 1) * sizeof (char));
 
-    if (s_new == NULL || s_old == NULL) {
+    if (s_new == nullptr || s_old == nullptr) {
         fputs ("Alloc error\n", stderr);
         exit (EXIT_FAILURE);
     }
@@ -161,11 +162,11 @@ enumerate_folder (RFnames   *rf_names,
     f_enum = g_file_enumerate_children (gf_dir,
                                         "standard::*",
                                         G_FILE_QUERY_INFO_NONE,
-                                        NULL,
+                                        nullptr,
                                         &g_err);
     do {
-        g_file_enumerator_iterate (f_enum, &f_info, &g_file, NULL, &g_err);
-        if (f_info != NULL) {
+        g_file_enumerator_iterate (f_enum, &f_info, &g_file, nullptr, &g_err);
+        if (f_info != nullptr) {
             f_type = g_file_info_get_file_type (f_info);
             /* If hidden file/directory was not set skip adding it */
             if (g_file_info_get_is_hidden (f_info) &&
@@ -191,7 +192,7 @@ enumerate_folder (RFnames   *rf_names,
             }
         }
     }
-    while (f_info != NULL);
+    while (f_info != nullptr);
 
     g_object_unref (f_enum);
 }
@@ -218,9 +219,9 @@ get_folder_content (RFnames    *rf_names,
     f_info = g_file_query_info (gf_dir,
                                 "standard::*",
                                 G_FILE_QUERY_INFO_NONE,
-                                NULL,
+                                nullptr,
                                 &g_err);
-    if (f_info != NULL) {
+    if (f_info != nullptr) {
         f_type = g_file_info_get_file_type (f_info);
         g_object_unref (f_info);
 
@@ -242,13 +243,13 @@ get_folder_content (RFnames    *rf_names,
 static int8_t
 get_radio_active (GtkRadioButton *radiob)
 {
-    int8_t                 i = -1;   /* active RadioButton index */
-    GtkRadioButton *tmp_butt = NULL; /* temp RadioButton */
-    GSList         *tmp_list = NULL; /* get RadioButton group list */
+    int8_t                 i = -1;      /* active RadioButton index */
+    GtkRadioButton *tmp_butt = nullptr; /* temp RadioButton */
+    GSList         *tmp_list = nullptr; /* get RadioButton group list */
 
     tmp_list = gtk_radio_button_get_group (radiob);
 
-    while (tmp_list != NULL) {
+    while (tmp_list != nullptr) {
         ++i;
         tmp_butt = tmp_list->data; /* get current list value (RadioButton) */
         tmp_list = tmp_list->next;
@@ -256,7 +257,7 @@ get_radio_active (GtkRadioButton *radiob)
         if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (tmp_butt)))
             break;
     }
-    tmp_butt = NULL; /* nulling temp button */
+    tmp_butt = nullptr; /* nulling temp button */
     return i;
 }
 /*----------------------------------------------------------------------------*/
@@ -269,7 +270,7 @@ get_radio_active (GtkRadioButton *radiob)
  */
 static void
 event_close (GtkWidget *widget,
-             gpointer   data __attribute__ ((unused)))
+             [[maybe_unused]] gpointer data)
 {
     GtkWidget *gw_toplevel = gtk_widget_get_toplevel (widget);
     gtk_widget_destroy (gw_toplevel);
@@ -290,13 +291,13 @@ static void
 event_click_rename (GtkWidget *widget,
                     RenData   *rd_data)
 {
-    const char    *s_old        = NULL; /* Old file name */
-    const char    *s_new        = NULL; /* New file name */
-    const char    *s_pth        = NULL; /* Path to file's directory */
-    int_fast8_t    i_renamed    = 0;    /* Renaming result */
-    uint_fast32_t  ui_ren_count = 0;    /* Number of renamed files */
-    uint_fast32_t  ui_names_cnt = 0;    /* Number of files to rename */
-    RFitem        *rf_item;             /* Processed RFitem object */
+    const char    *s_old        = nullptr; /* Old file name */
+    const char    *s_new        = nullptr; /* New file name */
+    const char    *s_pth        = nullptr; /* Path to file's directory */
+    RenResult      i_renamed    = REN_OK;  /* Renaming result */
+    uint_fast32_t  ui_ren_count = 0;       /* Number of renamed files */
+    uint_fast32_t  ui_names_cnt = 0;       /* Number of files to rename */
+    RFitem        *rf_item;                /* Processed RFitem object */
 
     ui_names_cnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
 
@@ -329,9 +330,6 @@ event_click_rename (GtkWidget *widget,
             case REN_EXISTS:
                 printf ("File: %s already exists\n", s_new);
                 break;
-
-            default:
-                break;
         }
         if (i_renamed != REN_OK && i_renamed != REN_NC) {
             /* Revert old file names to new */
@@ -346,7 +344,7 @@ event_click_rename (GtkWidget *widget,
 
     /* exit application if "Exit after rename" checkbox was selected */
     if (rendata_get_renexit (rd_data))
-        event_close (widget, NULL);
+        event_close (widget, nullptr);
     else
         file_names_update_changes (rd_data);
 }
@@ -655,7 +653,25 @@ event_toggle_rename_exit (GtkToggleButton *toggleb,
                           RenData         *rd_data)
 {
     rendata_set_renexit (rd_data,
-            (int8_t) gtk_toggle_button_get_active (toggleb));
+            gtk_toggle_button_get_active (toggleb));
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Remember options on exit CheckBox state changed.
+ *
+ * Sets rememberopt value in r_files structure based on the value of
+ * ChackBox.
+ *
+ * @param[in]  toggleb ToggleButton which received the signal
+ * @param[out] rd_data RenData object with file list and settings
+ * @return     none
+ */
+static void
+event_toggle_remember_options (GtkToggleButton *toggleb,
+                               RenData         *rd_data)
+{
+    rendata_set_rememberopt (rd_data,
+            gtk_toggle_button_get_active (toggleb));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -672,7 +688,7 @@ event_win_key_press (GtkWidget   *widget,
 {
     /* Catch Esc key in main window and exit */
     if (event->keyval == GDK_KEY_Escape)
-        event_close (widget, NULL);
+        event_close (widget, nullptr);
 
     /* Catch Enter and preform rename */
     if (event->keyval == GDK_KEY_Return) {
@@ -690,12 +706,12 @@ event_win_key_press (GtkWidget   *widget,
 static void
 event_click_add_files (RFnames *rf_names)
 {
-    GSList       *gs_files = NULL; /* File list returned by dialog */
-    GSList       *gs_fn    = NULL; /* File list copy */
-    uint_fast32_t ui_pcnt  = 0;    /* Previous number of file items on list */
+    GSList       *gs_files = nullptr; /* File list returned by dialog */
+    GSList       *gs_fn    = nullptr; /* File list copy */
+    uint_fast32_t ui_pcnt  = 0;       /* Previous number of file items */
 
     ui_pcnt  = rfnames_get_cnt (rf_names);
-    gs_files = add_files_dialog (NULL);
+    gs_files = add_files_dialog (nullptr);
     gs_fn    = gs_files;
 
     while (gs_fn) {
@@ -720,16 +736,16 @@ event_click_add_files (RFnames *rf_names)
 static void
 event_click_add_folder_files (RenData *rd_data)
 {
-    int     i_opt   = 0;    /* Options for select files from directory */
-    size_t  ui_pcnt = 0;    /* Previous number of file items on list */
-    char   *s_dir   = NULL; /* Folder path */
+    int     i_opt   = 0;       /* Options for select files from directory */
+    size_t  ui_pcnt = 0;       /* Previous number of file items on list */
+    char   *s_dir   = nullptr; /* Folder path */
 
     ui_pcnt = rfnames_get_cnt (rendata_get_rfnames (rd_data));
     i_opt   = rendata_get_dirsel (rd_data);
     i_opt   = i_opt < 1 ? 1 : i_opt;
-    s_dir   = add_files_folder_dialog (NULL, &i_opt);
+    s_dir   = add_files_folder_dialog (nullptr, &i_opt);
 
-    if (s_dir != NULL) {
+    if (s_dir != nullptr) {
         if (i_opt > 0) {
             get_folder_content (rd_data->names, s_dir, i_opt);
             rendata_set_dirsel (rd_data, (int8_t) i_opt);
@@ -753,10 +769,10 @@ event_click_add_folder_files (RenData *rd_data)
 static GtkWidget *
 create_image_widget (const IconImg i_but)
 {
-    GtkWidget *gw_img = NULL; /* GtkImage widget to return */
-    GdkPixbuf *gd_pix = NULL; /* Pigbuf to load graphics */
+    GtkWidget *gw_img = nullptr; /* GtkImage widget to return */
+    GdkPixbuf *gd_pix = nullptr; /* Pigbuf to load graphics */
 
-    if (i_but < W_ICON_COUNT && (gd_pix = get_image (i_but)) != NULL) {
+    if (i_but < W_ICON_COUNT && (gd_pix = get_image (i_but)) != nullptr) {
         gw_img = gtk_image_new_from_pixbuf (gd_pix);
         g_object_unref (gd_pix);
     }
@@ -783,15 +799,15 @@ create_img_menu_item (const char    *s_label,
     gw_item = gtk_menu_item_new ();
     gw_box  = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 
-    if ((gw_img = create_image_widget (i_but)) != NULL) {
+    if ((gw_img = create_image_widget (i_but)) != nullptr) {
         gtk_box_pack_start (GTK_BOX (gw_box), gw_img, FALSE, FALSE, 4);
     }
-    if (s_label != NULL && s_label[0] != '\0') {
+    if (s_label != nullptr && s_label[0] != '\0') {
         GtkWidget *gw_lab = gtk_label_new (s_label);
         /*gtk_container_add (GTK_CONTAINER (gw_box), gw_lab);*/
         gtk_box_pack_start (GTK_BOX (gw_box), gw_lab, FALSE, FALSE, 4);
     }
-    if (s_hint != NULL && s_hint[0] != '\0') {
+    if (s_hint != nullptr && s_hint[0] != '\0') {
         gtk_widget_set_tooltip_text (gw_item, s_hint);
     }
     gtk_container_add (GTK_CONTAINER (gw_item), gw_box);
@@ -813,11 +829,17 @@ create_upcase_lowercase_box (GtkWidget **gw_container,
     GtkWidget *gw_lcc; /* Lovercase radio button */
     GtkWidget *gw_upc; /* Uppercase radio button */
 
-    gw_ncc = gtk_radio_button_new_with_label (NULL, "No change");
+    gw_ncc = gtk_radio_button_new_with_label (nullptr, "No change");
     gw_lcc = gtk_radio_button_new_with_label_from_widget (
              GTK_RADIO_BUTTON (gw_ncc), "To lowercase");
     gw_upc = gtk_radio_button_new_with_label_from_widget (
              GTK_RADIO_BUTTON (gw_ncc), "To uppercase");
+
+    switch (rendata_get_uplo (rd_data)) {
+    case 0:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_upc), TRUE); break;
+    case 1:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_lcc), TRUE); break;
+    default: gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_ncc), TRUE); break;
+    }
 
     g_signal_connect (G_OBJECT(gw_ncc), "toggled",
                       G_CALLBACK (event_case_radio_active), rd_data);
@@ -853,11 +875,17 @@ create_spaces_to_underscores_box (GtkWidget **gw_container,
     GtkWidget *gw_sptou;   /* Space to unserscore radio button */
     GtkWidget *gw_utosp;   /* Underscore to space radio button */
 
-    gw_sptounc = gtk_radio_button_new_with_label (NULL, "No change");
+    gw_sptounc = gtk_radio_button_new_with_label (nullptr, "No change");
     gw_sptou   = gtk_radio_button_new_with_label_from_widget (
                  GTK_RADIO_BUTTON (gw_sptounc), "Space to underscore");
     gw_utosp   = gtk_radio_button_new_with_label_from_widget(
                  GTK_RADIO_BUTTON (gw_sptounc), "Underscore to space");
+
+    switch (rendata_get_spaces (rd_data)) {
+    case 0:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_utosp), TRUE); break;
+    case 1:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_sptou), TRUE); break;
+    default: gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_sptounc), TRUE); break;
+    }
 
     g_signal_connect (G_OBJECT (gw_sptounc), "toggled",
                       G_CALLBACK (event_spaces_radio_active), rd_data);
@@ -893,11 +921,18 @@ create_apply_to_names_ext_box (GtkWidget **gw_container,
     GtkWidget *gw_appn;  /* Apply to name only radio button */
     GtkWidget *gw_appe;  /* Apply to extension only radio button */
 
-    gw_appne = gtk_radio_button_new_with_label (NULL, "Apply to name and ext");
+    gw_appne = gtk_radio_button_new_with_label (nullptr,
+                                                "Apply to name and ext");
     gw_appn  = gtk_radio_button_new_with_label_from_widget (
                GTK_RADIO_BUTTON (gw_appne), "Apply to name");
     gw_appe  = gtk_radio_button_new_with_label_from_widget (
                GTK_RADIO_BUTTON (gw_appne), "Apply to ext");
+
+    switch (rendata_get_applyto (rd_data)) {
+    case 0:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_appe), TRUE); break;
+    case 1:  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_appn), TRUE); break;
+    default: gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_appne), TRUE); break;
+    }
 
     g_signal_connect (G_OBJECT (gw_appne), "toggled",
                       G_CALLBACK (event_apply_radio_active), rd_data);
@@ -942,6 +977,11 @@ create_replace_str_with_str_box (GtkWidget **gw_container,
     gtk_entry_set_max_length (GTK_ENTRY (gw_sto), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_sto), 6);
 
+    gtk_entry_set_text (GTK_ENTRY (gw_sfrom),
+                        rreplace_get_from (rendata_get_rreplace (rd_data)));
+    gtk_entry_set_text (GTK_ENTRY (gw_sto),
+                        rreplace_get_to (rendata_get_rreplace (rd_data)));
+
     gw_lab1 = gtk_label_new ("Replace text");
     gw_lab2 = gtk_label_new ("with");
 
@@ -981,12 +1021,16 @@ create_delete_chars_box (GtkWidget **gw_container,
     GtkAdjustment *gw_del_adj_pos; /* Adjustment for spin button */
 
     gw_lab         = gtk_label_new ("Delete text:");
-    gw_del_adj_cnt = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_del_adj_cnt = gtk_adjustment_new (
+            rdelete_get_cnt (rendata_get_rdelete (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_del_cnt     = gtk_spin_button_new (gw_del_adj_cnt, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_del_cnt, "Count");
 
-    gw_del_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_del_adj_pos = gtk_adjustment_new (
+            rdelete_get_pos (rendata_get_rdelete (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_del_pos     = gtk_spin_button_new (gw_del_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_del_pos, "At position");
@@ -1029,7 +1073,12 @@ create_insert_string_box (GtkWidget **gw_container,
     gtk_entry_set_max_length (GTK_ENTRY (gw_ins_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ins_entry), 6);
 
-    gw_ins_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gtk_entry_set_text (GTK_ENTRY (gw_ins_entry),
+                        rinsovr_get_text (rendata_get_rinsert (rd_data)));
+
+    gw_ins_adj_pos = gtk_adjustment_new (
+            rinsovr_get_pos (rendata_get_rinsert (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_ins_pos     = gtk_spin_button_new (gw_ins_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_ins_pos, "At position");
@@ -1072,7 +1121,12 @@ create_overwrite_string_box (GtkWidget **gw_container,
     gtk_entry_set_max_length (GTK_ENTRY (gw_ovr_entry), FN_LEN);
     gtk_entry_set_width_chars (GTK_ENTRY (gw_ovr_entry), 6);
 
-    gw_ovr_adj_pos = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gtk_entry_set_text (GTK_ENTRY (gw_ovr_entry),
+                        rinsovr_get_text (rendata_get_roverwr (rd_data)));
+
+    gw_ovr_adj_pos = gtk_adjustment_new (
+            rinsovr_get_pos (rendata_get_roverwr (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_ovr_pos     = gtk_spin_button_new (gw_ovr_adj_pos, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_ovr_pos, "At position");
@@ -1111,12 +1165,17 @@ create_number_string_box (GtkWidget **gw_container,
     GtkAdjustment *gw_num_pos_spin_adj;   /* Adjustment for spin button */
 
     gw_check = gtk_check_button_new_with_label ("Number files");
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_check), FALSE);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_check),
+            rnumber_get_opt (rendata_get_rnumber (rd_data)) != 0);
 
-    gw_num_start_spin_adj = gtk_adjustment_new (0.0, 0.0, 1000, 1.0, 5.0, 0.0);
+    gw_num_start_spin_adj = gtk_adjustment_new (
+            rnumber_get_start (rendata_get_rnumber (rd_data)),
+            0.0, 1000, 1.0, 5.0, 0.0);
     gw_num_start_spin     = gtk_spin_button_new (gw_num_start_spin_adj, 1.0, 0);
 
-    gw_num_pos_spin_adj   = gtk_adjustment_new (0.0, 0.0, FN_LEN, 1.0, 5.0, 0.0);
+    gw_num_pos_spin_adj   = gtk_adjustment_new (
+            rnumber_get_pos (rendata_get_rnumber (rd_data)),
+            0.0, FN_LEN, 1.0, 5.0, 0.0);
     gw_num_pos_spin       = gtk_spin_button_new (gw_num_pos_spin_adj, 1.0, 0);
 
     gtk_widget_set_tooltip_text (gw_num_start_spin, "Start numbering from");
@@ -1151,9 +1210,10 @@ static void
 create_rename_close_exit_box (GtkWidget **gw_container,
                               RenData    *rd_data)
 {
-    GtkWidget *gw_but_ok;  /* Rename button */
-    GtkWidget *gw_but_cc;  /* Close button */
-    GtkWidget *gw_renexit; /* Exit after rename check button */
+    GtkWidget *gw_but_ok;   /* Rename button */
+    GtkWidget *gw_but_cc;   /* Close button */
+    GtkWidget *gw_renexit;  /* Exit after rename check button */
+    GtkWidget *gw_remember; /* Remember options on exit check button */
 
     gw_but_ok = gtk_button_new_with_label ("Rename");
     gw_but_cc = gtk_button_new_with_label ("Close");
@@ -1161,14 +1221,23 @@ create_rename_close_exit_box (GtkWidget **gw_container,
     g_signal_connect (G_OBJECT (gw_but_ok), "clicked",
                       G_CALLBACK (event_click_rename), rd_data);
     g_signal_connect (G_OBJECT (gw_but_cc), "clicked",
-                      G_CALLBACK (event_close), NULL);
+                      G_CALLBACK (event_close), nullptr);
 
     gw_renexit = gtk_check_button_new_with_label ("Exit after rename");
 
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_renexit), TRUE);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_renexit),
+            rendata_get_renexit (rd_data));
 
     g_signal_connect (G_OBJECT (gw_renexit), "toggled",
                       G_CALLBACK (event_toggle_rename_exit), rd_data);
+
+    gw_remember = gtk_check_button_new_with_label ("Remember options on exit");
+
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gw_remember),
+            rendata_get_rememberopt (rd_data));
+
+    g_signal_connect (G_OBJECT (gw_remember), "toggled",
+                      G_CALLBACK (event_toggle_remember_options), rd_data);
 
     *gw_container = gtk_grid_new ();
 
@@ -1179,6 +1248,8 @@ create_rename_close_exit_box (GtkWidget **gw_container,
             gw_but_cc, gw_but_ok, GTK_POS_RIGHT, 1, 1);
     gtk_grid_attach_next_to (GTK_GRID (*gw_container),
             gw_renexit, gw_but_cc, GTK_POS_RIGHT, 1, 1);
+    gtk_grid_attach_next_to (GTK_GRID (*gw_container),
+            gw_remember, gw_renexit, GTK_POS_RIGHT, 1, 1);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1208,7 +1279,7 @@ create_toolbar (GtkWidget **gw_container,
     /* Menu for ADD button */
     gw_menu = gtk_menu_new ();
     menu_item = create_img_menu_item ("Add files from directory",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_ADD_DIR);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
@@ -1229,63 +1300,63 @@ create_toolbar (GtkWidget **gw_container,
     gw_menu = gtk_menu_new ();
     /* Select all files menu entry */
     menu_item = create_img_menu_item ("Select all files",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_files), rd_data->names);
     /* Select all directories menu entry */
     menu_item = create_img_menu_item ("Select all directories",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_folders), rd_data->names);
     /* Select all symlink type files/folders */
     menu_item = create_img_menu_item ("Select all symlinks",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_symlinks), rd_data->names);
     /* Select all hidden type files/folders */
     menu_item = create_img_menu_item ("Select all hidden",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_hidden), rd_data->names);
     /* Invert selection menu entry */
     menu_item = create_img_menu_item ("Invert selection",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT_BL);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_select_invert), rd_data->names);
     /* Unselect all files menu entry */
     menu_item = create_img_menu_item ("Unselect all files",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT_BW);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_unselect_files), rd_data->names);
     /* Unselect all directories menu entry */
     menu_item = create_img_menu_item ("Unselect all directories",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT_BW);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_unselect_folders), rd_data->names);
     /* Unselect all symlink type files/folders */
     menu_item = create_img_menu_item ("Unselect all symlinks",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT_BW);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_unselect_symlinks), rd_data->names);
     /* Unselect all hidden type files/folders */
     menu_item = create_img_menu_item ("Unselect all hidden",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_SELECT_BW);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
@@ -1307,35 +1378,35 @@ create_toolbar (GtkWidget **gw_container,
     gw_menu = gtk_menu_new ();
     /* Restore all original names menu entry */
     menu_item = create_img_menu_item ("Restore all",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REVERT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_restore_all), rd_data->names);
     /* Restore original names for all files menu entry */
     menu_item = create_img_menu_item ("Restore all files",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REVERT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_restore_all_files), rd_data->names);
     /* Restore original names for all folders menu entry */
     menu_item = create_img_menu_item ("Restore all directories",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REVERT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_restore_all_folders), rd_data->names);
     /* Restore original names for all symlinks menu entry */
     menu_item = create_img_menu_item ("Restore all symlinks",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REVERT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_restore_all_symlinks), rd_data->names);
     /* Restore original names for all hidden files/dirs menu entry */
     menu_item = create_img_menu_item ("Restore all hidden",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REVERT);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
@@ -1357,35 +1428,35 @@ create_toolbar (GtkWidget **gw_container,
     gw_menu = gtk_menu_new ();
     /* Delete all items from list */
     menu_item = create_img_menu_item ("Remove all",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all), rd_data->names);
     /* Delete all files from list */
     menu_item = create_img_menu_item ("Remove all files",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_files), rd_data->names);
     /* Delete all folders from list */
     menu_item = create_img_menu_item ("Remove all directories",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_folders), rd_data->names);
     /* Delete all symlinks from list */
     menu_item = create_img_menu_item ("Remove all symlinks",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
             G_CALLBACK (rfnames_remove_all_symlinks), rd_data->names);
     /* Delete all hidden files/folders from list */
     menu_item = create_img_menu_item ("Remove all hidden",
-                                      NULL,
+                                      nullptr,
                                       W_ICON_REMOVE);
     gtk_menu_shell_append (GTK_MENU_SHELL (gw_menu), menu_item);
     g_signal_connect_swapped (menu_item, "activate",
@@ -1411,7 +1482,7 @@ create_toolbar (GtkWidget **gw_container,
     gtk_tool_item_set_tooltip_text (ti_menu_button, "Application info");
     gtk_toolbar_insert (GTK_TOOLBAR (*gw_container), ti_menu_button, -1);
     g_signal_connect_swapped (ti_menu_button, "clicked",
-            G_CALLBACK (about_app_dialog), NULL);
+            G_CALLBACK (about_app_dialog), nullptr);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1448,7 +1519,7 @@ create_file_name_entries (GFile         **files,
         }
     }
     /* Make scrollbars */
-    *gw_container = gtk_scrolled_window_new (NULL, NULL);
+    *gw_container = gtk_scrolled_window_new (nullptr, nullptr);
 
     ga_h = gtk_scrolled_window_get_hadjustment(
             GTK_SCROLLED_WINDOW (*gw_container));
@@ -1474,7 +1545,7 @@ create_window (GtkWidget        **window,
                GtkApplication    *application,
                RenData           *rd_data)
 {
-    GdkPixbuf *gd_pix = NULL; /* Pixbuf for default window icon */
+    GdkPixbuf *gd_pix = nullptr; /* Pixbuf for default window icon */
 
     /* Create window widget */
     *window = gtk_application_window_new (application);
@@ -1486,7 +1557,7 @@ create_window (GtkWidget        **window,
     gtk_window_set_position (GTK_WINDOW (*window), GTK_WIN_POS_CENTER);
 
     /* Set default application icon */
-    if ((gd_pix = get_image (W_ICON_ABOUT)) != NULL) {
+    if ((gd_pix = get_image (W_ICON_ABOUT)) != nullptr) {
         gtk_window_set_default_icon (gd_pix);
         g_object_unref (gd_pix);
     }
@@ -1503,9 +1574,10 @@ create_window (GtkWidget        **window,
  * @return     none
  */
 static void
-shutdown (GtkApplication *application __attribute__ ((unused)),
+shutdown ([[maybe_unused]] GtkApplication *application,
           RenData        *rd_data)
 {
+    rconfig_save (rd_data);
     rendata_free (rd_data);
 }
 /*----------------------------------------------------------------------------*/
@@ -1515,7 +1587,7 @@ shutdown (GtkApplication *application __attribute__ ((unused)),
  * @param[in,out] application  GtkApplication item
  * @param[in,out] files        An array of GFiles to open
  * @param[in]     n_files      The length of the files array
- * @param[in]     hint         A hint (or ""), but never NULL
+ * @param[in]     hint         A hint (or ""), but never nullptr
  * @param[in,out] rd_data      RenData object with file list and settings
  * @return        none
  */
@@ -1523,7 +1595,7 @@ static void
 open (GtkApplication  *application,
       GFile          **files,
       int              n_files,
-      const char      *hint __attribute__ ((unused)),
+      [[maybe_unused]] const char *hint,
       RenData         *rd_data)
 {
     GtkWidget *window;             /* Appliation window */
@@ -1608,6 +1680,9 @@ open (GtkApplication  *application,
 
     gtk_container_add (GTK_CONTAINER (window), gw_vbox);
 
+    /* Apply settings (possibly loaded from config) to file name entries */
+    file_names_update_changes (rd_data);
+
     /* Set focus on first entry if file count is greater than 0 */
     if (rfnames_get_cnt (rendata_get_rfnames (rd_data)) > 0) {
         gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
@@ -1626,7 +1701,7 @@ static void
 activate (GtkApplication *application,
           RenData        *rd_data)
 {
-    open (application, NULL, 0, NULL, rd_data);
+    open (application, nullptr, 0, nullptr, rd_data);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -1647,6 +1722,8 @@ main (int    argc,
     int             status;
 
     rd_data = rendata_new ();
+    rconfig_load (rd_data);
+
     app = gtk_application_new ("org.nongnu.SmallFileRenamer",
                                G_APPLICATION_HANDLES_OPEN);
 

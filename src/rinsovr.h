@@ -68,7 +68,8 @@ RInsOvr {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RInsOvr * rinsovr_new  (void) __attribute__ ((malloc, returns_nonnull));
+[[nodiscard]] RInsOvr * rinsovr_new  (void)
+              __attribute__ ((malloc, returns_nonnull));
 
 void      rinsovr_free (RInsOvr *r_insovr);
 /*----------------------------------------------------------------------------*/
@@ -145,7 +146,7 @@ static inline size_t       rinsovr_get_u8len (const RInsOvr *rio_item) {
  * @param[in]  rio_item  RInsOvr object
  * @return     Check result
  */
-static inline int          rinsovr_empty    (const RInsOvr *rio_item) {
+static inline bool         rinsovr_empty    (const RInsOvr *rio_item) {
     return (rio_item->s_text[0] == '\0');
 }
 /*----------------------------------------------------------------------------*/

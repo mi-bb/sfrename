@@ -58,7 +58,8 @@ RDelete {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RDelete * rdelete_new  (void) __attribute__ ((malloc, returns_nonnull));
+[[nodiscard]] RDelete * rdelete_new  (void)
+              __attribute__ ((malloc, returns_nonnull));
 
 void      rdelete_free (RDelete *r_delete);
 /*----------------------------------------------------------------------------*/

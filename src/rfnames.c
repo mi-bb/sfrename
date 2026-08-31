@@ -72,9 +72,9 @@ static void event_click_del (GtkWidget *widget,
  * @param[in]     b_sel    Boolean value to select or not select item
  * @return     none
  */
-static void rfnames_select_unselect (RFnames         *rf_names,
-                                     int         (*fun) (const RFitem *rf_item),
-                                     const gboolean   b_sel);
+static void rfnames_select_unselect (RFnames     *rf_names,
+                                     bool     (*fun) (const RFitem *rf_item),
+                                     const bool   b_sel);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select all check items on list.
@@ -99,8 +99,8 @@ static void rfnames_unselect_all (RFnames *rf_names);
  * @param[in]     fun      Function to examine RFitem object.
  * @return     none
  */
-static void rfnames_remove (RFnames   *rf_names,
-                            int      (*fun) (const RFitem *rf_item));
+static void rfnames_remove (RFnames *rf_names,
+                            bool  (*fun) (const RFitem *rf_item));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RFnames initialization.
@@ -108,9 +108,7 @@ static void rfnames_remove (RFnames   *rf_names,
 static void
 rfnames_init (RFnames *rf_names)
 {
-    rf_names->cnt      = 0;    /* names count */
-    rf_names->rf_items = NULL; /* item list */
-    rf_names->file_box = NULL; /* box with widgets */
+    *rf_names = (RFnames){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -119,10 +117,10 @@ rfnames_init (RFnames *rf_names)
 RFnames *
 rfnames_new (void)
 {
-    RFnames *rf_names = NULL;
+    RFnames *rf_names = nullptr;
 
-    if ((rf_names = malloc (sizeof (RFnames))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((rf_names = malloc (sizeof (RFnames))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rfnames_init (rf_names);
 
@@ -138,6 +136,7 @@ rfnames_free (RFnames *rf_names)
     while (rf_names->cnt--) {
         rfitem_free (rf_names->rf_items[rf_names->cnt]);
     }
+    free (rf_names->rf_items);
     free (rf_names);
 }
 /*----------------------------------------------------------------------------*/
@@ -148,20 +147,20 @@ static void
 rfnames_append (RFnames *rf_names,
                 RFitem  *rf_item)
 {
-    RFitem **rf_tmp = NULL;
+    RFitem **rf_tmp = nullptr;
     /* Malloc if null, realloc if not null */
-    if (rf_names->rf_items == NULL) {
+    if (rf_names->rf_items == nullptr) {
         rf_names->rf_items = malloc (sizeof (RFitem*));
     }
     else {
         rf_tmp = realloc (rf_names->rf_items,
                           (rf_names->cnt + 1) * sizeof (RFitem*));
-        if (rf_tmp == NULL) {
+        if (rf_tmp == nullptr) {
             for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
                 rfitem_free (rf_names->rf_items[i]);
             }
             free (rf_names->rf_items);
-            err (EXIT_FAILURE, NULL);
+            err (EXIT_FAILURE, nullptr);
         }
         else {
             rf_names->rf_items = rf_tmp;
@@ -177,7 +176,7 @@ static void
 rfnames_delete_at_pos (RFnames             *rf_names,
                        const uint_fast32_t  ui_pos)
 {
-    RFitem    **rf_tmp = NULL;
+    RFitem    **rf_tmp = nullptr;
     GtkWidget  *gw_ibox;
     GtkBox     *gb_pbox;
 
@@ -201,12 +200,12 @@ rfnames_delete_at_pos (RFnames             *rf_names,
 
     if (rf_names->cnt == 0) {
         free (rf_names->rf_items);
-        rf_names->rf_items = NULL;
+        rf_names->rf_items = nullptr;
         return;
     }
 
     rf_tmp = realloc (rf_names->rf_items, (rf_names->cnt) * sizeof (RFitem*));
-    if (rf_tmp == NULL) {
+    if (rf_tmp == nullptr) {
         /* The item at index rf_names->cnt is stale: either already freed
          * by rfitem_delete() above, or a duplicate of index cnt-1 left
          * behind by the reorder loop. Only the cnt live entries need
@@ -215,7 +214,7 @@ rfnames_delete_at_pos (RFnames             *rf_names,
             rfitem_free (rf_names->rf_items[i]);
         }
         free (rf_names->rf_items);
-        err (EXIT_FAILURE, NULL);
+        err (EXIT_FAILURE, nullptr);
     }
     else {
         rf_names->rf_items = rf_tmp;
@@ -265,7 +264,7 @@ rfnames_add_gfile_to_file_box (RFnames *rf_names,
 {
     /* Create and append file widgets (entry, check, buttons) to file
      * list, get box widget with them */
-    GtkWidget *gw_widget = rfnames_append_gfile (rf_names, g_file);
+    auto gw_widget = rfnames_append_gfile (rf_names, g_file);
     gtk_widget_show_all (gw_widget);
     /* Add box to the container */
     gtk_box_pack_start (
@@ -282,7 +281,7 @@ void
 rfnames_add_sfile_to_file_box (RFnames    *rf_names,
                                const char *s_fn)
 {
-    GFile *g_file = g_file_new_for_path (s_fn);
+    auto g_file = g_file_new_for_path (s_fn);
     rfnames_add_gfile_to_file_box (rf_names, g_file);
     g_object_unref (g_file);
 }
@@ -294,7 +293,7 @@ static void
 rfnames_select_all (RFnames *rf_names)
 {
     for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_set_checked (rf_names->rf_items[i], TRUE);
+        rfitem_set_checked (rf_names->rf_items[i], true);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -305,7 +304,7 @@ static void
 rfnames_unselect_all (RFnames *rf_names)
 {
     for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_set_checked (rf_names->rf_items[i], FALSE);
+        rfitem_set_checked (rf_names->rf_items[i], false);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -315,7 +314,7 @@ rfnames_unselect_all (RFnames *rf_names)
 void
 rfnames_select_unselect_all (RFnames *rf_names)
 {
-    gboolean      b_sel = TRUE;
+    bool          b_sel = true;
     uint_fast32_t i     = rf_names->cnt;
 
     while (i-- && (b_sel = rfitem_get_checked (rf_names->rf_items[i])));
@@ -332,9 +331,9 @@ rfnames_select_unselect_all (RFnames *rf_names)
  * @brief  Select items on RFnames list if they match the fun return value.
  */
 static void
-rfnames_select_unselect (RFnames         *rf_names,
-                         gboolean       (*fun) (const RFitem *rf_item),
-                         const gboolean   b_sel)
+rfnames_select_unselect (RFnames     *rf_names,
+                         bool     (*fun) (const RFitem *rf_item),
+                         const bool   b_sel)
 {
     for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
         if (fun (rf_names->rf_items[i])) {
@@ -349,7 +348,7 @@ rfnames_select_unselect (RFnames         *rf_names,
 void
 rfnames_select_files (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_file, TRUE);
+    rfnames_select_unselect (rf_names, rfitem_is_file, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -369,7 +368,7 @@ rfnames_select_invert (RFnames *rf_names)
 void
 rfnames_unselect_files (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_file, FALSE);
+    rfnames_select_unselect (rf_names, rfitem_is_file, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -378,7 +377,7 @@ rfnames_unselect_files (RFnames *rf_names)
 void
 rfnames_select_folders (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_folder, TRUE);
+    rfnames_select_unselect (rf_names, rfitem_is_folder, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -387,7 +386,7 @@ rfnames_select_folders (RFnames *rf_names)
 void
 rfnames_unselect_folders (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_folder, FALSE);
+    rfnames_select_unselect (rf_names, rfitem_is_folder, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -396,7 +395,7 @@ rfnames_unselect_folders (RFnames *rf_names)
 void
 rfnames_select_symlinks (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_symlink, TRUE);
+    rfnames_select_unselect (rf_names, rfitem_is_symlink, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -405,7 +404,7 @@ rfnames_select_symlinks (RFnames *rf_names)
 void
 rfnames_unselect_symlinks (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_symlink, FALSE);
+    rfnames_select_unselect (rf_names, rfitem_is_symlink, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -414,7 +413,7 @@ rfnames_unselect_symlinks (RFnames *rf_names)
 void
 rfnames_select_hidden (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_hidden, TRUE);
+    rfnames_select_unselect (rf_names, rfitem_is_hidden, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -423,7 +422,7 @@ rfnames_select_hidden (RFnames *rf_names)
 void
 rfnames_unselect_hidden (RFnames *rf_names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_hidden, FALSE);
+    rfnames_select_unselect (rf_names, rfitem_is_hidden, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -442,8 +441,8 @@ rfnames_remove_all (RFnames *rf_names)
  * @brief  Remove item from RFnames list if it matches the fun return value.
  */
 static void
-rfnames_remove (RFnames   *rf_names,
-                gboolean (*fun) (const RFitem *rf_item))
+rfnames_remove (RFnames *rf_names,
+                bool  (*fun) (const RFitem *rf_item))
 {
     uint_fast32_t i = rf_names->cnt;
     while (i--) {
@@ -503,8 +502,8 @@ rfnames_remove_all_hidden (RFnames *rf_names)
  *         the fun return value.
  */
 static void
-rfnames_restore (RFnames   *rf_names,
-                 gboolean (*fun) (const RFitem *rf_item))
+rfnames_restore (RFnames *rf_names,
+                 bool  (*fun) (const RFitem *rf_item))
 {
     uint_fast32_t i = rf_names->cnt;
     while (i--) {
@@ -571,18 +570,38 @@ rfnames_restore_all_hidden (RFnames *rf_names)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  GCompareFunc adapter for rfitem_compare().
+ *
+ * g_list_sort() takes a gint (*) (gconstpointer, gconstpointer), which is not
+ * a compatible type with rfitem_compare()'s RFitem-typed signature. Calling
+ * a function through an incompatible pointer type is undefined behaviour, so
+ * the conversion happens here, in a function that genuinely has the signature
+ * GLib calls it with.
+ *
+ * @param[in] a First RFitem object
+ * @param[in] b Second RFitem object
+ * @return    Compare result
+ */
+static gint
+rfitem_compare_glist (gconstpointer a,
+                      gconstpointer b)
+{
+    return rfitem_compare ((const RFitem *) a, (const RFitem *) b);
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Sort RFitem objects in RFnames list by the original path string.
  */
 void
 rfnames_sort (RFnames *rf_names)
 {
     GtkBox *gb_pbox;
-    GList  *gl_items   = NULL;
-    GList  *gl_items1  = NULL;
-    GList  *gl_dirs    = NULL;
-    GList  *gl_files   = NULL;
-    GList  *gl_dirs_h  = NULL;
-    GList  *gl_files_h = NULL;
+    GList  *gl_items   = nullptr;
+    GList  *gl_items1  = nullptr;
+    GList  *gl_dirs    = nullptr;
+    GList  *gl_files   = nullptr;
+    GList  *gl_dirs_h  = nullptr;
+    GList  *gl_files_h = nullptr;
     int              j = 0;
 
     if (rf_names->cnt == 0)
@@ -606,10 +625,10 @@ rfnames_sort (RFnames *rf_names)
             }
         }
     }
-    gl_dirs    = g_list_sort (gl_dirs,    (GCompareFunc) rfitem_compare);
-    gl_dirs_h  = g_list_sort (gl_dirs_h,  (GCompareFunc) rfitem_compare);
-    gl_files   = g_list_sort (gl_files,   (GCompareFunc) rfitem_compare);
-    gl_files_h = g_list_sort (gl_files_h, (GCompareFunc) rfitem_compare);
+    gl_dirs    = g_list_sort (gl_dirs,    rfitem_compare_glist);
+    gl_dirs_h  = g_list_sort (gl_dirs_h,  rfitem_compare_glist);
+    gl_files   = g_list_sort (gl_files,   rfitem_compare_glist);
+    gl_files_h = g_list_sort (gl_files_h, rfitem_compare_glist);
 
     gl_items = g_list_concat (gl_items, gl_dirs_h);
     gl_items = g_list_concat (gl_items, gl_dirs);
@@ -620,7 +639,7 @@ rfnames_sort (RFnames *rf_names)
 
     gl_items1 = gl_items;
 
-    while (gl_items1 != NULL) {
+    while (gl_items1 != nullptr) {
         RFitem *rf_item = gl_items1->data;
         gtk_box_reorder_child (gb_pbox, rf_item->box, j);
         rf_names->rf_items[j] = rf_item;
@@ -628,7 +647,6 @@ rfnames_sort (RFnames *rf_names)
         ++j;
     }
     g_list_free (gl_items);
-    g_list_free (gl_items1);
 }
 /*----------------------------------------------------------------------------*/
 

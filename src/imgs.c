@@ -27,7 +27,7 @@
  * @var    add_svg
  * @brief  Add icon
  */
-static const char *add_svg = 
+static const char add_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient981\" x1=\"2.1167\" x2=\"17.727\""
@@ -41,7 +41,7 @@ static const char *add_svg =
  * @var    add_dir_svg
  * @brief  Add from folder icon
  */
-static const char *add_dir_svg = 
+static const char add_dir_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient981\" x1=\"2.1167\" x2=\"17.727\""
@@ -55,7 +55,7 @@ static const char *add_dir_svg =
  * @var    rem_svg
  * @brief  Remove icon
  */
-static const char *rem_svg = 
+static const char rem_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient981\" x1=\"2.1167\" x2=\"26.458\""
@@ -68,7 +68,7 @@ static const char *rem_svg =
  * @var    info_svg
  * @brief  Info icon
  */
-static const char *info_svg = 
+static const char info_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient2533\" x1=\"1.0583\" x2=\"21.196"
@@ -89,7 +89,7 @@ static const char *info_svg =
  * @var    check_svg
  * @brief  Check graphics
  */
-static const char *check_svg = 
+static const char check_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient939\" x1=\"1.3229\" x2=\"17.198\""
@@ -103,7 +103,7 @@ static const char *check_svg =
  * @var    check_bw_svg
  * @brief  Check b/w graphics
  */
-static const char *check_bw_svg = 
+static const char check_bw_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient939\" x1=\"1.3229\" x2=\"17.198\""
@@ -117,7 +117,7 @@ static const char *check_bw_svg =
  * @var    check_bl_svg
  * @brief  Check blue graphics
  */
-static const char *check_bl_svg = 
+static const char check_bl_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 16.933 16.933\" "
 "xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlin"
 "k\"><defs><linearGradient id=\"linearGradient939\" x1=\"1.3229\" x2=\"17.198\""
@@ -131,7 +131,7 @@ static const char *check_bl_svg =
  * @var    sort_svg
  * @brief  Sort graphics
  */
-static const char *sort_svg = 
+static const char sort_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 64 64\" xmlns=\""
 "http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><def"
 "s><linearGradient id=\"linearGradient1720\" x1=\"2.8682\" x2=\"79\" y1=\"62.48"
@@ -149,7 +149,7 @@ static const char *sort_svg =
  * @var    dupl_svg
  * @brief  Duplicates icon
  */
-static const char *dupl_svg = 
+static const char dupl_svg[] = 
 "<svg width=\"64\" height=\"64\" version=\"1.1\" viewBox=\"0 0 64 64\" xmlns=\""
 "http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><def"
 "s><linearGradient id=\"linearGradient2431\" x1=\"2\" x2=\"67\" y1=\"61\" y2=\""
@@ -160,8 +160,7 @@ static const char *dupl_svg =
 "order:stroke fill markers\"/><rect x=\"37\" y=\"5\" width=\"18\" height=\"54\""
 " style=\"paint-order:stroke fill markers\"/></g></svg>";
 /*----------------------------------------------------------------------------*/
-static const int rev_size = 622;
-static unsigned char rev[] =
+static constexpr unsigned char rev[] =
 {
     0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A,0x00,0x00,0x00,0x0D,0x49,0x48,0x44,
     0x52,0x00,0x00,0x00,0x10,0x00,0x00,0x00,0x10,0x08,0x06,0x00,0x00,0x00,0x1F,
@@ -207,8 +206,7 @@ static unsigned char rev[] =
     0x45,0x4E,0x44,0xAE,0x42,0x60,0x82
 };
 /*----------------------------------------------------------------------------*/
-static const int about_img_size = 6745;
-static const unsigned char about_img[] =
+static constexpr unsigned char about_img[] =
 {
     0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A,0x00,0x00,0x00,0x0D,0x49,0x48,0x44,
     0x52,0x00,0x00,0x00,0x5D,0x00,0x00,0x00,0x78,0x08,0x03,0x00,0x00,0x00,0xA7,
@@ -675,19 +673,19 @@ pbuf_from_data_scaled (const unsigned char *s_data,
                        gssize               i_size,
                        int                  i_dim)
 {
-    GdkPixbuf    *g_pbuf = NULL; /* Return pixbuf */
-    GInputStream *stream;        /* Stream for passing data to pixbuf */
+    GdkPixbuf    *g_pbuf = nullptr; /* Return pixbuf */
+    GInputStream *stream;           /* Stream for passing data to pixbuf */
 
     stream = g_memory_input_stream_new ();
     g_memory_input_stream_add_data (G_MEMORY_INPUT_STREAM (stream),
-                                    s_data, i_size, NULL);
+                                    s_data, i_size, nullptr);
     g_pbuf = gdk_pixbuf_new_from_stream_at_scale (stream,
                                                   i_dim,
                                                   -1,
                                                   TRUE,
-                                                  NULL,
-                                                  NULL);
-    g_input_stream_close (stream, NULL, NULL);
+                                                  nullptr,
+                                                  nullptr);
+    g_input_stream_close (stream, nullptr, nullptr);
     g_object_unref (stream);
 
     return g_pbuf;
@@ -704,14 +702,14 @@ static GdkPixbuf *
 pbuf_from_data (const unsigned char *s_data,
                 gssize               i_size)
 {
-    GdkPixbuf    *g_pbuf = NULL; /* Return pixbuf */
-    GInputStream *stream;        /* Stream for passing data to pixbuf */
+    GdkPixbuf    *g_pbuf = nullptr; /* Return pixbuf */
+    GInputStream *stream;           /* Stream for passing data to pixbuf */
 
     stream = g_memory_input_stream_new ();
     g_memory_input_stream_add_data (G_MEMORY_INPUT_STREAM (stream),
-                                    s_data, i_size, NULL);
-    g_pbuf = gdk_pixbuf_new_from_stream (stream, NULL, NULL);
-    g_input_stream_close (stream, NULL, NULL);
+                                    s_data, i_size, nullptr);
+    g_pbuf = gdk_pixbuf_new_from_stream (stream, nullptr, nullptr);
+    g_input_stream_close (stream, nullptr, nullptr);
     g_object_unref (stream);
 
     return g_pbuf;
@@ -723,70 +721,70 @@ pbuf_from_data (const unsigned char *s_data,
 GdkPixbuf *
 get_image (const IconImg i_img)
 {
-    GdkPixbuf *gp_pbuf = NULL; /* Return pixbuf */
+    GdkPixbuf *gp_pbuf = nullptr; /* Return pixbuf */
 
     switch (i_img) {
 
         case W_ICON_ADD:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) add_svg,
-                                             (gssize) strlen (add_svg),
+                                             (gssize) (sizeof add_svg - 1),
                                              16);
             break;
 
         case W_ICON_ADD_DIR:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) add_dir_svg,
-                                             (gssize) strlen (add_dir_svg),
+                                             (gssize) (sizeof add_dir_svg - 1),
                                              16);
             break;
 
         case W_ICON_REMOVE:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) rem_svg,
-                                             (gssize) strlen (rem_svg),
+                                             (gssize) (sizeof rem_svg - 1),
                                              16);
             break;
 
         case W_ICON_REVERT:
-            gp_pbuf = pbuf_from_data (rev, rev_size);
+            gp_pbuf = pbuf_from_data (rev, (gssize) sizeof rev);
             break;
 
         case W_ICON_SORT:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) sort_svg,
-                                             (gssize) strlen (sort_svg),
+                                             (gssize) (sizeof sort_svg - 1),
                                              16);
             break;
 
         case W_ICON_SELECT:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) check_svg,
-                                             (gssize) strlen (check_svg),
+                                             (gssize) (sizeof check_svg - 1),
                                              16);
             break;
 
         case W_ICON_SELECT_BW:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) check_bw_svg,
-                                             (gssize) strlen (check_bw_svg),
+                                             (gssize) (sizeof check_bw_svg - 1),
                                              16);
             break;
 
         case W_ICON_SELECT_BL:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) check_bl_svg,
-                                             (gssize) strlen (check_bl_svg),
+                                             (gssize) (sizeof check_bl_svg - 1),
                                              16);
             break;
 
         case W_ICON_DUPL:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) dupl_svg,
-                                             (gssize) strlen (dupl_svg),
+                                             (gssize) (sizeof dupl_svg - 1),
                                              16);
             break;
 
         case W_ICON_INFO:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) info_svg,
-                                             (gssize) strlen (info_svg),
+                                             (gssize) (sizeof info_svg - 1),
                                              20);
             break;
 
         case W_ICON_ABOUT:
-            gp_pbuf = pbuf_from_data (about_img, about_img_size);
+            gp_pbuf = pbuf_from_data (about_img, (gssize) sizeof about_img);
             break;
 
         case W_ICON_COUNT:

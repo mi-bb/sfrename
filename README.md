@@ -25,7 +25,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 * [Installation](#installation)
   * [Basic installation](#basic-installation)
   * [Compilers and options](#compilers-and-options)
-  * [Building with CMake](#building-with-cmake)
+  * [Running the tests](#running-the-tests)
+  * [Uninstalling](#uninstalling)
+  * [Making a source package](#making-a-source-package)
 * [Running](#running)
 * [Contact and help](#contact-and-help)
 
@@ -41,77 +43,16 @@ be used standalone or with other programs.
 ## Requirements
 
 * GNU/Linux or FreeBSD
-* GCC or Clang
+* A C23-capable compiler: GCC 14 or later, or Clang 18 or later
 * GTK+ 3 (3.22 or later)
+* CMake 3.21 or later
 
 ## Installation
 
 ### Basic installation
 
-You need Autotools installed for the `autogen.sh` script to generate the
-`configure` script and Makefiles. If you obtained the standard program
-package (a release tarball), these generated files are already included and
-Autotools are not required.
-
-Commands to configure, build, and install the program:
-
-```sh
-./autogen.sh
-./configure
-make
-make install
-```
-
-Although, it's recommended to configure and compile with the more detailed
-options described below.
-
-### Compilers and options
-
-For normal daily use of this program, a good option is:
-
-```sh
-./configure CFLAGS="-march=native -O2 -pipe"
-```
-
-or, more specifically:
-
-```sh
-./configure CC="gcc" CFLAGS="-march=native -O2 -pipe -std=gnu11"
-```
-
-with Clang:
-
-```sh
-./configure CC="clang" CFLAGS="-march=native -O2 -pipe -std=gnu11"
-```
-
-Setting `CFLAGS` explicitly overrides the default flags (`-g -O2`), which
-disables the `-g` option. That option produces debugging information needed
-for gdb and enlarges the output file, so leaving it out is preferable for a
-release build.
-
-* `CC="gcc"` sets the C compiler to GCC.
-* `CC="clang"` sets the C compiler to Clang.
-* `-march=native` enables all instruction subsets supported by the local
-  machine.
-* `-O2` sets the code optimization level to O2.
-* `-pipe` uses pipes rather than temporary files for communication between
-  the various stages of compilation.
-* `-std=gnu11` sets the C standard to C11 with GNU extensions.
-
-Running:
-
-```sh
-./configure --help
-```
-
-will print a detailed description of the available initial values for the
-configuration parameters.
-
-### Building with CMake
-
-As an alternative to Autotools, the program can also be configured, built,
-and installed with CMake (3.10 or later):
+The program is built with CMake. Commands to configure, build, and install
+it:
 
 ```sh
 cmake -S . -B build
@@ -119,17 +60,96 @@ cmake --build build
 sudo cmake --install build
 ```
 
-Compiler and optimization flags are set the same way as with any other
-CMake project, for example:
+The first command creates a `build` directory and configures the project in
+it, the second compiles, and the third installs the binary, the `.desktop`
+file, and the icon under `/usr/local` by default. A different location can
+be chosen with `--prefix`:
+
+```sh
+cmake --install build --prefix /usr
+```
+
+Although the commands above are enough, it's recommended to configure and
+compile with the more detailed options described below.
+
+### Compilers and options
+
+For normal daily use of this program, a good option is:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
+```
+
+or, more specifically:
 
 ```sh
 cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
 ```
 
-The unit tests can be built and run with CTest:
+with Clang:
+
+```sh
+cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
+```
+
+The default `CMAKE_BUILD_TYPE` is empty, which adds no flags of its own, so
+whatever is passed in `CMAKE_C_FLAGS` is what the compiler gets. `Release`
+adds `-O3 -DNDEBUG`, `Debug` adds `-g`. Debugging information is needed for
+gdb and enlarges the output file, so leaving it out is preferable for a
+release build.
+
+There is no need to pass `-std=` yourself: the project sets the C standard
+to C23 with GNU extensions (`-std=gnu23`). Do not put a `-std=` option in
+`CMAKE_C_FLAGS`, or it will override the one CMake selects.
+
+* `-DCMAKE_C_COMPILER=gcc` sets the C compiler to GCC.
+* `-DCMAKE_C_COMPILER=clang` sets the C compiler to Clang.
+* `-march=native` enables all instruction subsets supported by the local
+  machine.
+* `-O2` sets the code optimization level to O2.
+* `-pipe` uses pipes rather than temporary files for communication between
+  the various stages of compilation.
+
+Running:
+
+```sh
+cmake -S . -B build -LH
+```
+
+will print a detailed description of the available configuration variables.
+
+### Running the tests
+
+The unit tests are built together with the program and are run with CTest:
 
 ```sh
 ctest --test-dir build
+```
+
+A single suite can be selected by name:
+
+```sh
+ctest --test-dir build -R strfn
+```
+
+### Uninstalling
+
+From the same build directory the program was installed from:
+
+```sh
+sudo cmake --build build --target uninstall
+```
+
+This removes every file listed in the build directory's
+`install_manifest.txt`.
+
+### Making a source package
+
+A source tarball (`.tar.xz` and `.tar.gz`) is created with CPack:
+
+```sh
+cd build
+cpack --config CPackSourceConfig.cmake
 ```
 
 ## Running

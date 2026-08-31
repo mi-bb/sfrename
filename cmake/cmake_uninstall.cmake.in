@@ -1,0 +1,35 @@
+# Copyright (C) 2019-2026 Michal Babik
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Removes every file listed in install_manifest.txt, the replacement for the
+# Autotools "make uninstall" target.  Configured by CMakeLists.txt.
+
+set(MANIFEST "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+
+if(NOT EXISTS "${MANIFEST}")
+    message(STATUS "No \"${MANIFEST}\": nothing was installed from this build directory, nothing to uninstall.")
+    return()
+endif()
+
+file(STRINGS "${MANIFEST}" files)
+
+foreach(file ${files})
+    message(STATUS "Uninstalling \"$ENV{DESTDIR}${file}\"")
+    if(EXISTS "$ENV{DESTDIR}${file}" OR IS_SYMLINK "$ENV{DESTDIR}${file}")
+        file(REMOVE "$ENV{DESTDIR}${file}")
+    else()
+        message(STATUS "File \"$ENV{DESTDIR}${file}\" does not exist.")
+    endif()
+endforeach()

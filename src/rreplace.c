@@ -37,12 +37,7 @@
 static void
 rreplace_init (RReplace *r_replace)
 {
-    memset (r_replace->s_from, '\0', sizeof (r_replace->s_from));
-    memset (r_replace->s_to,   '\0', sizeof (r_replace->s_to));
-    r_replace->from_len   = 0;
-    r_replace->from_u8len = 0;
-    r_replace->to_len     = 0;
-    r_replace->to_u8len   = 0;
+    *r_replace = (RReplace){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -51,10 +46,10 @@ rreplace_init (RReplace *r_replace)
 RReplace *
 rreplace_new (void)
 {
-    RReplace *r_rep = NULL;
+    RReplace *r_rep = nullptr;
 
-    if ((r_rep = malloc (sizeof (RReplace))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((r_rep = malloc (sizeof (RReplace))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rreplace_init (r_rep);
     return r_rep;

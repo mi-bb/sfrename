@@ -22,6 +22,7 @@
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <err.h>
+#include <stdio.h>
 #include "defs.h"
 #include "rfitem.h"
 /*----------------------------------------------------------------------------*/
@@ -88,7 +89,7 @@ get_name_dir_len (const char *s_pth,
                   size_t     *ui_len)
 {
     const char *s_fn = strrchr (s_pth, '/');
-    if (s_fn == NULL) {
+    if (s_fn == nullptr) {
         *ui_len = 0;
         s_fn = s_pth;
     }
@@ -108,12 +109,12 @@ str_compare (const char *a,
 {
     int i_res = 0; /* Function result */
 
-    if (a == NULL || b == NULL) {
-        if (a == NULL && b == NULL) {
+    if (a == nullptr || b == nullptr) {
+        if (a == nullptr && b == nullptr) {
             i_res = 0;
         }
         else {
-            if (a == NULL) {
+            if (a == nullptr) {
                 i_res = -1;
             }
             else {
@@ -134,54 +135,41 @@ str_compare (const char *a,
 static void
 rfitem_label_set_markup (RFitem *rf_item)
 {
-    char s_mark [100];
-
-    strcpy (s_mark, "<span font_family=\"monospace\"");
+    char        s_mark [100];   /* Pango markup for the type label */
+    const char *s_colour = "";  /* Optional colour attribute */
+    char        c_type;         /* Single letter naming the type */
 
     if (rf_item->b_slink) {
-        strcat (s_mark, " foreground=\"blue\"");
+        s_colour = " foreground=\"blue\"";
     }
     else if (rf_item->b_hidden) {
-        strcat (s_mark, " foreground=\"green\"");
+        s_colour = " foreground=\"green\"";
     }
-    if (rf_item->f_type == G_FILE_TYPE_REGULAR) {
-        strcat (s_mark, ">F</span>");
+
+    switch (rf_item->f_type) {
+        case G_FILE_TYPE_REGULAR:       c_type = 'F'; break;
+        case G_FILE_TYPE_DIRECTORY:     c_type = 'D'; break;
+        case G_FILE_TYPE_SYMBOLIC_LINK: c_type = 'S'; break;
+        case G_FILE_TYPE_SPECIAL:       c_type = 'D'; break;
+        default:                        c_type = '?'; break;
     }
-    else if (rf_item->f_type == G_FILE_TYPE_DIRECTORY) {
-        strcat (s_mark, ">D</span>");
-    }
-    else if (rf_item->f_type == G_FILE_TYPE_SYMBOLIC_LINK) {
-        strcat (s_mark, ">S</span>");
-    }
-    else if (rf_item->f_type == G_FILE_TYPE_SPECIAL) {
-        strcat (s_mark, ">D</span>");
-    }
-    else {
-        strcat (s_mark, ">?</span>");
-    }
+
+    snprintf (s_mark, sizeof (s_mark),
+              "<span font_family=\"monospace\"%s>%c</span>", s_colour, c_type);
+
     gtk_label_set_markup (GTK_LABEL (rf_item->label), s_mark);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RFitem initialization.
+ *
+ * Zeroes every field: the name/path strings, the widget pointers, the file
+ * type, both length pairs and the symlink/hidden flags.
  */
 static void
 rfitem_init (RFitem *rf_item)
 {
-    rf_item->s_org     = NULL;  /* original name */
-    rf_item->s_new     = NULL;  /* new name */
-    rf_item->s_pth     = NULL;  /* file path */
-    rf_item->label     = NULL;  /* type label */
-    rf_item->entry     = NULL;  /* entry */
-    rf_item->check     = NULL;  /* checkbutton */
-    rf_item->rbut      = NULL;  /* restore button */
-    rf_item->dbut      = NULL;  /* delete button */
-    rf_item->box       = NULL;  /* box for widgets */
-    rf_item->f_type    = 0;     /* file type */
-    rf_item->new_len   = 0;     /* file type */
-    rf_item->new_u8len = 0;     /* file type */
-    rf_item->b_slink   = FALSE; /* symlink */
-    rf_item->b_hidden  = FALSE; /* hidden */
+    *rf_item = (RFitem){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -190,25 +178,25 @@ rfitem_init (RFitem *rf_item)
 RFitem *
 rfitem_new_from_gfile (GFile *g_file)
 {
-    size_t      ui_len  = 0;    /* Number of dir characters in file path */
-    RFitem     *rf_item = NULL; /* RFitem object to return */
-    GError     *g_err   = NULL; /* For error output */
-    GFileInfo  *f_info  = NULL; /* For file info */
-    const char *s_path  = NULL; /* Full file path dir + file name */
-    const char *s_fn    = NULL; /* File name only */
+    size_t      ui_len  = 0;       /* Number of dir characters in file path */
+    RFitem     *rf_item = nullptr; /* RFitem object to return */
+    GError     *g_err   = nullptr; /* For error output */
+    GFileInfo  *f_info  = nullptr; /* For file info */
+    const char *s_path  = nullptr; /* Full file path dir + file name */
+    const char *s_fn    = nullptr; /* File name only */
 
-    if ((rf_item = malloc (sizeof (RFitem))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((rf_item = malloc (sizeof (RFitem))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rfitem_init (rf_item);
 
     rf_item->s_org = malloc ((FN_LEN + 1) * sizeof (char));
     rf_item->s_new = malloc ((FN_LEN + 1) * sizeof (char));
     rf_item->s_pth = malloc ((FN_LEN + 1) * sizeof (char));
-    if (rf_item->s_org == NULL || rf_item->s_new == NULL ||
-        rf_item->s_pth == NULL) {
+    if (rf_item->s_org == nullptr || rf_item->s_new == nullptr ||
+        rf_item->s_pth == nullptr) {
         free (rf_item);
-        err (EXIT_FAILURE, NULL);
+        err (EXIT_FAILURE, nullptr);
     }
     s_path = g_file_peek_path (g_file);
     s_fn   = get_name_dir_len (s_path, &ui_len);
@@ -216,9 +204,9 @@ rfitem_new_from_gfile (GFile *g_file)
     f_info = g_file_query_info (g_file,
                                 "standard::*",
                                 G_FILE_QUERY_INFO_NONE,
-                                NULL,
+                                nullptr,
                                 &g_err);
-    if (f_info != NULL) {
+    if (f_info != nullptr) {
         rf_item->f_type   = g_file_info_get_file_type (f_info);
         rf_item->b_hidden = g_file_info_get_is_hidden (f_info);
         rf_item->b_slink  = g_file_info_get_is_symlink (f_info);
@@ -230,7 +218,7 @@ rfitem_new_from_gfile (GFile *g_file)
         #endif
         rf_item->f_type = G_FILE_TYPE_UNKNOWN;
     }
-    rf_item->label = gtk_label_new (NULL);
+    rf_item->label = gtk_label_new (nullptr);
     rf_item->entry = gtk_entry_new ();
     rf_item->check = gtk_check_button_new ();
     rf_item->rbut  = gtk_button_new_with_label ("R");
@@ -289,8 +277,8 @@ rfitem_new_from_gfile (GFile *g_file)
 RFitem *
 rfitem_new_from_sfile (const char *s_pth)
 {
-    GFile  *g_file  = g_file_new_for_path (s_pth);
-    RFitem *rf_item = rfitem_new_from_gfile (g_file);
+    auto g_file  = g_file_new_for_path (s_pth);
+    auto rf_item = rfitem_new_from_gfile (g_file);
     g_object_unref (g_file);
     return rf_item;
 }
@@ -385,7 +373,7 @@ rfitem_set_spth (RFitem     *rf_item,
  * @brief  Restore original file name button clicked.
  */
 static void
-event_click_rev (GtkWidget *widget __attribute__ ((unused)),
+event_click_rev ([[maybe_unused]] GtkWidget *widget,
                  RFitem    *rf_item)
 {
     rfitem_entry_restore (rf_item);
@@ -421,8 +409,8 @@ rfitem_compare (const RFitem *rf_item1,
                 const RFitem *rf_item2)
 {
     int   i_res  = 0;
-    char *s_str1 = g_utf8_casefold (rf_item1->s_org, -1);
-    char *s_str2 = g_utf8_casefold (rf_item2->s_org, -1);
+    auto s_str1 = g_utf8_casefold (rf_item1->s_org, -1);
+    auto s_str2 = g_utf8_casefold (rf_item2->s_org, -1);
 
     i_res = str_compare (s_str1, s_str2);
 

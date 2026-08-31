@@ -62,7 +62,8 @@ RNumber {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RNumber * rnumber_new  (void) __attribute__ ((malloc, returns_nonnull));
+[[nodiscard]] RNumber * rnumber_new  (void)
+              __attribute__ ((malloc, returns_nonnull));
 
 void      rnumber_free (RNumber *r_number);
 /*----------------------------------------------------------------------------*/

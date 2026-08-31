@@ -28,7 +28,9 @@
 static ProcessData
 make_pd (char *s_srcdst, size_t *len, size_t *u8len)
 {
-    ProcessData pd = { s_srcdst, len, u8len, NULL, 0, 0, NULL, 0, 0, 0, 0, 0, 0, 0 };
+    ProcessData pd = {
+        .s_srcdst = s_srcdst, .srcdst_len = len, .srcdst_u8len = u8len,
+    };
     return pd;
 }
 /*----------------------------------------------------------------------------*/
@@ -373,7 +375,7 @@ test_process_filename_applies_to_both (void)
 int
 main (int argc, char *argv[])
 {
-    g_test_init (&argc, &argv, NULL);
+    g_test_init (&argc, &argv, nullptr);
 
     g_test_add_func ("/strfn/get_valid_length/ascii", test_get_valid_length_ascii);
     g_test_add_func ("/strfn/get_valid_length/utf8_boundary", test_get_valid_length_utf8_boundary);

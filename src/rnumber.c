@@ -34,9 +34,7 @@
 static void
 rnumber_init (RNumber *r_number)
 {
-    r_number->opt   = 0;
-    r_number->start = 0;
-    r_number->pos   = 0;
+    *r_number = (RNumber){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -45,10 +43,10 @@ rnumber_init (RNumber *r_number)
 RNumber *
 rnumber_new (void)
 {
-    RNumber *r_num = NULL;
+    RNumber *r_num = nullptr;
 
-    if ((r_num = malloc (sizeof (RNumber))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((r_num = malloc (sizeof (RNumber))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rnumber_init (r_num);
     return r_num;

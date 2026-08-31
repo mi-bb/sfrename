@@ -38,17 +38,7 @@ static void      rendata_init (RenData *rd_data);
 static void
 rendata_init (RenData *rd_data)
 {
-    rd_data->uplo    = 0;
-    rd_data->spaces  = 0;
-    rd_data->applyto = 0;
-    rd_data->renexit = 0;
-    rd_data->dirsel  = 0;
-    rd_data->names   = NULL;
-    rd_data->del     = NULL;
-    rd_data->ins     = NULL;
-    rd_data->ovrw    = NULL;
-    rd_data->replace = NULL;
-    rd_data->number  = NULL;
+    *rd_data = (RenData){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -57,24 +47,25 @@ rendata_init (RenData *rd_data)
 RenData *
 rendata_new (void)
 {
-    RenData *rd_data = NULL;
+    RenData *rd_data = nullptr;
 
-    if ((rd_data = malloc (sizeof (RenData))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((rd_data = malloc (sizeof (RenData))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rendata_init (rd_data);
 
-    rd_data->uplo    = DEF_UPLO;
-    rd_data->spaces  = DEF_SPACES;
-    rd_data->applyto = DEF_APPLTO;
-    rd_data->renexit = DEF_RENEXT;
-    rd_data->dirsel  = DEF_DIRSEL;
-    rd_data->names   = rfnames_new ();
-    rd_data->del     = rdelete_new ();
-    rd_data->ins     = rinsovr_new ();
-    rd_data->ovrw    = rinsovr_new ();
-    rd_data->replace = rreplace_new ();
-    rd_data->number  = rnumber_new ();
+    rd_data->uplo        = DEF_UPLO;
+    rd_data->spaces      = DEF_SPACES;
+    rd_data->applyto     = DEF_APPLTO;
+    rd_data->renexit     = DEF_RENEXT;
+    rd_data->dirsel      = DEF_DIRSEL;
+    rd_data->rememberopt = DEF_REMEMBEROPT;
+    rd_data->names       = rfnames_new ();
+    rd_data->del         = rdelete_new ();
+    rd_data->ins         = rinsovr_new ();
+    rd_data->ovrw        = rinsovr_new ();
+    rd_data->replace     = rreplace_new ();
+    rd_data->number      = rnumber_new ();
 
     return rd_data;
 }

@@ -75,7 +75,8 @@ RReplace {
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-RReplace * rreplace_new  (void) __attribute__ ((malloc, returns_nonnull));
+[[nodiscard]] RReplace * rreplace_new  (void)
+              __attribute__ ((malloc, returns_nonnull));
 
 void       rreplace_free (RReplace *r_replace);
 /*----------------------------------------------------------------------------*/
@@ -168,14 +169,14 @@ static inline size_t rreplace_get_to_u8len   (const RReplace *r_replace) {
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  int rreplace_empty_from (const RReplace *r_replace)
+ * @fn  bool rreplace_empty_from (const RReplace *r_replace)
  *
  * @brief  Check if "from" string is an empty string.
  *
  * @param[in]  r_replace  RReplace object
  * @return     Check result
  *
- * @fn  int rreplace_empty_to (const RReplace *r_replace)
+ * @fn  bool rreplace_empty_to (const RReplace *r_replace)
  *
  * @brief  Check if "to" string is an empty string.
  *
@@ -183,10 +184,10 @@ static inline size_t rreplace_get_to_u8len   (const RReplace *r_replace) {
  * @return     Check result
  */
 /*----------------------------------------------------------------------------*/
-static inline int rreplace_empty_from (const RReplace *r_replace) {
+static inline bool rreplace_empty_from (const RReplace *r_replace) {
     return (r_replace->s_from[0] == '\0');
 }
-static inline int rreplace_empty_to   (const RReplace *r_replace) {
+static inline bool rreplace_empty_to   (const RReplace *r_replace) {
     return (r_replace->s_to[0] == '\0');
 }
 /*----------------------------------------------------------------------------*/

@@ -37,10 +37,7 @@
 static void
 rinsovr_init (RInsOvr *r_insovr)
 {
-    r_insovr->pos   = 0;
-    r_insovr->len   = 0;
-    r_insovr->u8len = 0;
-    memset (r_insovr->s_text, '\0', sizeof (r_insovr->s_text));
+    *r_insovr = (RInsOvr){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -49,10 +46,10 @@ rinsovr_init (RInsOvr *r_insovr)
 RInsOvr *
 rinsovr_new (void)
 {
-    RInsOvr *r_ins = NULL;
+    RInsOvr *r_ins = nullptr;
 
-    if ((r_ins = malloc (sizeof (RInsOvr))) == NULL)
-        err (EXIT_FAILURE, NULL);
+    if ((r_ins = malloc (sizeof (RInsOvr))) == nullptr)
+        err (EXIT_FAILURE, nullptr);
 
     rinsovr_init (r_ins);
     return r_ins;
