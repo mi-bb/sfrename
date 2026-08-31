@@ -5,34 +5,38 @@ notes also live in `CLAUDE.md` — keep the two in sync when structure changes.
 
 ## Project
 
-`sfrename` — GTK+3 batch file renamer in C23, built with GNU Autotools
-(CMake as alternative). Runs on GNU/Linux and FreeBSD; designed for Midnight
+`sfrename` — GTK+3 batch file renamer in C23, built with CMake (the only
+build system). Runs on GNU/Linux and FreeBSD; designed for Midnight
 Commander integration but works standalone.
 
 ## Build
 
 ```sh
-./autogen.sh   # only on fresh clone or after editing configure.ac / Makefile.am
-./configure
-make
+cmake -S . -B build
+cmake --build build
+sudo cmake --install build
 ```
 
-- Requires GCC >= 14 or Clang >= 18 (C23) and GTK+ 3 >= 3.22.
-- **Never pass `-std=` in CFLAGS** — `configure.ac` probes the compiler and
-  appends `-std=gnu23` (with fallbacks); a user `-std=` lands after it and
-  silently overrides the probe.
-- Autotools-generated files (`configure`, `Makefile`, `config.h`,
-  `autom4te.cache/`) are gitignored — regenerate, never hand-edit or commit.
+- Requires CMake >= 3.21, GCC >= 14 or Clang >= 18 (C23), and GTK+ 3 >= 3.22.
+- **Never pass `-std=` in `CMAKE_C_FLAGS`** — `CMakeLists.txt` sets
+  `CMAKE_C_STANDARD 23` with extensions on (`-std=gnu23`); a user `-std=`
+  lands after it and silently overrides it.
+- `uninstall` (`cmake --build build --target uninstall`) and CPack
+  (`cpack --config CPackSourceConfig.cmake` in `build/`) replace the old
+  `make uninstall` / `make dist`.
+- Everything under `build/` is gitignored — never hand-edit or commit it.
 
 ## Tests
 
 GTest (GLib Testing) — no extra dependency, GLib comes via GTK.
 
 ```sh
-make check                            # all tests (Autotools)
-make check TESTS=test_strfn           # single test suite
-cmake -S . -B build && cmake --build build && ctest --test-dir build  # CMake
+ctest --test-dir build                # all tests
+ctest --test-dir build -R strfn       # single test suite
 ```
+
+CTest names drop the `test_` prefix of the source files. The test binaries
+are built by the normal `cmake --build build`.
 
 - Tests cover only the GTK-independent logic layer: `strfn.c`, `namefn.c`,
   the settings structs, and `rconfig.c`. GTK-facing code (`sfrename.c`,
@@ -40,15 +44,14 @@ cmake -S . -B build && cmake --build build && ctest --test-dir build  # CMake
 - In tests, build `RenData`/`RFnames`/`RFitem` by hand — the constructors
   `rendata_new()` / `rfitem_new_from_gfile()` create real GTK widgets and
   need a display.
-- There is no linter or typecheck configured; `make check` is the only
-  automated verification.
+- There is no linter or typecheck configured; `ctest` is the only automated
+  verification.
 
-## Adding a source file — three lists to update
+## Adding a source file — one list to update
 
-`src/Makefile.am` (`sfrename_SOURCES`), `CMakeLists.txt` (both the
-`sfrename` executable and any test target), and `tests/Makefile.am` if the
-file has tests. Missing CMakeLists.txt is easy to overlook since Autotools
-build still works.
+`CMakeLists.txt`: the `add_executable(sfrename ...)` source list, plus the
+source list of every `add_executable(test_* ...)` target that needs the new
+file. That single file is the whole build definition.
 
 ## Architecture (outer → inner)
 

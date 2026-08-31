@@ -1,54 +1,19 @@
-# Autoconf / Automake generated files
-/Makefile
-/Makefile.in
-/aclocal.m4
-/autom4te.cache/
-/compile
-/config.guess
-/config.h
-/config.h.in
-/config.h.in~
-/config.log
-/config.status
-/config.sub
-/configure
-/depcomp
-/install-sh
-/missing
-/INSTALL
-/stamp-h1
-/data/Makefile
-/data/Makefile.in
-/src/Makefile
-/src/Makefile.in
-/src/.deps/
-/src/.dirstamp
-/src/sfrename
-/tests/Makefile
-/tests/Makefile.in
-/tests/.deps/
-/tests/test_strfn
-/tests/test_namefn
-/tests/test_rsettings
-/tests/test_rconfig
-/tests/*.log
-/tests/*.trs
-/test-driver
-
 # Build output
 *.o
-*.lo
-*.la
-.libs/
-.deps/
 
-# CMake build directory
+# CMake
 /build/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
+cmake_uninstall.cmake
 CTestTestfile.cmake
+install_manifest.txt
 Testing/
 compile_commands.json
+
+# CPack source packages
+/_CPack_Packages/
+/sfrename-*.tar.*
 
 .cache

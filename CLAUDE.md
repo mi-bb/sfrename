@@ -12,33 +12,37 @@ arguments.
 
 ## Build commands
 
-This is a standard GNU Autotools project.
+This project is built with CMake (3.21 or later) — it is the only build
+system; there is no Autotools setup.
 
 ```sh
-./autogen.sh   # regenerates configure/Makefile.in via autoreconf (only needed
-                # after editing configure.ac / Makefile.am, or on a fresh clone)
-./configure
-make
-make install
+cmake -S . -B build
+cmake --build build
+sudo cmake --install build
 ```
 
 Suggested release build flags (from README.md):
 
 ```sh
-./configure CC="gcc" CFLAGS="-march=native -O2 -pipe"
+cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
 ```
 
-The project is built as C23 with GNU extensions. `configure.ac` probes the
-compiler and appends `-std=gnu23` (falling back to `-std=gnu2x`/`-std=c23`/
-`-std=c2x`) only when the compiler's default mode is older than C23, and
-errors out if no C23 mode is available; `CMakeLists.txt` sets
-`CMAKE_C_STANDARD 23`. Do not pass `-std=` in `CFLAGS` — it lands after the
-probed option and overrides it.
+`CMakeLists.txt` sets `CMAKE_C_STANDARD 23` with `CMAKE_C_EXTENSIONS ON`, so
+the project is built as C23 with GNU extensions (`-std=gnu23`), and errors
+out at configure time on GCC < 14 or Clang < 18. Do not pass `-std=` in
+`CMAKE_C_FLAGS` — it lands after the standard option and overrides it.
 
 Build dependencies: GTK+ 3 >= 3.22 (checked via `pkg-config` in
-`configure.ac`), and GCC >= 14 or Clang >= 18 for C23.
+`CMakeLists.txt`), and GCC >= 14 or Clang >= 18 for C23.
 
 There is no linter configured in this repository.
+
+Two extra targets replace what Autotools used to provide:
+
+```sh
+sudo cmake --build build --target uninstall   # removes what cmake --install put in place
+cd build && cpack --config CPackSourceConfig.cmake   # source tarball (.tar.xz/.tar.gz)
+```
 
 Unit tests live in `tests/` and use the GLib Testing framework (`GTest`,
 `glib.h`) — no new dependency, since GLib is already pulled in transitively
@@ -49,33 +53,26 @@ hand rather than via `rendata_new()`/`rfitem_new_from_gfile()` — those
 constructors create real GTK widgets and need a display, whereas the
 functions under test never touch the widget fields. The GTK-facing code
 (`sfrename.c`, `rfnames.c`, `rfitem.c`, `dlgs.c`) has no automated coverage
-and relies on manual/UI verification. `make check` is the only automated
+and relies on manual/UI verification. `ctest` is the only automated
 verification in the repo.
 
-Run tests with Autotools:
+Test binaries are built as part of the normal build; run them with CTest
+(the test names drop the `test_` prefix of the source files):
 
 ```sh
-make check                          # all four suites
-make check TESTS=test_strfn         # one suite
-./tests/test_strfn -p /strfn/get_valid_length/ascii   # one GTest case
-```
-
-Run tests with CMake (CTest names drop the `test_` prefix):
-
-```sh
-cmake -S . -B build && cmake --build build && ctest --test-dir build
+ctest --test-dir build              # all four suites
 ctest --test-dir build -R rconfig   # one suite
+./build/test_strfn -p /strfn/get_valid_length/ascii   # one GTest case
 ```
 
 Run the built binary directly, e.g.:
 
 ```sh
-./src/sfrename some_file.txt another_file.txt
+./build/sfrename some_file.txt another_file.txt
 ```
 
-Generated build artifacts (`configure`, `Makefile`, `config.h`,
-`autom4te.cache/`, etc.) are gitignored — do not hand-edit or commit them;
-regenerate with `./autogen.sh` / `./configure` instead.
+Generated build artifacts (everything under `build/`, plus
+`compile_commands.json`) are gitignored — do not commit them.
 
 ## Architecture
 
@@ -152,12 +149,10 @@ rename operation.
   existing files or creating new ones in `src/`.
 - Doxygen-style `/** @brief ... */` comments document every public struct,
   field, and function in headers; match this style for new public API.
-- Adding or removing a source file means updating **three** lists, not one:
-  `sfrename_SOURCES` in `src/Makefile.am`, the `add_executable(sfrename ...)`
-  list in `CMakeLists.txt`, and — if the file is covered by tests — the
-  relevant `*_SOURCES` in `tests/Makefile.am` plus the matching test target
-  in `CMakeLists.txt`. The CMake side is easy to miss, since the Autotools
-  build keeps working without it.
+- Adding or removing a source file means editing `CMakeLists.txt`: the
+  `add_executable(sfrename ...)` list, and — if the file is covered by tests
+  — the source list of each `add_executable(test_* ...)` target that needs
+  it. That one file is the whole build definition.
 - The code uses C23 features freely: `nullptr`, `constexpr` file-scope
   constants in `defs.h`, `auto` in `.c` files, `[[nodiscard]]`, and GCC/Clang
   `__attribute__` annotations on public functions. Match this in new code.

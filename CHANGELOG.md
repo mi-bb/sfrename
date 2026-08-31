@@ -25,6 +25,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ### Added
 
+- `uninstall` build target (`cmake --build build --target uninstall`), which
+  removes every file listed in the build directory's `install_manifest.txt`.
+  Replaces the Autotools `make uninstall`.
+  - `cmake/cmake_uninstall.cmake.in`: new file, the script template
+    `CMakeLists.txt` configures into the build directory.
+- CPack source packaging (`cpack --config CPackSourceConfig.cmake` from the
+  build directory), producing `sfrename-<version>.tar.xz` and `.tar.gz`.
+  Replaces the Autotools `make dist`.
+- `CMakeLists.txt`: an explicit compiler check that fails at configure time
+  with "a C23-capable compiler is required (GCC >= 14 or Clang >= 18)",
+  matching the diagnostic the old `configure` script produced.
+
 - "Remember options on exit" checkbox. When enabled, all rename settings are
   saved to a JSON config file on exit and restored on the next launch.
   - `rconfig.c`, `rconfig.h`: new files, a hand-rolled minimal JSON
@@ -46,32 +58,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     text), a missing config file, a malformed config file leaving `RenData`
     untouched, and save/load toggling the config file's existence based on
     `rememberopt`.
-  - `tests/Makefile.am`, `CMakeLists.txt`: wired `test_rconfig` into
-    `make check` and `ctest`.
+  - `CMakeLists.txt`: wired `test_rconfig` into `ctest`.
   - `.gitignore`: ignore the `tests/test_rconfig` binary.
 
 ### Changed
 
 - The project is now built as C23 (ISO/IEC 9899:2024) with GNU extensions
   instead of C11. This raises the minimum compiler to GCC 14 or Clang 18.
-  - `configure.ac`: added a probe that appends `-std=gnu23` (falling back to
-    `-std=gnu2x`, `-std=c23`, `-std=c2x`) when the compiler's default mode is
-    older than C23, and fails configuration when no C23 mode is available.
-    Autoconf 2.72 has no C23 support of its own, so `AC_PROG_CC` cannot do
-    this. `CFLAGS` must no longer carry a `-std=` option.
   - `CMakeLists.txt`: `CMAKE_C_STANDARD` raised from 11 to 23;
     `cmake_minimum_required` raised from 3.10 to 3.21, the first release that
-    knows the C23 standard value.
+    knows the C23 standard value. `CMAKE_C_FLAGS` must no longer carry a
+    `-std=` option, as it would override the standard CMake selects.
   - `strfn.c` (`string_replace_in`): made the `fp` find-pointer `const char *`.
     C23 makes `strstr()` const-preserving, so assigning its result from a
     `const char *` haystack to a `char *` warned under `-std=gnu23`.
   - `README.md`: documented the C23 requirement and dropped `-std=gnu11` from
     the suggested build flags.
-- `configure.ac`: ran `autoupdate`. Replaced the obsolete `AC_GNU_SOURCE` with
-  `AC_USE_SYSTEM_EXTENSIONS`, which still defines `_GNU_SOURCE` but also
-  enables the other system extension macros. `AC_PREREQ` raised from 2.69 to
-  2.72; this only affects regenerating `configure` via `autogen.sh`, not
-  building from a release tarball.
 - The source now uses C23 features rather than merely compiling as C23. No
   behavioural change is intended; the on-disk config format is unchanged and a
   config file written by an earlier version still loads.
@@ -167,6 +169,29 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   `rfitem_compare_glist` adapter that genuinely has the signature GLib calls,
   so no cast is needed. Clang's `-Wcast-function-type-strict` reported four
   warnings here and now reports none; the resulting sort order is unchanged.
+
+### Removed
+
+- GNU Autotools. CMake (3.21 or later) is now the only build system, so
+  adding a source file means editing one list instead of three, and the
+  tree no longer carries ~20 generated files.
+  - Deleted `configure.ac`, `autogen.sh`, `Makefile.am`, `src/Makefile.am`,
+    `data/Makefile.am` and `tests/Makefile.am`, along with the files
+    `autoreconf` generated from them (`configure`, `aclocal.m4`, `config.h`,
+    `config.h.in`, `install-sh`, `missing`, `depcomp`, `compile`,
+    `config.guess`, `config.sub`, `test-driver`, `INSTALL`, the per-directory
+    `Makefile`/`Makefile.in`, and `autom4te.cache/`).
+  - No functionality is lost with `config.h`: no source or test file ever
+    included it, and none used the `PACKAGE`, `VERSION` or `HAVE_*` macros
+    it defined, so the `AC_CHECK_HEADERS` / `AC_TYPE_*` / `AC_FUNC_*` probes
+    in `configure.ac` had no effect on the build. The version string lives
+    in `src/defs.h` (`APP_VER`) and, for the build, in the `project()` call
+    in `CMakeLists.txt`.
+  - The `-std=gnu23` probe from `configure.ac` is covered by
+    `CMAKE_C_STANDARD 23` with `CMAKE_C_EXTENSIONS ON`.
+  - `.gitignore`: dropped the Autotools block; added CPack output.
+  - `README.md`, `CLAUDE.md`, `AGENTS.md`: build, test, install, uninstall
+    and packaging instructions rewritten for CMake only.
 
 ## [1.2.10] - 2026-07-13
 
