@@ -39,7 +39,7 @@
  * Kept as a macro for the same reason as @c APP_NAME.
  */
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.2.11"
+#define APP_VER    "1.3.0"
 /*----------------------------------------------------------------------------*/
 /**
  * @var   FN_LEN

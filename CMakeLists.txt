@@ -18,7 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Keep VERSION in sync with APP_VER in src/defs.h; it also names the source
 # tarball produced by CPack.
-project(sfrename VERSION 1.2.11 LANGUAGES C)
+project(sfrename VERSION 1.3.0 LANGUAGES C)
 
 # C23 with GNU extensions (equivalent to the old configure -std=gnu23 probe).
 # Do not pass -std= in CMAKE_C_FLAGS, it would override this.
