@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.21)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(sfrename VERSION 1.2.11 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 23)
