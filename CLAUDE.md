@@ -43,24 +43,28 @@ There is no linter configured in this repository.
 Unit tests live in `tests/` and use the GLib Testing framework (`GTest`,
 `glib.h`) — no new dependency, since GLib is already pulled in transitively
 through GTK. They cover the GTK-independent logic layer only (`strfn.c`,
-`namefn.c`, and the `rdelete`/`rinsovr`/`rreplace`/`rnumber` settings
-structs), built by constructing `RenData`/`RFnames`/`RFitem` by hand rather
-than via `rendata_new()`/`rfitem_new_from_gfile()` — those constructors
-create real GTK widgets and need a display, whereas the functions under test
-never touch the widget fields. The GTK-facing code (`sfrename.c`,
-`rfnames.c`, `rfitem.c`, `dlgs.c`) has no automated coverage and relies on
-manual/UI verification.
+`namefn.c`, `rconfig.c`, and the `rdelete`/`rinsovr`/`rreplace`/`rnumber`
+settings structs), built by constructing `RenData`/`RFnames`/`RFitem` by
+hand rather than via `rendata_new()`/`rfitem_new_from_gfile()` — those
+constructors create real GTK widgets and need a display, whereas the
+functions under test never touch the widget fields. The GTK-facing code
+(`sfrename.c`, `rfnames.c`, `rfitem.c`, `dlgs.c`) has no automated coverage
+and relies on manual/UI verification. `make check` is the only automated
+verification in the repo.
 
 Run tests with Autotools:
 
 ```sh
-make check
+make check                          # all four suites
+make check TESTS=test_strfn         # one suite
+./tests/test_strfn -p /strfn/get_valid_length/ascii   # one GTest case
 ```
 
-Run tests with CMake:
+Run tests with CMake (CTest names drop the `test_` prefix):
 
 ```sh
 cmake -S . -B build && cmake --build build && ctest --test-dir build
+ctest --test-dir build -R rconfig   # one suite
 ```
 
 Run the built binary directly, e.g.:
@@ -89,6 +93,15 @@ Data flow, from outer to inner:
   options (case conversion, spaces/underscores, apply-to-name/ext/both,
   exit-after-rename, directory-selection flags). Passed through the GTK
   callbacks as user data.
+- **`rconfig.c/h`** — persists the `RenData` settings (not the file list) as
+  JSON at `$XDG_CONFIG_HOME/sfrename/config.json` (path built from
+  `g_get_user_config_dir()` plus the `RCONFIG_DIR_NAME` /
+  `RCONFIG_FILE_NAME` constants in `defs.h`). Serialization is hand-rolled
+  on GLib alone — there is no JSON library dependency. `rconfig_parse()`
+  uses a parse-then-apply strategy: a missing, unreadable, or malformed file
+  leaves `RenData` completely untouched. `rconfig_save()` writes only when
+  the "remember options on exit" option is set, and otherwise deletes any
+  existing config file.
 - **`RFnames`** (`rfnames.c/h`) — the working file list: an array of
   `RFitem`s plus the GTK box widget that displays them. Owns
   select/unselect, remove, restore, and sort operations, each available in
@@ -128,8 +141,9 @@ window; UI callbacks read/write the shared `RenData` and, on rename, iterate
 before calling into GIO to perform the actual filesystem rename.
 
 `defs.h` centralizes shared constants (window size, app name/version,
-default option values) and the `REN_OK` / `REN_NOT_REN` / `REN_EXISTS` /
-`REN_NC` rename-result enum returned by the rename operation.
+config file/directory names, default option values) and the `REN_OK` /
+`REN_NOT_REN` / `REN_EXISTS` / `REN_NC` rename-result enum returned by the
+rename operation.
 
 ## Conventions
 
@@ -138,5 +152,14 @@ default option values) and the `REN_OK` / `REN_NOT_REN` / `REN_EXISTS` /
   existing files or creating new ones in `src/`.
 - Doxygen-style `/** @brief ... */` comments document every public struct,
   field, and function in headers; match this style for new public API.
-- `src/Makefile.am`'s `sfrename_SOURCES` list must be updated when adding or
-  removing source files.
+- Adding or removing a source file means updating **three** lists, not one:
+  `sfrename_SOURCES` in `src/Makefile.am`, the `add_executable(sfrename ...)`
+  list in `CMakeLists.txt`, and — if the file is covered by tests — the
+  relevant `*_SOURCES` in `tests/Makefile.am` plus the matching test target
+  in `CMakeLists.txt`. The CMake side is easy to miss, since the Autotools
+  build keeps working without it.
+- The code uses C23 features freely: `nullptr`, `constexpr` file-scope
+  constants in `defs.h`, `auto` in `.c` files, `[[nodiscard]]`, and GCC/Clang
+  `__attribute__` annotations on public functions. Match this in new code.
+- `AGENTS.md` covers the same ground for other coding agents — keep the two
+  in sync when the structure changes.
