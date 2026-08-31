@@ -21,7 +21,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-## [1.2.11] - 2026-07-16
+## [Unreleased]
 
 ### Added
 
@@ -125,6 +125,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ### Fixed
 
+- `sfrename.c` (`open`): settings remembered via "Remember options on exit"
+  were loaded into `RenData` and shown in the widgets, but never applied to
+  the file name entries at startup. Every settings widget seeds its initial
+  state before its signal handler is connected, so no `toggled`/`changed`
+  callback fired, and `file_names_update_changes()` was only ever called
+  from those callbacks. It is now also called once after the window content
+  is built, so remembered options take effect on the files passed on the
+  command line (and on files in an empty-session launch) immediately.
 - `rconfig.c` (`rconfig_parse`): "select files from directory" options were
   lost whenever the config was reloaded. `dirsel` is a bitmask of the
   `FOLDER_SELECT_*` flags, but the range check clamped it with

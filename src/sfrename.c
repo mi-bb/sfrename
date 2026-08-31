@@ -1680,6 +1680,9 @@ open (GtkApplication  *application,
 
     gtk_container_add (GTK_CONTAINER (window), gw_vbox);
 
+    /* Apply settings (possibly loaded from config) to file name entries */
+    file_names_update_changes (rd_data);
+
     /* Set focus on first entry if file count is greater than 0 */
     if (rfnames_get_cnt (rendata_get_rfnames (rd_data)) > 0) {
         gtk_widget_grab_focus (rd_data->names->rf_items[0]->entry);
