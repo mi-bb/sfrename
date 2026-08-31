@@ -40,6 +40,10 @@ The program runs on GNU/Linux and FreeBSD.
 It was originally designed to work with Midnight Commander, but it can also
 be used standalone or with other programs.
 
+### Screenshots
+
+<img src="data/screen.png" alt="Screenshot 1" style="width: 400px;">
+
 ## Requirements
 
 * GNU/Linux or FreeBSD
