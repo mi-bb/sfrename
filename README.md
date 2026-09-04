@@ -1,25 +1,11 @@
 # Small File Renamer (sfrename)
 
-## Copyright and License
+[![Release](https://img.shields.io/github/v/release/mi-bb/sfrename?include_prereleases&style=)](https://github.com/mi-bb/sfrename/releases/)
+![Licence](https://img.shields.io/github/license/mi-bb/sfrename)
+![Last Commit](https://img.shields.io/github/last-commit/mi-bb/sfrename)
 
-Copyright (C) 2019-2026 Michal Babik
+## Contents
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-## Contents of this file
-
-* [Copyright and license](#copyright-and-license)
 * [About](#about)
 * [Requirements](#requirements)
 * [Installation](#installation)
@@ -29,7 +15,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
   * [Uninstalling](#uninstalling)
   * [Making a source package](#making-a-source-package)
 * [Running](#running)
-* [Contact and help](#contact-and-help)
+* [License](#license)
 
 ## About
 
@@ -186,7 +172,6 @@ rename files by selecting them in mc, pressing 'F2', then choosing 'R' from
 the menu; the selected files and directories will be passed to the program
 as command-line arguments.
 
-## Contact and help
+## License
 
-If you have problems with the program, please contact me:
-michal.babik@protonmail.com
+This project is licensed under the GPL-3.0 License — see [COPYING](COPYING) for details.
