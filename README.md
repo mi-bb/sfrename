@@ -19,7 +19,7 @@
 
 ## About
 
-Small File Renamer is an application for renaming files and directories.
+[Small File Renamer](https://www.nongnu.org/small-file-renamer/) is an application for renaming files and directories.
 
 The program runs on GNU/Linux and FreeBSD.
 
