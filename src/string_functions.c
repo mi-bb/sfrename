@@ -1,5 +1,5 @@
 /**
- * @file  strfn.c
+ * @file  string_functions.c
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -25,7 +25,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include "defs.h"
-#include "strfn.h"
+#include "string_functions.h"
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get length (not greater than ui_max) in bytes for the input string.

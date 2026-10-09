@@ -70,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `cmake_minimum_required` raised from 3.10 to 3.21, the first release that
     knows the C23 standard value. `CMAKE_C_FLAGS` must no longer carry a
     `-std=` option, as it would override the standard CMake selects.
-  - `strfn.c` (`string_replace_in`): made the `fp` find-pointer `const char *`.
+  - `string_functions.c` (`string_replace_in`): made the `fp` find-pointer `const char *`.
     C23 makes `strstr()` const-preserving, so assigning its result from a
     `const char *` haystack to a `char *` warned under `-std=gnu23`.
   - `README.md`: documented the C23 requirement and dropped `-std=gnu11` from
@@ -115,14 +115,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     indeterminate until they were assigned later; they are now zeroed.
   - `auto` replaces the type name in a dozen single declarations whose
     initialiser already names the type. The aligned multi-declaration blocks
-    in `strfn.c` keep their explicit types, which serve as documentation.
+    in `string_functions.c` keep their explicit types, which serve as documentation.
   - `imgs.c`: the nine SVGs became `static const char[]` instead of
     `const char *`, so their length is `sizeof - 1` at compile time rather
     than nine runtime `strlen` calls; `rev` is now `constexpr` (it was the one
     data array that was not even `const`); and the hand-maintained
     `rev_size`/`about_img_size` constants were dropped in favour of `sizeof`,
     which cannot drift.
-  - `namefn.c`, `strfn.c`, `tests/test_strfn.c`: the ten 14-field positional
+  - `namefn.c`, `string_functions.c`, `tests/test_string_functions.c`: the ten 14-field positional
     `ProcessData` initialisers became designated initialisers, and the
     repeated `rendata_get_r*()` calls inside them are hoisted into a local.
 
@@ -151,9 +151,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rfnames.c` (`rfnames_sort`): dropped a `g_list_free (gl_items1)` that
   always freed nothing, since the loop above had already walked `gl_items1`
   to `nullptr` and `gl_items` owns every node the concatenation produced.
-- `strfn.c` (`string_replace_in`): removed a dead store to `ui_len` that was
+- `string_functions.c` (`string_replace_in`): removed a dead store to `ui_len` that was
   unconditionally overwritten on the next line.
-- `strfn.c` (`string_add_number`): `sprintf` into a fixed 20-byte buffer
+- `string_functions.c` (`string_add_number`): `sprintf` into a fixed 20-byte buffer
   became `snprintf`.
 - `rfitem.c` (`rfitem_label_set_markup`): replaced the unchecked
   `strcpy` + `strcat` chain into a 100-byte buffer with a single `snprintf`.
@@ -203,8 +203,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CMakeLists.txt`: new file, CMake build environment as an alternative to
   Autotools. Builds sfrename against GTK+3 (>=3.22) and installs the binary,
   desktop file, and pixmap icon.
-- `tests/test_strfn.c`, `tests/test_namefn.c`: new files, GLib-based (GTest)
-  unit tests for `strfn.c` and `namefn.c`. Cover the GTK-independent logic
+- `tests/test_string_functions.c`, `tests/test_namefn.c`: new files, GLib-based (GTest)
+  unit tests for `string_functions.c` and `namefn.c`. Cover the GTK-independent logic
   layer only; `RenData`/`RFnames`/`RFitem` fixtures are built by hand rather
   than via their real constructors, since those create GTK widgets and need
   a display.
@@ -214,7 +214,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `rXXX_new()`/`rXXX_free()` constructors. Covers defaults, getter/setter
   round-trips, UTF-8 byte/char length accounting, `FN_LEN` truncation, and
   the `empty_*` predicates.
-- `tests/Makefile.am`, `CMakeLists.txt`: wired `test_strfn`/`test_namefn`/
+- `tests/Makefile.am`, `CMakeLists.txt`: wired `test_string_functions`/`test_namefn`/
   `test_rsettings` into `make check` and `ctest`.
 
 ### Fixed
@@ -259,7 +259,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `strfn.h`: `ProcessData` structure gained a string to modify (`s_srcdst`)
+- `string_functions.h`: `ProcessData` structure gained a string to modify (`s_srcdst`)
   and the length of strings; all callers updated.
 
 ## [1.2.6] - 2020-04-18
@@ -296,7 +296,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `name_number_string`, `name_to_upcase_lowercase`,
   `name_spaces_underscores`, `name_replace_strings`): changed access to
   the `RenData`, `RDelete`, `RInsOvr`, `RReplace`, `RNumber` parameters.
-- `strfn.c` (`string_get_valid_length`): renamed from `get_valid_length`.
+- `string_functions.c` (`string_get_valid_length`): renamed from `get_valid_length`.
 - `rdelete.c/.h`, `rinsovr.c/.h`, `rreplace.c/.h`, `rnumber.c/.h`: `RDelete`,
   `RInsOvr`, `RReplace`, `RNumber` structure and functions moved here from
   `rendata.c`.
@@ -334,7 +334,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `dlgs.c` (`about_app_dialog`): updated the link to the author's page.
 - `rendata.c` (`rendata_init`): default `i_opt` value set to 1.
-- `strfn.c` (`string_replace_in`, `string_insert_string`,
+- `string_functions.c` (`string_replace_in`, `string_insert_string`,
   `string_overwrite_string`): some changes in pointer iteration.
 - Source code updates.
 
@@ -424,7 +424,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     created.
   - `file_check_and_rename`: changed to work with files from different
     directory paths.
-- `strfn.c` (`string_replace_in`, `string_insert_string`,
+- `string_functions.c` (`string_replace_in`, `string_insert_string`,
   `string_overwrite_string`): small updates to improve performance.
 - Cosmetic code updates.
 
@@ -432,7 +432,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `sfrfn.c`, `strfn.h`: new files for string-modify functions.
+- `sfrfn.c`, `string_functions.h`: new files for string-modify functions.
 - `namefn.c`, `namefn.h`: new files for functions to modify file name
   strings.
 - Configuration and build scripts.
@@ -444,7 +444,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `string_insert_string`, `string_overwrite_string`, `string_add_number`,
     `string_to_lower`, `string_to_upper`, `string_extract_name_ext`,
     `string_combine_name_ext`, `string_process_filename`: moved to
-    `strfn.c`.
+    `string_functions.c`.
   - `name_delete_chars`, `name_insert_string`, `name_overwrite_string`,
     `name_number_string`, `name_to_upcase_lowercase`,
     `name_spaces_underscores`, `name_replace_strings`: moved to

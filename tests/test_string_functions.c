@@ -1,5 +1,5 @@
 /**
- * @file  test_strfn.c
+ * @file  test_string_functions.c
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -17,13 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  Unit tests for strfn.c
+ * @brief  Unit tests for string_functions.c
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <string.h>
-#include "strfn.h"
+#include "string_functions.h"
 /*----------------------------------------------------------------------------*/
 static ProcessData
 make_pd (char *s_srcdst, size_t *len, size_t *u8len)
@@ -377,33 +377,33 @@ main (int argc, char *argv[])
 {
     g_test_init (&argc, &argv, nullptr);
 
-    g_test_add_func ("/strfn/get_valid_length/ascii", test_get_valid_length_ascii);
-    g_test_add_func ("/strfn/get_valid_length/utf8_boundary", test_get_valid_length_utf8_boundary);
+    g_test_add_func ("/string_functions/get_valid_length/ascii", test_get_valid_length_ascii);
+    g_test_add_func ("/string_functions/get_valid_length/utf8_boundary", test_get_valid_length_utf8_boundary);
 
-    g_test_add_func ("/strfn/name_ext/basic", test_extract_combine_name_ext_basic);
-    g_test_add_func ("/strfn/name_ext/multiple_dots", test_extract_name_ext_multiple_dots);
-    g_test_add_func ("/strfn/name_ext/no_ext", test_extract_name_ext_no_ext);
-    g_test_add_func ("/strfn/name_ext/hidden_dotfile", test_extract_name_ext_hidden_dotfile);
+    g_test_add_func ("/string_functions/name_ext/basic", test_extract_combine_name_ext_basic);
+    g_test_add_func ("/string_functions/name_ext/multiple_dots", test_extract_name_ext_multiple_dots);
+    g_test_add_func ("/string_functions/name_ext/no_ext", test_extract_name_ext_no_ext);
+    g_test_add_func ("/string_functions/name_ext/hidden_dotfile", test_extract_name_ext_hidden_dotfile);
 
-    g_test_add_func ("/strfn/delete_chars/middle", test_delete_chars_middle);
-    g_test_add_func ("/strfn/delete_chars/beyond_end_clamps", test_delete_chars_beyond_end_clamps);
+    g_test_add_func ("/string_functions/delete_chars/middle", test_delete_chars_middle);
+    g_test_add_func ("/string_functions/delete_chars/beyond_end_clamps", test_delete_chars_beyond_end_clamps);
 
-    g_test_add_func ("/strfn/insert_string/middle", test_insert_string_middle);
-    g_test_add_func ("/strfn/insert_string/truncates_at_max", test_insert_string_truncates_at_max);
+    g_test_add_func ("/string_functions/insert_string/middle", test_insert_string_middle);
+    g_test_add_func ("/string_functions/insert_string/truncates_at_max", test_insert_string_truncates_at_max);
 
-    g_test_add_func ("/strfn/overwrite_string/middle", test_overwrite_string_middle);
+    g_test_add_func ("/string_functions/overwrite_string/middle", test_overwrite_string_middle);
 
-    g_test_add_func ("/strfn/replace_in/basic", test_replace_in_basic);
-    g_test_add_func ("/strfn/replace_in/no_match_is_noop", test_replace_in_no_match_is_noop);
+    g_test_add_func ("/string_functions/replace_in/basic", test_replace_in_basic);
+    g_test_add_func ("/string_functions/replace_in/no_match_is_noop", test_replace_in_no_match_is_noop);
 
-    g_test_add_func ("/strfn/add_number/basic", test_add_number_basic);
-    g_test_add_func ("/strfn/add_number/zero_pads", test_add_number_zero_pads);
+    g_test_add_func ("/string_functions/add_number/basic", test_add_number_basic);
+    g_test_add_func ("/string_functions/add_number/zero_pads", test_add_number_zero_pads);
 
-    g_test_add_func ("/strfn/case/upper_lower", test_to_upper_lower);
+    g_test_add_func ("/string_functions/case/upper_lower", test_to_upper_lower);
 
-    g_test_add_func ("/strfn/process_filename/name_only", test_process_filename_applies_to_name_only);
-    g_test_add_func ("/strfn/process_filename/ext_only", test_process_filename_applies_to_ext_only);
-    g_test_add_func ("/strfn/process_filename/both", test_process_filename_applies_to_both);
+    g_test_add_func ("/string_functions/process_filename/name_only", test_process_filename_applies_to_name_only);
+    g_test_add_func ("/string_functions/process_filename/ext_only", test_process_filename_applies_to_ext_only);
+    g_test_add_func ("/string_functions/process_filename/both", test_process_filename_applies_to_both);
 
     return g_test_run ();
 }

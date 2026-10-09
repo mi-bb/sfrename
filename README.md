@@ -120,7 +120,7 @@ ctest --test-dir build
 A single suite can be selected by name:
 
 ```sh
-ctest --test-dir build -R strfn
+ctest --test-dir build -R string_functions
 ```
 
 ### Uninstalling

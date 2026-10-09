@@ -22,7 +22,7 @@
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <string.h>
-#include "strfn.h"
+#include "string_functions.h"
 #include "namefn.h"
 /*----------------------------------------------------------------------------*/
 /**

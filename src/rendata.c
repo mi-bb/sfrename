@@ -22,7 +22,7 @@
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <err.h>
-#include "strfn.h"
+#include "string_functions.h"
 #include "rendata.h"
 /*----------------------------------------------------------------------------*/
 /**

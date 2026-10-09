@@ -1,5 +1,5 @@
 /**
- * @file  strfn.h
+ * @file  string_functions.h
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -21,8 +21,8 @@
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
-#ifndef STRFN_H
-#define STRFN_H
+#ifndef STRING_FUNCTIONS_H
+#define STRING_FUNCTIONS_H
 
 #include <stddef.h>
 #include <stdint.h>

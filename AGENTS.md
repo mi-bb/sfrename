@@ -48,13 +48,13 @@ GTest (GLib Testing, `glib.h`) — no extra dependency, GLib comes via GTK.
 ```sh
 ctest --test-dir build                                  # all four suites
 ctest --test-dir build -R rconfig                       # single suite
-./build/test_strfn -p /strfn/get_valid_length/ascii     # single GTest case
+./build/test_string_functions -p /string_functions/get_valid_length/ascii     # single GTest case
 ```
 
 CTest names drop the `test_` prefix of the source files. The test binaries
 are built by the normal `cmake --build build`.
 
-- Tests cover only the GTK-independent logic layer: `strfn.c`, `namefn.c`,
+- Tests cover only the GTK-independent logic layer: `string_functions.c`, `namefn.c`,
   `rconfig.c`, and the `rdelete`/`rinsovr`/`rreplace`/`rnumber` settings
   structs. GTK-facing code (`sfrename.c`, `rfnames.c`, `rfitem.c`, `dlgs.c`)
   has no automated coverage and relies on manual/UI verification.
@@ -110,7 +110,7 @@ lightweight objects with private state.
 - `namefn.c/h` — applies settings structs to a single name string
   (`namefn_delete`, `namefn_insert`, `namefn_overwrite`, `namefn_number`,
   `namefn_upto_lower`, `namefn_spaces_underscores`, `namefn_replace`).
-- `strfn.c/h` — GTK-independent string primitives (unicode length,
+- `string_functions.c/h` — GTK-independent string primitives (unicode length,
   delete/insert/overwrite/replace at byte position, case conversion,
   filename/extension splitting) used by `namefn.c`.
 - `dlgs.c/h` — auxiliary dialogs (folder chooser, file chooser, about).
@@ -124,7 +124,7 @@ lightweight objects with private state.
 - GPLv3 license header (`Copyright (C) 2019-2026 Michal Babik`) at the top of
   every source file — preserve on edit, add to new files in `src/`.
 - Headers (`rdelete.h`, `rendata.h`, `rfitem.h`, `rfnames.h`, `rinsovr.h`,
-  `rnumber.h`, `rreplace.h`, `strfn.h`) are Doxygen-commented (`/** @brief
+  `rnumber.h`, `rreplace.h`, `string_functions.h`) are Doxygen-commented (`/** @brief
   ... */` on every struct field and function) and document the full
   contract — read the header before the `.c` file, and match this style for
   new public API.

@@ -38,7 +38,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <unistd.h>
 #include "dlgs.h"
-#include "strfn.h"
+#include "string_functions.h"
 #include "rendata.h"
 #include "rconfig.h"
 #include "namefn.h"

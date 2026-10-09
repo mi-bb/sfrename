@@ -45,7 +45,7 @@ add_executable(sfrename
     src/rfnames.c
     src/rfitem.c
     src/namefn.c
-    src/strfn.c
+    src/string_functions.c
     src/dlgs.c
     src/imgs.c
 )
@@ -71,18 +71,18 @@ endif()
 
 include(CTest)
 if(BUILD_TESTING)
-    add_executable(test_strfn
-        tests/test_strfn.c
-        src/strfn.c
+    add_executable(test_string_functions
+        tests/test_string_functions.c
+        src/string_functions.c
     )
-    target_include_directories(test_strfn PRIVATE src)
-    target_link_libraries(test_strfn PRIVATE PkgConfig::GTK)
-    add_test(NAME strfn COMMAND test_strfn)
+    target_include_directories(test_string_functions PRIVATE src)
+    target_link_libraries(test_string_functions PRIVATE PkgConfig::GTK)
+    add_test(NAME string_functions COMMAND test_string_functions)
 
     add_executable(test_namefn
         tests/test_namefn.c
         src/namefn.c
-        src/strfn.c
+        src/string_functions.c
         src/rdelete.c
         src/rinsovr.c
         src/rreplace.c
@@ -94,7 +94,7 @@ if(BUILD_TESTING)
 
     add_executable(test_rsettings
         tests/test_rsettings.c
-        src/strfn.c
+        src/string_functions.c
         src/rdelete.c
         src/rinsovr.c
         src/rreplace.c
@@ -107,7 +107,7 @@ if(BUILD_TESTING)
     add_executable(test_rconfig
         tests/test_rconfig.c
         src/rconfig.c
-        src/strfn.c
+        src/string_functions.c
         src/rdelete.c
         src/rinsovr.c
         src/rreplace.c
