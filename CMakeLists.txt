@@ -46,8 +46,8 @@ add_executable(sfrename
     src/rfitem.c
     src/namefn.c
     src/string_functions.c
-    src/dlgs.c
-    src/imgs.c
+    src/dialogs.c
+    src/images.c
 )
 
 target_link_libraries(sfrename PRIVATE PkgConfig::GTK)

@@ -56,7 +56,7 @@ are built by the normal `cmake --build build`.
 
 - Tests cover only the GTK-independent logic layer: `string_functions.c`, `namefn.c`,
   `rconfig.c`, and the `rdelete`/`rinsovr`/`rreplace`/`rnumber` settings
-  structs. GTK-facing code (`sfrename.c`, `rfnames.c`, `rfitem.c`, `dlgs.c`)
+  structs. GTK-facing code (`sfrename.c`, `rfnames.c`, `rfitem.c`, `dialogs.c`)
   has no automated coverage and relies on manual/UI verification.
 - In tests, build `RenData`/`RFnames`/`RFitem` by hand — the constructors
   `rendata_new()` / `rfitem_new_from_gfile()` create real GTK widgets and
@@ -113,8 +113,8 @@ lightweight objects with private state.
 - `string_functions.c/h` — GTK-independent string primitives (unicode length,
   delete/insert/overwrite/replace at byte position, case conversion,
   filename/extension splitting) used by `namefn.c`.
-- `dlgs.c/h` — auxiliary dialogs (folder chooser, file chooser, about).
-- `imgs.c/h` — embedded/generated image and icon data.
+- `dialogs.c/h` — auxiliary dialogs (folder chooser, file chooser, about).
+- `images.c/h` — embedded/generated image and icon data.
 - `defs.h` — shared constants (window size, app name/version, config
   file/directory names, default option values) + the `REN_OK` /
   `REN_NOT_REN` / `REN_EXISTS` / `REN_NC` rename-result enum.

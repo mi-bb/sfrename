@@ -93,9 +93,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `typedef enum RenResult : int_fast8_t`, and `sfrename.c` carries the value
     in a `RenResult` instead of an `int_fast8_t`. The switch over it lost its
     unreachable `default:`, so `-Wswitch` now reports a missing case.
-    `imgs.h`: `IconImg` likewise gained a fixed underlying type.
+    `images.h`: `IconImg` likewise gained a fixed underlying type.
   - All 196 `NULL`s became `nullptr`. This matters most at the five variadic
-    sentinels (`dlgs.c`, `rconfig.c`, `tests/test_rconfig.c` and the
+    sentinels (`dialogs.c`, `rconfig.c`, `tests/test_rconfig.c` and the
     `g_test_init` calls), where `nullptr_t` is pointer-sized by definition.
   - Internal `gboolean` became `bool`: the JSON parser helpers and public API
     in `rconfig.{c,h}`, the `b_slink`/`b_hidden` fields and `rfitem_is_*` /
@@ -120,7 +120,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `auto` replaces the type name in a dozen single declarations whose
     initialiser already names the type. The aligned multi-declaration blocks
     in `string_functions.c` keep their explicit types, which serve as documentation.
-  - `imgs.c`: the nine SVGs became `static const char[]` instead of
+  - `images.c`: the nine SVGs became `static const char[]` instead of
     `const char *`, so their length is `sizeof - 1` at compile time rather
     than nine runtime `strlen` calls; `rev` is now `constexpr` (it was the one
     data array that was not even `const`); and the hand-maintained
@@ -145,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `FOLDER_SELECT_*` flags, but the range check clamped it with
   `dirsel ? 1 : 0`, so any combination collapsed to `FOLDER_SELECT_FILES`.
   It is now validated against the real flag range. The flag constants moved
-  from `dlgs.h` to `defs.h` (joining the other shared constants) so that
+  from `dialogs.h` to `defs.h` (joining the other shared constants) so that
   `rconfig.c` can use them without pulling in GTK, and gained a
   `FOLDER_SELECT_ALL` mask. `tests/test_rconfig.c`: added regression tests
   covering every `dirsel` value, out-of-range values, and unknown-key
@@ -235,7 +235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `imgs.c`: changed some icons to SVG.
+- `images.c`: changed some icons to SVG.
 - Some code updates.
 
 ## [1.2.8] - 2020-06-05
@@ -326,7 +326,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rfitem.c` (`rfitem_is_file`, `rfitem_is_folder`, `rfitem_is_symlink`,
   `rfitem_is_hidden`): new functions checking whether an `RFitem` is a
   file/folder/symlink/hidden item.
-- `imgs.h`, `imgs.c`: added `W_ICON_SELECT_BW`, `W_ICON_SELECT_BL` to the
+- `images.h`, `images.c`: added `W_ICON_SELECT_BW`, `W_ICON_SELECT_BL` to the
   `IconImg` enum for the b/w and blue select icons; `get_image` updated to
   return them.
 - `sfrename.c` (`create_toolbar`): added menu items for unselecting files,
@@ -336,7 +336,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `dlgs.c` (`about_app_dialog`): updated the link to the author's page.
+- `dialogs.c` (`about_app_dialog`): updated the link to the author's page.
 - `rendata.c` (`rendata_init`): default `i_opt` value set to 1.
 - `string_functions.c` (`string_replace_in`, `string_insert_string`,
   `string_overwrite_string`): some changes in pointer iteration.
@@ -353,7 +353,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `dlgs.c` (`add_files_folder_dialog`): changed to set toggle buttons based
+- `dialogs.c` (`add_files_folder_dialog`): changed to set toggle buttons based
   on the `i_opt` value.
 - `sfrename.c` (`event_click_add_folder_files`): reads `i_opt` from the
   `RenData` item, checks whether it is less than 1 and sets it to 1 if so
@@ -381,7 +381,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `imgs.c`, `imgs.h`: new files with graphics for the toolbar buttons.
+- `images.c`, `images.h`: new files with graphics for the toolbar buttons.
 - `sfrename.c` (`create_file_name_entries`): added forgotten check for
   file existence.
   - (`create_toolbar`): changed to load pixbufs into tool items.

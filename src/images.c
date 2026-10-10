@@ -1,5 +1,5 @@
 /**
- * @file  imgs.c
+ * @file  images.c
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -21,7 +21,7 @@
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
-#include "imgs.h"
+#include "images.h"
 /*----------------------------------------------------------------------------*/
 /**
  * @var    add_svg
@@ -661,26 +661,26 @@ static constexpr unsigned char about_img[] =
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Make pixbuf from pure data without specific info, scale it to width
- *         of i_dim.
+ *         of dim.
  *
- * @param[in]  s_data  Input data
- * @param[in]  i_size  Size of input data
- * @param[in]  i_dim   Image with for scaling
+ * @param[in]  data  Input data
+ * @param[in]  size  Size of input data
+ * @param[in]  dim   Image with for scaling
  * @return     Pixbuf with icon
  */
 static GdkPixbuf *
-pbuf_from_data_scaled (const unsigned char *s_data,
-                       gssize               i_size,
-                       int                  i_dim)
+pbuf_from_data_scaled (const unsigned char *data,
+                       gssize               size,
+                       int                  dim)
 {
     GdkPixbuf    *g_pbuf = nullptr; /* Return pixbuf */
     GInputStream *stream;           /* Stream for passing data to pixbuf */
 
     stream = g_memory_input_stream_new ();
     g_memory_input_stream_add_data (G_MEMORY_INPUT_STREAM (stream),
-                                    s_data, i_size, nullptr);
+                                    data, size, nullptr);
     g_pbuf = gdk_pixbuf_new_from_stream_at_scale (stream,
-                                                  i_dim,
+                                                  dim,
                                                   -1,
                                                   TRUE,
                                                   nullptr,
@@ -694,20 +694,20 @@ pbuf_from_data_scaled (const unsigned char *s_data,
 /**
  * @brief  Make image from pure data without specific info.
  *
- * @param[in]  s_data  Input data
- * @param[in]  i_size  Size of input data
+ * @param[in]  data  Input data
+ * @param[in]  size  Size of input data
  * @return     Pixbuf with image
  */
 static GdkPixbuf *
-pbuf_from_data (const unsigned char *s_data,
-                gssize               i_size)
+pbuf_from_data (const unsigned char *data,
+                gssize               size)
 {
     GdkPixbuf    *g_pbuf = nullptr; /* Return pixbuf */
     GInputStream *stream;           /* Stream for passing data to pixbuf */
 
     stream = g_memory_input_stream_new ();
     g_memory_input_stream_add_data (G_MEMORY_INPUT_STREAM (stream),
-                                    s_data, i_size, nullptr);
+                                    data, size, nullptr);
     g_pbuf = gdk_pixbuf_new_from_stream (stream, nullptr, nullptr);
     g_input_stream_close (stream, nullptr, nullptr);
     g_object_unref (stream);
@@ -719,11 +719,11 @@ pbuf_from_data (const unsigned char *s_data,
  * @brief  Get image from stored data.
  */
 GdkPixbuf *
-get_image (const IconImg i_img)
+get_image (const IconImg image_no)
 {
     GdkPixbuf *gp_pbuf = nullptr; /* Return pixbuf */
 
-    switch (i_img) {
+    switch (image_no) {
 
         case W_ICON_ADD:
             gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) add_svg,

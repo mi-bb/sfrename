@@ -37,12 +37,12 @@
 #include <gio/gio.h>
 #include <gdk/gdkkeysyms.h>
 #include <unistd.h>
-#include "dlgs.h"
+#include "dialogs.h"
 #include "string_functions.h"
 #include "rendata.h"
 #include "rconfig.h"
 #include "namefn.h"
-#include "imgs.h"
+#include "images.h"
 #include "defs.h"
 /*----------------------------------------------------------------------------*/
 /**
