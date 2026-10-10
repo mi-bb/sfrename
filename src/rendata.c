@@ -28,17 +28,17 @@
 /**
  * @brief  RenData initialization.
  *
- * @param[out] rd_data Pointer to RenData object
+ * @param[out] data Pointer to RenData object
  */
-static void      rendata_init (RenData *rd_data);
+static void      rendata_init (RenData *data);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RenData initialization.
  */
 static void
-rendata_init (RenData *rd_data)
+rendata_init (RenData *data)
 {
-    *rd_data = (RenData){};
+    *data = (RenData){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -47,42 +47,42 @@ rendata_init (RenData *rd_data)
 RenData *
 rendata_new (void)
 {
-    RenData *rd_data = nullptr;
+    RenData *data = nullptr;
 
-    if ((rd_data = malloc (sizeof (RenData))) == nullptr)
+    if ((data = malloc (sizeof (RenData))) == nullptr)
         err (EXIT_FAILURE, nullptr);
 
-    rendata_init (rd_data);
+    rendata_init (data);
 
-    rd_data->uplo        = DEF_UPLO;
-    rd_data->spaces      = DEF_SPACES;
-    rd_data->applyto     = DEF_APPLTO;
-    rd_data->renexit     = DEF_RENEXT;
-    rd_data->dirsel      = DEF_DIRSEL;
-    rd_data->rememberopt = DEF_REMEMBEROPT;
-    rd_data->names       = rfnames_new ();
-    rd_data->del         = rdelete_new ();
-    rd_data->ins         = rinsovr_new ();
-    rd_data->ovrw        = rinsovr_new ();
-    rd_data->replace     = rreplace_new ();
-    rd_data->number      = rnumber_new ();
+    data->uplo        = DEF_UPLO;
+    data->spaces      = DEF_SPACES;
+    data->applyto     = DEF_APPLTO;
+    data->renexit     = DEF_RENEXT;
+    data->dirsel      = DEF_DIRSEL;
+    data->rememberopt = DEF_REMEMBEROPT;
+    data->names       = rfnames_new ();
+    data->del         = rdelete_new ();
+    data->ins         = rinsovr_new ();
+    data->ovrw        = rinsovr_new ();
+    data->replace     = rreplace_new ();
+    data->number      = rnumber_new ();
 
-    return rd_data;
+    return data;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  */
 void
-rendata_free (RenData *rd_data)
+rendata_free (RenData *data)
 {
-    rfnames_free  (rd_data->names);
-    rdelete_free  (rd_data->del);
-    rinsovr_free  (rd_data->ins);
-    rinsovr_free  (rd_data->ovrw);
-    rreplace_free (rd_data->replace);
-    rnumber_free  (rd_data->number);
-    free (rd_data);
+    rfnames_free  (data->names);
+    rdelete_free  (data->del);
+    rinsovr_free  (data->ins);
+    rinsovr_free  (data->ovrw);
+    rreplace_free (data->replace);
+    rnumber_free  (data->number);
+    free (data);
 }
 /*----------------------------------------------------------------------------*/
 

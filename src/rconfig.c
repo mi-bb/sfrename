@@ -73,16 +73,16 @@ rconfig_get_path (void)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Serialize rd_data as JSON and write it to path.
+ * @brief  Serialize data as JSON and write it to path.
  */
 bool
-rconfig_write (const RenData *rd_data, const char *path)
+rconfig_write (const RenData *data, const char *path)
 {
-    auto rdel = rendata_get_rdelete  (rd_data);
-    auto rins = rendata_get_rinsert  (rd_data);
-    auto rovr = rendata_get_roverwr  (rd_data);
-    auto rrep = rendata_get_rreplace (rd_data);
-    auto rnum = rendata_get_rnumber  (rd_data);
+    auto rdel = rendata_get_rdelete  (data);
+    auto rins = rendata_get_rinsert  (data);
+    auto rovr = rendata_get_roverwr  (data);
+    auto rrep = rendata_get_rreplace (data);
+    auto rnum = rendata_get_rnumber  (data);
     auto gstr = g_string_new (nullptr);
     char     *dir  = nullptr;
     GError   *gerr = nullptr;
@@ -90,17 +90,17 @@ rconfig_write (const RenData *rd_data, const char *path)
 
     g_string_append (gstr, "{\n");
     g_string_append_printf (gstr, "  \"uplo\": %d,\n",
-                             (int) rendata_get_uplo (rd_data));
+                             (int) rendata_get_uplo (data));
     g_string_append_printf (gstr, "  \"spaces\": %d,\n",
-                             (int) rendata_get_spaces (rd_data));
+                             (int) rendata_get_spaces (data));
     g_string_append_printf (gstr, "  \"applyto\": %d,\n",
-                             (int) rendata_get_applyto (rd_data));
+                             (int) rendata_get_applyto (data));
     g_string_append_printf (gstr, "  \"renexit\": %d,\n",
-                             (int) rendata_get_renexit (rd_data));
+                             (int) rendata_get_renexit (data));
     g_string_append_printf (gstr, "  \"dirsel\": %d,\n",
-                             (int) rendata_get_dirsel (rd_data));
+                             (int) rendata_get_dirsel (data));
     g_string_append_printf (gstr, "  \"rememberopt\": %d,\n",
-                             (int) rendata_get_rememberopt (rd_data));
+                             (int) rendata_get_rememberopt (data));
 
     g_string_append_printf (gstr, "  \"delete\": { \"cnt\": %u, \"pos\": %u },\n",
                              (unsigned) rdelete_get_cnt (rdel),
@@ -506,10 +506,10 @@ parse_number_obj (const char **p, long *opt, long *start, long *pos)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Read and parse a JSON config file, applying it to rd_data.
+ * @brief  Read and parse a JSON config file, applying it to data.
  */
 bool
-rconfig_parse (RenData *rd_data, const char *path)
+rconfig_parse (RenData *data, const char *path)
 {
     char       *buf = nullptr;
     gsize       len = 0;
@@ -623,28 +623,28 @@ rconfig_parse (RenData *rd_data, const char *path)
     if (num_pos < 0 || num_pos > FN_LEN) num_pos = 0;
     if (num_start < 0)                   num_start = 0;
 
-    rendata_set_uplo        (rd_data, (int8_t) uplo);
-    rendata_set_spaces      (rd_data, (int8_t) spaces);
-    rendata_set_applyto     (rd_data, (int8_t) applyto);
-    rendata_set_renexit     (rd_data, renexit != 0);
-    rendata_set_dirsel      (rd_data, (int8_t) dirsel);
-    rendata_set_rememberopt (rd_data, rememberopt != 0);
+    rendata_set_uplo        (data, (int8_t) uplo);
+    rendata_set_spaces      (data, (int8_t) spaces);
+    rendata_set_applyto     (data, (int8_t) applyto);
+    rendata_set_renexit     (data, renexit != 0);
+    rendata_set_dirsel      (data, (int8_t) dirsel);
+    rendata_set_rememberopt (data, rememberopt != 0);
 
-    rdelete_set_cnt (rd_data->del, (uint8_t) del_cnt);
-    rdelete_set_pos (rd_data->del, (uint8_t) del_pos);
+    rdelete_set_cnt (data->del, (uint8_t) del_cnt);
+    rdelete_set_pos (data->del, (uint8_t) del_pos);
 
-    rinsovr_set_text (rd_data->ins, ins_text);
-    rinsovr_set_pos  (rd_data->ins, (uint8_t) ins_pos);
+    rinsovr_set_text (data->ins, ins_text);
+    rinsovr_set_pos  (data->ins, (uint8_t) ins_pos);
 
-    rinsovr_set_text (rd_data->ovrw, ovr_text);
-    rinsovr_set_pos  (rd_data->ovrw, (uint8_t) ovr_pos);
+    rinsovr_set_text (data->ovrw, ovr_text);
+    rinsovr_set_pos  (data->ovrw, (uint8_t) ovr_pos);
 
-    rreplace_set_from (rd_data->replace, rep_from);
-    rreplace_set_to   (rd_data->replace, rep_to);
+    rreplace_set_from (data->replace, rep_from);
+    rreplace_set_to   (data->replace, rep_to);
 
-    rnumber_set_opt   (rd_data->number, (int8_t) num_opt);
-    rnumber_set_start (rd_data->number, (uint_fast32_t) num_start);
-    rnumber_set_pos   (rd_data->number, (uint8_t) num_pos);
+    rnumber_set_opt   (data->number, (int8_t) num_opt);
+    rnumber_set_start (data->number, (uint_fast32_t) num_start);
+    rnumber_set_pos   (data->number, (uint8_t) num_pos);
 
     return true;
 }
@@ -654,13 +654,13 @@ rconfig_parse (RenData *rd_data, const char *path)
  *         exit" is enabled, otherwise remove any existing config file.
  */
 bool
-rconfig_save (const RenData *rd_data)
+rconfig_save (const RenData *data)
 {
     auto path = rconfig_get_path ();
     bool ok   = true;
 
-    if (rendata_get_rememberopt (rd_data)) {
-        ok = rconfig_write (rd_data, path);
+    if (rendata_get_rememberopt (data)) {
+        ok = rconfig_write (data, path);
     }
     else if (g_file_test (path, G_FILE_TEST_EXISTS)) {
         g_unlink (path);
@@ -671,17 +671,17 @@ rconfig_save (const RenData *rd_data)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Load settings from the standard config path into rd_data, if it
+ * @brief  Load settings from the standard config path into data, if it
  *         exists and parses successfully.
  */
 bool
-rconfig_load (RenData *rd_data)
+rconfig_load (RenData *data)
 {
     auto path = rconfig_get_path ();
     bool ok   = false;
 
     if (g_file_test (path, G_FILE_TEST_EXISTS))
-        ok = rconfig_parse (rd_data, path);
+        ok = rconfig_parse (data, path);
 
     g_free (path);
     return ok;

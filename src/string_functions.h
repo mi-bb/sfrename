@@ -102,58 +102,58 @@ ProcessData {
  * Function searches in s_src_dst string for s_fr and replaces it with s_to
  * string. The final result is copied into s_src_dst string.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */ 
-void   string_replace_in       (const ProcessData  *pd_data);
+void   string_replace_in       (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /** 
  * @brief  Detele chars in string.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */ 
-void   string_delete_chars     (const ProcessData  *pd_data);
+void   string_delete_chars     (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Insert string to existing string at specified position.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */
-void   string_insert_string    (const ProcessData  *pd_data);
+void   string_insert_string    (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Overwrite string in existing string at specified position.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */
-void   string_overwrite_string (const ProcessData  *pd_data);
+void   string_overwrite_string (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Add number to string.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */
-void   string_add_number       (const ProcessData  *pd_data);
+void   string_add_number       (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to lower case.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */
-void   string_to_lower         (const ProcessData  *pd_data);
+void   string_to_lower         (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Convert all chars in a given string to upper case.
  *
- * @param[in]     pd_data    ProcessData object with process values
+ * @param[in]     process    ProcessData object with process values
  * @return        none
  */
-void   string_to_upper         (const ProcessData  *pd_data);
+void   string_to_upper         (const ProcessData  *process);
 /*----------------------------------------------------------------------------*/
 /**
  * @fn void string_extract_name_ext (const char   *s_name_ext,
@@ -198,12 +198,12 @@ void   string_combine_name_ext (char         *s_name_ext,
  * or ext and and calls on it passed as value "fun" function.
  *
  * @param[in]     fun       Pointer to a string change function 
- * @param[in]     pd_data   ProcessData object with process values
+ * @param[in]     process   ProcessData object with process values
  * @param[in]     ne        Value tells to change file name, ext or both
  * @return        none
  */
 void string_process_filename (void      (*fun) (const ProcessData*),
-                              const ProcessData *pd_data,
+                              const ProcessData *process,
                               const int8_t       ne);
 /*----------------------------------------------------------------------------*/
 #endif

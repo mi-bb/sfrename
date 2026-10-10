@@ -90,215 +90,215 @@ RenData {
  *
  * @return RenData item
  *
- * @fn  void rendata_free (RenData *rd_data)
+ * @fn  void rendata_free (RenData *data)
  *
  * @brief  Free allocated memory.
  *
- * @param[out] rd_data RenData object
+ * @param[out] data RenData object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
 [[nodiscard]] RenData * rendata_new  (void)
               __attribute__ ((returns_nonnull));
 
-void      rendata_free (RenData *rd_data);
+void      rendata_free (RenData *data);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  RFnames * rendata_get_rfnames (const RenData *rd_data)
+ * @fn  RFnames * rendata_get_rfnames (const RenData *data)
  *
  * @brief  Get names object with file list.
  *
- * @param[in] rd_data RenData object
+ * @param[in] data RenData object
  * @return    RFnames item
  *
- * @fn  RDelete * rendata_get_rdelete (const RenData *rd_data)
+ * @fn  RDelete * rendata_get_rdelete (const RenData *data)
  *
  * @brief  Get delete chars info structure.
  *
- * @param[in] rd_data RenData object
+ * @param[in] data RenData object
  * @return    RDelete item
  *
- * @fn  RInsOvr * rendata_get_rinsert (const RenData *rd_data)
+ * @fn  RInsOvr * rendata_get_rinsert (const RenData *data)
  *
  * @brief  Get insert info structure.
  *
- * @param[in] rd_data RenData object
+ * @param[in] data RenData object
  * @return    RInsOvr item
  *
- * @fn  RInsOvr * rendata_get_roverwr (const RenData *rd_data)
+ * @fn  RInsOvr * rendata_get_roverwr (const RenData *data)
  *
  * @brief  Get overwrite info structure.
  *
- * @param[in] rd_data RenData object
+ * @param[in] data RenData object
  * @return    RInsOvr item
  *
- * @fn  RReplace * rendata_get_rreplace (const RenData *rd_data)
+ * @fn  RReplace * rendata_get_rreplace (const RenData *data)
  *
  * @brief  Get replace strings info structure.
  *
- * @param[in] rd_data RenData object
+ * @param[in] data RenData object
  * @return    RReplace item
  *
- * @fn  RNumber * rendata_get_rnumber (const RenData *rd_data)
+ * @fn  RNumber * rendata_get_rnumber (const RenData *data)
  *
  * @brief  Get numbering strings info structure.
  *
- * @param[in] rd_data RenData object
+ * @param[in] data RenData object
  * @return    RNumber item
  */
 /*----------------------------------------------------------------------------*/
-static inline const RFnames * rendata_get_rfnames   (const RenData *rd_data) {
-    return (const RFnames *) rd_data->names;
+static inline const RFnames * rendata_get_rfnames   (const RenData *data) {
+    return (const RFnames *) data->names;
 }
-static inline const RDelete * rendata_get_rdelete   (const RenData *rd_data) {
-    return (const RDelete *) rd_data->del;
+static inline const RDelete * rendata_get_rdelete   (const RenData *data) {
+    return (const RDelete *) data->del;
 }
-static inline const RInsOvr * rendata_get_rinsert   (const RenData *rd_data) {
-    return (const RInsOvr *) rd_data->ins;
+static inline const RInsOvr * rendata_get_rinsert   (const RenData *data) {
+    return (const RInsOvr *) data->ins;
 }
-static inline const RInsOvr * rendata_get_roverwr   (const RenData *rd_data) {
-    return (const RInsOvr *) rd_data->ovrw;
+static inline const RInsOvr * rendata_get_roverwr   (const RenData *data) {
+    return (const RInsOvr *) data->ovrw;
 }
-static inline const RReplace * rendata_get_rreplace (const RenData *rd_data) {
-    return (const RReplace *) rd_data->replace;
+static inline const RReplace * rendata_get_rreplace (const RenData *data) {
+    return (const RReplace *) data->replace;
 }
-static inline const RNumber * rendata_get_rnumber   (const RenData *rd_data) {
-    return (const RNumber *) rd_data->number;
+static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
+    return (const RNumber *) data->number;
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  int8_t rendata_get_uplo (const RenData *rd_data)
+ * @fn  int8_t rendata_get_uplo (const RenData *data)
  *
  * @brief  Get uplo value.
  *
- * @param[in]  rd_data  RenData object
+ * @param[in]  data  RenData object
  * @return     uplo value
  *
- * @fn  void rendata_set_uplo (RenData *rd_data,
+ * @fn  void rendata_set_uplo (RenData *data,
  *                             int8_t   val)
  * @brief  Set uplo value.
  *
- * @param[out] rd_data  RenData object
+ * @param[out] data  RenData object
  * @param[in]  val      New uplo value
  * @return     none
  *
- * @fn  int8_t rendata_get_spaces (const RenData *rd_data)
+ * @fn  int8_t rendata_get_spaces (const RenData *data)
  *
  * @brief  Get spaces value.
  *
- * @param[in]  rd_data  RenData object
+ * @param[in]  data  RenData object
  * @return     spaces value
  *
- * @fn  void rendata_set_spaces (RenData *rd_data,
+ * @fn  void rendata_set_spaces (RenData *data,
  *                               int8_t   val)
  * @brief  Set spaces value.
  *
- * @param[out] rd_data  RenData object
+ * @param[out] data  RenData object
  * @param[in]  val      New spaces value
  * @return     none
  *
- * @fn  int8_t rendata_get_applyto (const RenData *rd_data)
+ * @fn  int8_t rendata_get_applyto (const RenData *data)
  *
  * @brief  Get applyto value.
  *
- * @param[in]  rd_data  RenData object
+ * @param[in]  data  RenData object
  * @return     applyto value
  *
- * @fn  void rendata_set_applyto (RenData *rd_data,
+ * @fn  void rendata_set_applyto (RenData *data,
  *                                int8_t   val)
  * @brief  Set applyto value.
  *
- * @param[out] rd_data  RenData object
+ * @param[out] data  RenData object
  * @param[in]  val      New applyto value
  * @return     none
  *
- * @fn  bool rendata_get_renexit (const RenData *rd_data)
+ * @fn  bool rendata_get_renexit (const RenData *data)
  *
  * @brief  Get renexit value.
  *
- * @param[in]  rd_data  RenData object
+ * @param[in]  data  RenData object
  * @return     renexit value
  *
- * @fn  void rendata_set_renexit (RenData *rd_data,
+ * @fn  void rendata_set_renexit (RenData *data,
  *                                int8_t   val)
  * @brief  Set renexit value.
  *
- * @param[out] rd_data  RenData object
+ * @param[out] data  RenData object
  * @param[in]  val      New renexit value
  * @return     none
  *
- * @fn  int8_t rendata_get_dirsel (const RenData *rd_data)
+ * @fn  int8_t rendata_get_dirsel (const RenData *data)
  *
  * @brief  Get dirsel value.
  *
- * @param[in]  rd_data  RenData object
+ * @param[in]  data  RenData object
  * @return     dirsel value
  *
- * @fn  void rendata_set_dirsel  (RenData *rd_data,
+ * @fn  void rendata_set_dirsel  (RenData *data,
  *                                int8_t   val)
  * @brief  Set dirsel value.
  *
- * @param[out] rd_data  RenData object
+ * @param[out] data  RenData object
  * @param[in]  val      New dirsel value
  * @return     none
  *
- * @fn  bool rendata_get_rememberopt (const RenData *rd_data)
+ * @fn  bool rendata_get_rememberopt (const RenData *data)
  *
  * @brief  Get rememberopt value.
  *
- * @param[in]  rd_data  RenData object
+ * @param[in]  data  RenData object
  * @return     rememberopt value
  *
- * @fn  void rendata_set_rememberopt (RenData *rd_data,
+ * @fn  void rendata_set_rememberopt (RenData *data,
  *                                    int8_t   val)
  * @brief  Set rememberopt value.
  *
- * @param[out] rd_data  RenData object
+ * @param[out] data  RenData object
  * @param[in]  val      New rememberopt value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-static inline int8_t rendata_get_uplo    (const RenData *rd_data) {
-    return rd_data->uplo;
+static inline int8_t rendata_get_uplo    (const RenData *data) {
+    return data->uplo;
 }
-static inline void   rendata_set_uplo    (RenData       *rd_data,
+static inline void   rendata_set_uplo    (RenData       *data,
                                           int8_t         val) {
-    rd_data->uplo = val;
+    data->uplo = val;
 }
-static inline int8_t rendata_get_spaces  (const RenData *rd_data) {
-    return rd_data->spaces;
+static inline int8_t rendata_get_spaces  (const RenData *data) {
+    return data->spaces;
 }
-static inline void   rendata_set_spaces  (RenData       *rd_data,
+static inline void   rendata_set_spaces  (RenData       *data,
                                           int8_t         val) {
-    rd_data->spaces = val;
+    data->spaces = val;
 }
-static inline int8_t rendata_get_applyto (const RenData *rd_data) {
-    return rd_data->applyto;
+static inline int8_t rendata_get_applyto (const RenData *data) {
+    return data->applyto;
 }
-static inline void   rendata_set_applyto (RenData       *rd_data,
+static inline void   rendata_set_applyto (RenData       *data,
                                           int8_t         val) {
-    rd_data->applyto = val;
+    data->applyto = val;
 }
-static inline bool   rendata_get_renexit (const RenData *rd_data) {
-    return rd_data->renexit;
+static inline bool   rendata_get_renexit (const RenData *data) {
+    return data->renexit;
 }
-static inline void   rendata_set_renexit (RenData       *rd_data,
+static inline void   rendata_set_renexit (RenData       *data,
                                           bool           val) {
-    rd_data->renexit = val;
+    data->renexit = val;
 }
-static inline int8_t rendata_get_dirsel  (const RenData *rd_data) {
-    return rd_data->dirsel;
+static inline int8_t rendata_get_dirsel  (const RenData *data) {
+    return data->dirsel;
 }
-static inline void   rendata_set_dirsel  (RenData       *rd_data,
+static inline void   rendata_set_dirsel  (RenData       *data,
                                           int8_t         val) {
-    rd_data->dirsel = val;
+    data->dirsel = val;
 }
-static inline bool   rendata_get_rememberopt (const RenData *rd_data) {
-    return rd_data->rememberopt;
+static inline bool   rendata_get_rememberopt (const RenData *data) {
+    return data->rememberopt;
 }
-static inline void   rendata_set_rememberopt (RenData       *rd_data,
+static inline void   rendata_set_rememberopt (RenData       *data,
                                               bool           val) {
-    rd_data->rememberopt = val;
+    data->rememberopt = val;
 }
 /*----------------------------------------------------------------------------*/
 #endif

@@ -39,56 +39,56 @@
               __attribute__ ((malloc, returns_nonnull));
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  bool rconfig_write (const RenData *rd_data,
+ * @fn  bool rconfig_write (const RenData *data,
  *                          const char    *path)
  *
- * @brief  Serialize rd_data as JSON and write it to path.
+ * @brief  Serialize data as JSON and write it to path.
  *
  * Creates the parent directory if it does not already exist.
  *
- * @param[in] rd_data RenData object to serialize
+ * @param[in] data RenData object to serialize
  * @param[in] path    Destination file path
  * @return    true on success, false on failure
  *
- * @fn  bool rconfig_parse (RenData    *rd_data,
+ * @fn  bool rconfig_parse (RenData    *data,
  *                          const char *path)
  *
- * @brief  Read and parse a JSON config file, applying it to rd_data.
+ * @brief  Read and parse a JSON config file, applying it to data.
  *
  * Uses a parse-then-apply strategy: if the file is missing, unreadable, or
- * malformed, rd_data is left completely unmodified and false is returned.
+ * malformed, data is left completely unmodified and false is returned.
  *
- * @param[out] rd_data RenData object to update
+ * @param[out] data RenData object to update
  * @param[in]  path    Source file path
  * @return     true on success, false on failure
  */
 /*----------------------------------------------------------------------------*/
-bool rconfig_write (const RenData *rd_data,
+bool rconfig_write (const RenData *data,
                     const char    *path);
 
-bool rconfig_parse (RenData    *rd_data,
+bool rconfig_parse (RenData    *data,
                     const char *path);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  bool rconfig_save (const RenData *rd_data)
+ * @fn  bool rconfig_save (const RenData *data)
  *
  * @brief  Save settings to the standard config path if "remember options on
  *         exit" is enabled, otherwise remove any existing config file.
  *
- * @param[in] rd_data RenData object to save
+ * @param[in] data RenData object to save
  * @return    true on success, false on failure
  *
- * @fn  bool rconfig_load (RenData *rd_data)
+ * @fn  bool rconfig_load (RenData *data)
  *
- * @brief  Load settings from the standard config path into rd_data, if it
+ * @brief  Load settings from the standard config path into data, if it
  *         exists and parses successfully.
  *
- * @param[out] rd_data RenData object to update
+ * @param[out] data RenData object to update
  * @return     true if settings were loaded, false otherwise
  */
 /*----------------------------------------------------------------------------*/
-bool rconfig_save (const RenData *rd_data);
+bool rconfig_save (const RenData *data);
 
-bool rconfig_load (RenData *rd_data);
+bool rconfig_load (RenData *data);
 /*----------------------------------------------------------------------------*/
 #endif

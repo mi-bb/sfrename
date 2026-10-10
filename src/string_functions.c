@@ -50,16 +50,16 @@ string_get_valid_length (const char   *s_str,
  * @brief  Replace one string with another in a given src_dest string.
  */ 
 void
-string_replace_in (const ProcessData *pd_data)
+string_replace_in (const ProcessData *process)
 {
     char          s_tmp [FN_LEN+1];             /* temp file name */
-    char         *s_srcdst = pd_data->s_srcdst; /* String to process */
+    char         *s_srcdst = process->s_srcdst; /* String to process */
     size_t        ui_len   = 0;                 /* valid name length */
     size_t        i        = 0;                 /* the i */
-    const size_t  ui_frlen = pd_data->str1_len; /* rename from length */
+    const size_t  ui_frlen = process->str1_len; /* rename from length */
     const size_t  ui_max   = FN_LEN;            /* max length of name */
-    const char   *s_fr     = pd_data->s_str1;   /* "replace from" string */
-    const char   *s_to     = pd_data->s_str2;   /* "replace to" string */
+    const char   *s_fr     = process->s_str1;   /* "replace from" string */
+    const char   *s_to     = process->s_str2;   /* "replace to" string */
     const char   *fp       = nullptr;           /* find string pointer */
     const char   *sp       = s_srcdst;          /* copy src_dest pointer */
     char         *dp       = s_tmp;             /* copy s_tmp pointer */
@@ -90,8 +90,8 @@ string_replace_in (const ProcessData *pd_data)
     memcpy (s_srcdst, s_tmp, ui_len);
     s_srcdst[ui_len] = '\0';
 
-    *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
-    *pd_data->srcdst_len = ui_len;
+    *process->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
+    *process->srcdst_len = ui_len;
 
     #ifdef DEBUG
         printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
@@ -103,13 +103,13 @@ string_replace_in (const ProcessData *pd_data)
  * @brief  Detele chars in string.
  */ 
 void
-string_delete_chars (const ProcessData *pd_data)
+string_delete_chars (const ProcessData *process)
 {
-    char   *s_srcdst   = pd_data->s_srcdst;      /* String to process */
-    size_t  ui_cnt     = pd_data->ui_cnt;        /* Number of chars to delete */
-    size_t  ui_pos     = pd_data->ui_pos;        /* Delete start position */
-    size_t  ui_slen_u8 = *pd_data->srcdst_u8len; /* Uni length of text */
-    size_t  ui_slen    = *pd_data->srcdst_len;   /* Length of text */
+    char   *s_srcdst   = process->s_srcdst;      /* String to process */
+    size_t  ui_cnt     = process->ui_cnt;        /* Number of chars to delete */
+    size_t  ui_pos     = process->ui_pos;        /* Delete start position */
+    size_t  ui_slen_u8 = *process->srcdst_u8len; /* Uni length of text */
+    size_t  ui_slen    = *process->srcdst_len;   /* Length of text */
     size_t  ui_len     = 0;                      /* Final length of text */
     char   *ch_po      = nullptr;                /* Ptr to delete start pos */
     char   *ch_cn      = nullptr;                /* Ptr to pos after deleted */
@@ -128,16 +128,16 @@ string_delete_chars (const ProcessData *pd_data)
         }
         ch_po = g_utf8_offset_to_pointer (s_srcdst, (glong) ui_pos);
         *ch_po = '\0';
-        *pd_data->srcdst_u8len = ui_pos;
-        *pd_data->srcdst_len = (size_t) (ch_po - s_srcdst);
+        *process->srcdst_u8len = ui_pos;
+        *process->srcdst_len = (size_t) (ch_po - s_srcdst);
     }
     else {
         ch_po = g_utf8_offset_to_pointer (s_srcdst, (glong) ui_pos);
         ch_cn = g_utf8_offset_to_pointer (s_srcdst, (glong) (ui_pos + ui_cnt));
         ui_len = ui_slen - (size_t) (ch_cn - ch_po);
         memmove (ch_po, ch_cn, ui_len - ui_pos + 1);
-        *pd_data->srcdst_u8len = ui_slen_u8 - ui_cnt;
-        *pd_data->srcdst_len = ui_len;
+        *process->srcdst_u8len = ui_slen_u8 - ui_cnt;
+        *process->srcdst_len = ui_len;
     }
     #ifdef DEBUG
     printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
@@ -148,18 +148,18 @@ string_delete_chars (const ProcessData *pd_data)
  * @brief  Insert string to existing string at specified position.
  */
 void
-string_insert_string (const ProcessData *pd_data)
+string_insert_string (const ProcessData *process)
 {
-    char         *s_srcdst   = pd_data->s_srcdst;      /* String to process */
-    size_t        ui_pos     = pd_data->ui_pos;        /* Text insert position */
+    char         *s_srcdst   = process->s_srcdst;      /* String to process */
+    size_t        ui_pos     = process->ui_pos;        /* Text insert position */
     size_t        ui_len     = 0;                      /* Final length of text */
     const size_t  ui_max     = FN_LEN;                 /* Max string length */
-    const size_t  ui_slen    = *pd_data->srcdst_len;   /* Source text length */
-    const size_t  ui_slen_u8 = *pd_data->srcdst_u8len; /* Src uni text length */
-    const size_t  ui_ilen    = pd_data->str1_len;      /* Insert text length */
-    const size_t  ui_ilen_u8 = pd_data->str1_u8len;    /* Insert text length */
+    const size_t  ui_slen    = *process->srcdst_len;   /* Source text length */
+    const size_t  ui_slen_u8 = *process->srcdst_u8len; /* Src uni text length */
+    const size_t  ui_ilen    = process->str1_len;      /* Insert text length */
+    const size_t  ui_ilen_u8 = process->str1_u8len;    /* Insert text length */
     size_t        ui_xlen    = 0;                      /* Afer insert length */
-    const char   *s_ins      = pd_data->s_str1;        /* Text to insert */
+    const char   *s_ins      = process->s_str1;        /* Text to insert */
     char         *x          = nullptr;                /* Insert text pointer */
     char         *s_xi       = nullptr;                /* Ptr to pos + ilen */
     const char   *s_mx       = s_srcdst + ui_max;      /* Pointer to max char */
@@ -179,8 +179,8 @@ string_insert_string (const ProcessData *pd_data)
         memcpy (x, s_ins, ui_ilen);
         ui_len = ui_slen + ui_ilen;
         s_srcdst[ui_len] = '\0';
-        *pd_data->srcdst_len = ui_len;
-        *pd_data->srcdst_u8len = ui_slen_u8 + ui_ilen_u8;
+        *process->srcdst_len = ui_len;
+        *process->srcdst_u8len = ui_slen_u8 + ui_ilen_u8;
     }
     else {
         if (ui_pos < ui_slen_u8 && s_xi < s_mx) {
@@ -192,8 +192,8 @@ string_insert_string (const ProcessData *pd_data)
 
         ui_len = string_get_valid_length (s_srcdst, ui_max);
         s_srcdst[ui_len] = '\0';
-        *pd_data->srcdst_len = ui_len;
-        *pd_data->srcdst_u8len = ui_pos + (size_t) g_utf8_strlen (x, -1);
+        *process->srcdst_len = ui_len;
+        *process->srcdst_u8len = ui_pos + (size_t) g_utf8_strlen (x, -1);
     }
     #ifdef DEBUG
     printf ("%ld %s\n", strlen (s_srcdst), s_srcdst);
@@ -204,17 +204,17 @@ string_insert_string (const ProcessData *pd_data)
  * @brief  Overwrite string in existing string at specified position.
  */
 void
-string_overwrite_string (const ProcessData *pd_data)
+string_overwrite_string (const ProcessData *process)
 {
     char          s_tmp [FN_LEN+1];                    /* Temp String */
-    char         *s_srcdst   = pd_data->s_srcdst;      /* String to process */
-    size_t        ui_pos     = pd_data->ui_pos;        /* Insert text pos */
+    char         *s_srcdst   = process->s_srcdst;      /* String to process */
+    size_t        ui_pos     = process->ui_pos;        /* Insert text pos */
     size_t        ui_len     = 0;                      /* Length of text */
-    const size_t  ui_ilen_u8 = pd_data->str1_u8len;    /* Len of ovr str */
-    const size_t  ui_slen_u8 = *pd_data->srcdst_u8len; /* Len of src uni str */
+    const size_t  ui_ilen_u8 = process->str1_u8len;    /* Len of ovr str */
+    const size_t  ui_slen_u8 = *process->srcdst_u8len; /* Len of src uni str */
     size_t        i          = 0;                      /* i */
     const size_t  ui_max     = FN_LEN;                 /* Max string length */
-    const char   *s_ins      = pd_data->s_str1;        /* Overwrite text */
+    const char   *s_ins      = process->s_str1;        /* Overwrite text */
     char         *x          = nullptr;                /* Overwrite start ptr */
     char         *tp         = s_tmp;                  /* Temp string ptr */
     const char   *sp         = s_srcdst;               /* Source string ptr */
@@ -245,8 +245,8 @@ string_overwrite_string (const ProcessData *pd_data)
     memcpy (s_srcdst, s_tmp, ui_len);
     s_srcdst[ui_len] = '\0';
 
-    *pd_data->srcdst_len = ui_len;
-    *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
+    *process->srcdst_len = ui_len;
+    *process->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
 
     #ifdef DEBUG
         printf ("\n%ld %s\n", strlen (s_tmp), s_tmp);
@@ -258,19 +258,19 @@ string_overwrite_string (const ProcessData *pd_data)
  * @brief  Add number to string.
  */
 void
-string_add_number (const ProcessData *pd_data)
+string_add_number (const ProcessData *process)
 {
     char          s_no  [20] = {};              /* Temp string for number */
     char          s_tmp [20];                   /* Temp string */
-    uint_fast32_t ui_no    = pd_data->ui_no;    /* Number to insert */
-    uint_fast32_t ui_st    = pd_data->ui_start; /* Start numbering position */
-    uint_fast32_t ui_mx    = pd_data->ui_max;   /* Max number range */
+    uint_fast32_t ui_no    = process->ui_no;    /* Number to insert */
+    uint_fast32_t ui_st    = process->ui_start; /* Start numbering position */
+    uint_fast32_t ui_mx    = process->ui_max;   /* Max number range */
     uint_fast32_t ui_z     = 0;                 /* How many zeros to add */
     uint_fast32_t ui_t     = 0;                 /* Temp value */
     ProcessData  pd_data2 = {
-        .s_srcdst     = pd_data->s_srcdst,
-        .srcdst_len   = pd_data->srcdst_len,
-        .srcdst_u8len = pd_data->srcdst_u8len,
+        .s_srcdst     = process->s_srcdst,
+        .srcdst_len   = process->srcdst_len,
+        .srcdst_u8len = process->srcdst_u8len,
     };
 
     ui_no += ui_st;
@@ -297,12 +297,12 @@ string_add_number (const ProcessData *pd_data)
     strcat (s_no, s_tmp);
 
     pd_data2.s_str1 = s_no;
-    pd_data2.ui_pos = pd_data->ui_pos;
+    pd_data2.ui_pos = process->ui_pos;
 
     string_insert_string (&pd_data2);
 
     #ifdef DEBUG
-        printf ("%ld %s\n", strlen (pd_data->s_srcdst), pd_data->s_srcdst);
+        printf ("%ld %s\n", strlen (process->s_srcdst), process->s_srcdst);
     #endif
 }
 /*----------------------------------------------------------------------------*/
@@ -310,21 +310,21 @@ string_add_number (const ProcessData *pd_data)
  * @brief  Convert all chars in a given string to lower case.
  */
 void
-string_to_lower (const ProcessData *pd_data)
+string_to_lower (const ProcessData *process)
 {
     const size_t  ui_max   = FN_LEN;            /* Max string length */
     char         *s_tt     = nullptr;           /* temp string */
     size_t        ui_len   = 0;                 /* Length of name string */
-    char         *s_srcdst = pd_data->s_srcdst; /* String to process */
+    char         *s_srcdst = process->s_srcdst; /* String to process */
 
     s_tt   = g_utf8_strdown (s_srcdst, -1);
     ui_len = string_get_valid_length (s_tt, ui_max);
     memcpy (s_srcdst, s_tt, ui_len);
     s_srcdst[ui_len] = '\0';
 
-    if (ui_len != *pd_data->srcdst_len) {
-        *pd_data->srcdst_len = ui_len;
-        *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
+    if (ui_len != *process->srcdst_len) {
+        *process->srcdst_len = ui_len;
+        *process->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
     }
     #ifdef DEBUG
     printf ("\n%ld %s\n", ui_len, s_tt);
@@ -338,21 +338,21 @@ string_to_lower (const ProcessData *pd_data)
  * @brief  Convert all chars in a given string to upper case.
  */
 void
-string_to_upper (const ProcessData *pd_data)
+string_to_upper (const ProcessData *process)
 {
     char         *s_tt     = nullptr;           /* temp string */
     size_t        ui_len   = 0;                 /* Length of name string */
     const size_t  ui_max   = FN_LEN;            /* Max string length */
-    char         *s_srcdst = pd_data->s_srcdst; /* String to process */
+    char         *s_srcdst = process->s_srcdst; /* String to process */
 
     s_tt   = g_utf8_strup(s_srcdst, -1);
     ui_len = string_get_valid_length (s_tt, ui_max);
     memcpy (s_srcdst, s_tt, ui_len);
     s_srcdst[ui_len] = '\0';
 
-    if (ui_len != *pd_data->srcdst_len) {
-        *pd_data->srcdst_len = ui_len;
-        *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
+    if (ui_len != *process->srcdst_len) {
+        *process->srcdst_len = ui_len;
+        *process->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
     }
     #ifdef DEBUG
     printf ("\n%ld %s\n", ui_len, s_tt);
@@ -420,18 +420,18 @@ string_combine_name_ext (char       *s_name_ext,
  */
 void
 string_process_filename (void      (*fun) (const ProcessData*),
-                         const ProcessData *pd_data,
+                         const ProcessData *process,
                          const int8_t       ne)
 {
     char  f_name [FN_LEN + 1]; /* temp name */
     char  f_ext  [FN_LEN + 1]; /* temp extension */
-    char *s_srcdst = pd_data->s_srcdst;
+    char *s_srcdst = process->s_srcdst;
 
     f_name [0] = '\0';
     f_ext  [0] = '\0';
 
     if (ne == 2) { /* change text in name and ext */
-        fun (pd_data); 
+        fun (process); 
     }
     else { /* change text in name or ext */
 
@@ -440,22 +440,22 @@ string_process_filename (void      (*fun) (const ProcessData*),
 
         if (ne == 1) {
             strcpy (s_srcdst, f_name);
-            *pd_data->srcdst_len = strlen (f_name);
-            *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (f_name, -1);
-            fun (pd_data); /* change name only */
+            *process->srcdst_len = strlen (f_name);
+            *process->srcdst_u8len = (size_t) g_utf8_strlen (f_name, -1);
+            fun (process); /* change name only */
             strcpy (f_name, s_srcdst);
         }
         if (ne == 0) {
             strcpy (s_srcdst, f_ext);
-            *pd_data->srcdst_len = strlen (f_ext);
-            *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (f_ext, -1);
-            fun (pd_data); /* change name only */
+            *process->srcdst_len = strlen (f_ext);
+            *process->srcdst_u8len = (size_t) g_utf8_strlen (f_ext, -1);
+            fun (process); /* change name only */
             strcpy (f_ext, s_srcdst);
         }
         /* join name and ext */
         string_combine_name_ext (s_srcdst, f_name, f_ext);
-        *pd_data->srcdst_len = strlen (s_srcdst);
-        *pd_data->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
+        *process->srcdst_len = strlen (s_srcdst);
+        *process->srcdst_u8len = (size_t) g_utf8_strlen (s_srcdst, -1);
     }
 }
 /*----------------------------------------------------------------------------*/

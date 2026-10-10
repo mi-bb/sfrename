@@ -33,7 +33,7 @@ name_delete_chars (RenData             *data,
                    const uint_fast32_t  i)
 {
     auto rdel = rendata_get_rdelete (data);
-    ProcessData pd_data = {
+    ProcessData process = {
         .s_srcdst     =  data->names->rf_items[i]->s_new,
         .srcdst_len   = &data->names->rf_items[i]->new_len,
         .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -44,7 +44,7 @@ name_delete_chars (RenData             *data,
     /* exit if no chars to delete */
     if (rdelete_get_cnt (rdel)) {
         string_process_filename (string_delete_chars,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
@@ -57,7 +57,7 @@ name_insert_string (RenData             *data,
                     const uint_fast32_t  i)
 {
     auto rins = rendata_get_rinsert (data);
-    ProcessData pd_data = {
+    ProcessData process = {
         .s_srcdst     =  data->names->rf_items[i]->s_new,
         .srcdst_len   = &data->names->rf_items[i]->new_len,
         .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -69,7 +69,7 @@ name_insert_string (RenData             *data,
 
     if (!rinsovr_empty (rins)) {
         string_process_filename (string_insert_string,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
@@ -82,7 +82,7 @@ name_overwrite_string (RenData             *data,
                        const uint_fast32_t  i)
 {
     auto riovr = rendata_get_roverwr (data);
-    ProcessData pd_data = {
+    ProcessData process = {
         .s_srcdst     =  data->names->rf_items[i]->s_new,
         .srcdst_len   = &data->names->rf_items[i]->new_len,
         .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -94,7 +94,7 @@ name_overwrite_string (RenData             *data,
 
     if (!rinsovr_empty (riovr)) {
         string_process_filename (string_overwrite_string,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
@@ -107,7 +107,7 @@ name_number_string (RenData             *data,
                     const uint_fast32_t  i)
 {
     auto rnum = rendata_get_rnumber (data);
-    ProcessData pd_data = {
+    ProcessData process = {
         .s_srcdst     =  data->names->rf_items[i]->s_new,
         .srcdst_len   = &data->names->rf_items[i]->new_len,
         .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -119,7 +119,7 @@ name_number_string (RenData             *data,
 
     if (rnumber_get_opt (rnum)) {
         string_process_filename (string_add_number,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
@@ -131,7 +131,7 @@ void
 name_to_upcase_lowercase (RenData             *data,
                           const uint_fast32_t  i)
 {
-    ProcessData pd_data = {
+    ProcessData process = {
         .s_srcdst     =  data->names->rf_items[i]->s_new,
         .srcdst_len   = &data->names->rf_items[i]->new_len,
         .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -140,13 +140,13 @@ name_to_upcase_lowercase (RenData             *data,
     /* to uppercase */
     if (rendata_get_uplo (data) == 0) {
         string_process_filename (string_to_upper,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
     /* to lowercase */
     else if (rendata_get_uplo (data) == 1) {
         string_process_filename (string_to_lower,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
@@ -161,7 +161,7 @@ name_spaces_underscores (RenData             *data,
 {
     /* underscores to spaces */
     if (rendata_get_spaces (data) == 0) {
-        ProcessData pd_data = {
+        ProcessData process = {
             .s_srcdst     =  data->names->rf_items[i]->s_new,
             .srcdst_len   = &data->names->rf_items[i]->new_len,
             .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -169,12 +169,12 @@ name_spaces_underscores (RenData             *data,
             .s_str2 = " ", .str2_len = 1, .str2_u8len = 1,
         };
         string_process_filename (string_replace_in,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
     /* spaces to underscores */
     else if (rendata_get_spaces (data) == 1) {
-        ProcessData pd_data = {
+        ProcessData process = {
             .s_srcdst     =  data->names->rf_items[i]->s_new,
             .srcdst_len   = &data->names->rf_items[i]->new_len,
             .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -182,7 +182,7 @@ name_spaces_underscores (RenData             *data,
             .s_str2 = "_", .str2_len = 1, .str2_u8len = 1,
         };
         string_process_filename (string_replace_in,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
@@ -196,7 +196,7 @@ name_replace_strings (RenData             *data,
                       const uint_fast32_t  i)
 {
     auto rrep = rendata_get_rreplace (data);
-    ProcessData pd_data = {
+    ProcessData process = {
         .s_srcdst     =  data->names->rf_items[i]->s_new,
         .srcdst_len   = &data->names->rf_items[i]->new_len,
         .srcdst_u8len = &data->names->rf_items[i]->new_u8len,
@@ -210,7 +210,7 @@ name_replace_strings (RenData             *data,
 
     if (!rreplace_empty_from (rrep)) {
         string_process_filename (string_replace_in,
-                                 &pd_data,
+                                 &process,
                                  rendata_get_applyto (data));
     }
 }
