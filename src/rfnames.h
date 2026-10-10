@@ -38,14 +38,14 @@
  * @var   RFnames::file_box
  * @brief Box with file items
  *
- * @var   RFnames::rf_items
+ * @var   RFnames::items
  * @brief Items with file name, entry, buttons
  */
 typedef struct
 RFnames {
-    uint_fast32_t   cnt;
-    GtkWidget      *file_box;
-    RFitem        **rf_items;
+    uint_fast32_t  cnt;
+    GtkWidget     *file_box;
+    RFitem        **items;
 } RFnames;
 /*----------------------------------------------------------------------------*/
 /**
@@ -55,274 +55,274 @@ RFnames {
  *
  * @return  New RFnames object
  *
- * @fn  void rfnames_free (RFnames *rf_names)
+ * @fn  void rfnames_free (RFnames *names)
  *
  * @brief  Free allocated memory.
  *
- * @param[in,out] rf_names Pointer to RFnames object
+ * @param[in,out] names Pointer to RFnames object
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
 [[nodiscard]] RFnames * rfnames_new  (void)
               __attribute__ ((returns_nonnull));
 
-void      rfnames_free (RFnames *rf_names);
+void      rfnames_free (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Append file to RFnames.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @param[in]  g_file   GFile object for file to add
  * @return     Box widget with item widgets
  */
-[[nodiscard]] GtkWidget * rfnames_append_gfile (RFnames *rf_names,
+[[nodiscard]] GtkWidget * rfnames_append_gfile (RFnames *names,
                                                 GFile   *g_file);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_add_gfile_to_file_box (RFnames *rf_names,
+ * @fn  void rfnames_add_gfile_to_file_box (RFnames *names,
  *                                          GFile   *g_file)
  *
  * @brief  Create new RFitem object using data from gfile item and add it
  *         to RFnames item.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @param[in]  g_file   GFile object
  * @return     none
  *
- * @fn  void rfnames_add_sfile_to_file_box (RFnames    *rf_names,
+ * @fn  void rfnames_add_sfile_to_file_box (RFnames    *names,
  *                                          const char *s_fn)
  *
  * @brief  Create new RFitem object using data from s_fn string and add it
  *         to RFnames item.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @param[in]  s_fn     String with file path
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_add_gfile_to_file_box (RFnames    *rf_names,
+void rfnames_add_gfile_to_file_box (RFnames    *names,
                                     GFile      *g_file);
 /*----------------------------------------------------------------------------*/
-void rfnames_add_sfile_to_file_box (RFnames    *rf_names,
+void rfnames_add_sfile_to_file_box (RFnames    *names,
                                     const char *s_fn);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Get length of rf_items list
+ * @brief  Get length of items list
  *
- * @param[in] rf_names Pointer to RFnames object
+ * @param[in] names Pointer to RFnames object
  * @return    Length of list
  */
-static inline uint_fast32_t rfnames_get_cnt (const RFnames *rf_names) {
-    return rf_names->cnt;
+static inline uint_fast32_t rfnames_get_cnt (const RFnames *names) {
+    return names->cnt;
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_select_unselect_all (RFnames *rf_names)
+ * @fn  void rfnames_select_unselect_all (RFnames *names)
  *
  * @brief  Select or unselect all check items on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  *
- * @fn  void rfnames_select_invert (RFnames *rf_names)
+ * @fn  void rfnames_select_invert (RFnames *names)
  *
  * @brief  Invert selection of items on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_select_unselect_all (RFnames *rf_names);
+void rfnames_select_unselect_all (RFnames *names);
 
-void rfnames_select_invert       (RFnames *rf_names);
+void rfnames_select_invert       (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_select_files (RFnames *rf_names)
+ * @fn  void rfnames_select_files (RFnames *names)
  *
  * @brief  Select all items with file type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  *
- * @fn  void rfnames_unselect_files (RFnames *rf_names)
+ * @fn  void rfnames_unselect_files (RFnames *names)
  *
  * @brief  Unselect all items with file type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_select_files        (RFnames *rf_names);
+void rfnames_select_files        (RFnames *names);
 
-void rfnames_unselect_files      (RFnames *rf_names);
+void rfnames_unselect_files      (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_select_folders (RFnames *rf_names)
+ * @fn  void rfnames_select_folders (RFnames *names)
  *
  * @brief  Select all items with folder type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  *
- * @fn  void rfnames_unselect_folders (RFnames *rf_names)
+ * @fn  void rfnames_unselect_folders (RFnames *names)
  *
  * @brief  Unselect all items with folder type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_select_folders      (RFnames *rf_names);
+void rfnames_select_folders      (RFnames *names);
 
-void rfnames_unselect_folders    (RFnames *rf_names);
+void rfnames_unselect_folders    (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_select_symlinks (RFnames *rf_names)
+ * @fn  void rfnames_select_symlinks (RFnames *names)
  *
  * @brief  Select all items with symlink type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  *
- * @fn  void rfnames_unselect_symlinks (RFnames *rf_names)
+ * @fn  void rfnames_unselect_symlinks (RFnames *names)
  *
  * @brief  Unselect all items with symlink type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_select_symlinks     (RFnames *rf_names);
+void rfnames_select_symlinks     (RFnames *names);
 
-void rfnames_unselect_symlinks   (RFnames *rf_names);
+void rfnames_unselect_symlinks   (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_select_hidden (RFnames *rf_names)
+ * @fn  void rfnames_select_hidden (RFnames *names)
  *
  * @brief  Select all items with hidden type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  *
- * @fn  void rfnames_unselect_hidden (RFnames *rf_names)
+ * @fn  void rfnames_unselect_hidden (RFnames *names)
  *
  * @brief  Unselect all items with hidden type on list.
  *
- * @param[out] rf_names RFnames list
+ * @param[out] names RFnames list
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_select_hidden       (RFnames *rf_names);
+void rfnames_select_hidden       (RFnames *names);
 
-void rfnames_unselect_hidden     (RFnames *rf_names);
+void rfnames_unselect_hidden     (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn            void rfnames_remove_selected (RFnames *rf_names)
+ * @fn            void rfnames_remove_selected (RFnames *names)
  * @brief         Remove selected items from list.
- * @param[in,out] rf_names RFnames list
+ * @param[in,out] names RFnames list
  * @return        none
  *
- * @fn            void rfnames_remove_all (RFnames *rf_names)
+ * @fn            void rfnames_remove_all (RFnames *names)
  * @brief         Remove all items from list.
- * @param[in,out] rf_names RFnames list
+ * @param[in,out] names RFnames list
  * @return        none
  *
- * @fn            void rfnames_remove_all_files (RFnames *rf_names)
+ * @fn            void rfnames_remove_all_files (RFnames *names)
  * @brief         Remove all files from list.
- * @param[in,out] rf_names RFnames list
+ * @param[in,out] names RFnames list
  * @return        none
  *
- * @fn            void rfnames_remove_all_folders (RFnames *rf_names)
+ * @fn            void rfnames_remove_all_folders (RFnames *names)
  * @brief         Remove all folders from list.
- * @param[in,out] rf_names RFnames list
+ * @param[in,out] names RFnames list
  * @return        none
  *
- * @fn            void rfnames_remove_all_symlinks (RFnames *rf_names)
+ * @fn            void rfnames_remove_all_symlinks (RFnames *names)
  * @brief         Remove all symlinks from list.
- * @param[in,out] rf_names RFnames list
+ * @param[in,out] names RFnames list
  * @return        none
  *
- * @fn            void rfnames_remove_all_hidden (RFnames *rf_names)
+ * @fn            void rfnames_remove_all_hidden (RFnames *names)
  * @brief         Remove all hidden files/folders from list.
- * @param[in,out] rf_names RFnames list
+ * @param[in,out] names RFnames list
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_remove_selected     (RFnames *rf_names);
+void rfnames_remove_selected     (RFnames *names);
 
-void rfnames_remove_all          (RFnames *rf_names);
+void rfnames_remove_all          (RFnames *names);
 
-void rfnames_remove_all_files    (RFnames *rf_names);
+void rfnames_remove_all_files    (RFnames *names);
 
-void rfnames_remove_all_folders  (RFnames *rf_names);
+void rfnames_remove_all_folders  (RFnames *names);
 
-void rfnames_remove_all_symlinks (RFnames *rf_names);
+void rfnames_remove_all_symlinks (RFnames *names);
 
-void rfnames_remove_all_hidden   (RFnames *rf_names);
+void rfnames_remove_all_hidden   (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_restore_selected (RFnames *rf_names)
+ * @fn  void rfnames_restore_selected (RFnames *names)
  *
  * @brief  Restore original file name in selected RFitem objects on list.
  *
- * @param[in,out] rf_names RFnames list to restore original names
+ * @param[in,out] names RFnames list to restore original names
  * @return        none
  *
- * @fn  void rfnames_restore_all (RFnames *rf_names)
+ * @fn  void rfnames_restore_all (RFnames *names)
  *
  * @brief  Restore original file name in all RFitem objects on list.
  *
- * @param[in,out] rf_names RFnames list to restore original names
+ * @param[in,out] names RFnames list to restore original names
  * @return        none
  *
- * @fn  void rfnames_restore_all_files (RFnames *rf_names)
+ * @fn  void rfnames_restore_all_files (RFnames *names)
  *
  * @brief  Restore original file name for all files from list.
  *
- * @param[in,out] rf_names RFnames list to restore original names
+ * @param[in,out] names RFnames list to restore original names
  * @return        none
  *
- * @fn  void rfnames_restore_all_folders (RFnames *rf_names)
+ * @fn  void rfnames_restore_all_folders (RFnames *names)
  *
  * @brief  Restore original file name for all folders from list.
  *
- * @param[in,out] rf_names RFnames list to restore original names
+ * @param[in,out] names RFnames list to restore original names
  * @return        none
  *
- * @fn  void rfnames_restore_all_symlinks (RFnames *rf_names)
+ * @fn  void rfnames_restore_all_symlinks (RFnames *names)
  *
  * @brief  Restore original file name for all symlinks from list.
  *
- * @param[in,out] rf_names RFnames list to restore original names
+ * @param[in,out] names RFnames list to restore original names
  * @return        none
  *
- * @fn  void rfnames_restore_all_hidden (RFnames *rf_names)
+ * @fn  void rfnames_restore_all_hidden (RFnames *names)
  *
  * @brief  Restore original file name for all hidden files/folders from list.
  *
- * @param[in,out] rf_names RFnames list to restore original names
+ * @param[in,out] names RFnames list to restore original names
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-void rfnames_restore_selected     (RFnames *rf_names);
+void rfnames_restore_selected     (RFnames *names);
 
-void rfnames_restore_all          (RFnames *rf_names);
+void rfnames_restore_all          (RFnames *names);
 
-void rfnames_restore_all_files    (RFnames *rf_names);
+void rfnames_restore_all_files    (RFnames *names);
 
-void rfnames_restore_all_folders  (RFnames *rf_names);
+void rfnames_restore_all_folders  (RFnames *names);
 
-void rfnames_restore_all_symlinks (RFnames *rf_names);
+void rfnames_restore_all_symlinks (RFnames *names);
 
-void rfnames_restore_all_hidden   (RFnames *rf_names);
+void rfnames_restore_all_hidden   (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Sort RFitem objects in RFnames list by the original path string.
  *
- * @param[in,out] rf_names RFnames object to sort RFitems
+ * @param[in,out] names RFnames object to sort RFitems
  * @return        none
  */
-void rfnames_sort (RFnames *rf_names);
+void rfnames_sort (RFnames *names);
 /*----------------------------------------------------------------------------*/
 #endif
 

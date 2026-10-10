@@ -108,20 +108,20 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *data)
 {
-    RFitem        *rf_item; /* RFitem object to process */
-    uint_fast32_t  i = 0;   /* i */
+    RFitem        *item;  /* RFitem object to process */
+    uint_fast32_t  i = 0; /* i */
 
     i = rfnames_get_cnt (rendata_get_rfnames (data));
 
     /* Check if file is checked and skip to next one if it is not */
     while (i--) {
-        rf_item = data->names->rf_items[i];
+        item = data->names->items[i];
 
-        if (!rfitem_get_checked (rf_item))
+        if (!rfitem_get_checked (item))
             continue;
 
         /* copy original name to new to process */
-        rfitem_set_snew_from_sorg (rf_item);
+        rfitem_set_snew_from_sorg (item);
 
         /* Execute rename functions */
         name_to_upcase_lowercase (data, i);
@@ -132,20 +132,20 @@ file_names_update_changes (RenData *data)
         name_overwrite_string (data, i);
         name_number_string (data, i);
         /* Update file name entry if name has changed */
-        rfitem_entry_check_and_update (rf_item, rfitem_get_snew (rf_item));
+        rfitem_entry_check_and_update (item, rfitem_get_snew (item));
     }
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Scan folder folder content, check for adding and add files, folders.
  *
- * @param[out] rf_names RFnames item with file list
+ * @param[out] names RFnames item with file list
  * @param[in]  gf_dir   Directory to scan
  * @param[in]  i_opt    Options with info which items to add (files, folders)
  * @return     none
  */
 static void
-enumerate_folder (RFnames   *rf_names,
+enumerate_folder (RFnames   *names,
                   GFile     *gf_dir,
                   const int  i_opt)
 {
@@ -180,15 +180,15 @@ enumerate_folder (RFnames   *rf_names,
             }
             if (f_type == G_FILE_TYPE_DIRECTORY) {
                 if (i_opt & FOLDER_SELECT_FOLDERS) {
-                    rfnames_add_gfile_to_file_box (rf_names, g_file);
+                    rfnames_add_gfile_to_file_box (names, g_file);
                 }
                 if (i_opt & FOLDER_SCAN_RECURSIVELY) {
-                    enumerate_folder (rf_names, g_file, i_opt);
+                    enumerate_folder (names, g_file, i_opt);
                 }
             }
             if (f_type == G_FILE_TYPE_REGULAR &&
                 (i_opt & FOLDER_SELECT_FILES)) {
-                rfnames_add_gfile_to_file_box (rf_names, g_file);
+                rfnames_add_gfile_to_file_box (names, g_file);
             }
         }
     }
@@ -200,13 +200,13 @@ enumerate_folder (RFnames   *rf_names,
 /**
  * @brief  Checks if path is a folder and calls enumerate_folder if it is.
  *
- * @param[out] rf_names RFnames item with file list
+ * @param[out] names RFnames item with file list
  * @param[in]  s_dir    Directory path
  * @param[in]  i_opt    Options with info which items to add (files, folders)
  * @return     none
  */
 static void
-get_folder_content (RFnames    *rf_names,
+get_folder_content (RFnames    *names,
                     const char *s_dir,
                     const int   i_opt)
 {
@@ -226,7 +226,7 @@ get_folder_content (RFnames    *rf_names,
         g_object_unref (f_info);
 
         if (f_type == G_FILE_TYPE_DIRECTORY) {
-            enumerate_folder (rf_names, gf_dir, i_opt);
+            enumerate_folder (names, gf_dir, i_opt);
         }
     }
     g_object_unref (gf_dir);
@@ -297,16 +297,16 @@ event_click_rename (GtkWidget *widget,
     RenResult      i_renamed    = REN_OK;  /* Renaming result */
     uint_fast32_t  ui_ren_count = 0;       /* Number of renamed files */
     uint_fast32_t  ui_names_cnt = 0;       /* Number of files to rename */
-    RFitem        *rf_item;                /* Processed RFitem object */
+    RFitem        *item;                   /* Processed RFitem object */
 
     ui_names_cnt = rfnames_get_cnt (rendata_get_rfnames (data));
 
     for (uint_fast32_t i = 0; i < ui_names_cnt; ++i) {
-        rf_item = data->names->rf_items[i];
+        item = data->names->items[i];
 
-        s_new = rfitem_entry_get_text (rf_item);
-        s_old = rfitem_get_sorg (rf_item);
-        s_pth = rfitem_get_spth (rf_item);
+        s_new = rfitem_entry_get_text (item);
+        s_old = rfitem_get_sorg (item);
+        s_pth = rfitem_get_spth (item);
 
         i_renamed = file_check_and_rename (s_old, s_new, s_pth);
 
@@ -315,7 +315,7 @@ event_click_rename (GtkWidget *widget,
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", s_old, s_new);
                 /* copy new name to original in buffer */
-                rfitem_set_sorg_from_snew (rf_item);
+                rfitem_set_sorg_from_snew (item);
                 ++ui_ren_count;
                 break;
 
@@ -333,10 +333,10 @@ event_click_rename (GtkWidget *widget,
         }
         if (i_renamed != REN_OK && i_renamed != REN_NC) {
             /* Revert old file names to new */
-            rfitem_set_snew_from_sorg (rf_item);
+            rfitem_set_snew_from_sorg (item);
 
             /* Update file name in entry */
-            rfitem_entry_check_and_update (rf_item, s_old);
+            rfitem_entry_check_and_update (item, s_old);
         }
     }
     printf ("Renamed %" PRIdFAST32 " files of %" PRIdFAST32 "\n",
@@ -700,30 +700,30 @@ event_win_key_press (GtkWidget   *widget,
 /**
  * @brief  Add files button pressed.
  *
- * @param[in,out] rf_names RFnames object with file list
+ * @param[in,out] names RFnames object with file list
  * @return        none
  */
 static void
-event_click_add_files (RFnames *rf_names)
+event_click_add_files (RFnames *names)
 {
     GSList       *gs_files = nullptr; /* File list returned by dialog */
     GSList       *gs_fn    = nullptr; /* File list copy */
     uint_fast32_t ui_pcnt  = 0;       /* Previous number of file items */
 
-    ui_pcnt  = rfnames_get_cnt (rf_names);
+    ui_pcnt  = rfnames_get_cnt (names);
     gs_files = add_files_dialog (nullptr);
     gs_fn    = gs_files;
 
     while (gs_fn) {
         const char *s_fn = gs_fn->data;
-        rfnames_add_sfile_to_file_box (rf_names, s_fn);
+        rfnames_add_sfile_to_file_box (names, s_fn);
         gs_fn = gs_fn->next;
     }
     g_slist_free_full (gs_files, g_free);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rfnames_get_cnt (rf_names) > 0) {
-        gtk_widget_grab_focus (rf_names->rf_items[0]->entry);
+    if (ui_pcnt == 0 && rfnames_get_cnt (names) > 0) {
+        gtk_widget_grab_focus (names->items[0]->entry);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -756,7 +756,7 @@ event_click_add_folder_files (RenData *data)
 
     /* Select first entry after adding to empty list */
     if (ui_pcnt == 0 && rfnames_get_cnt (rendata_get_rfnames (data)) > 0) {
-        gtk_widget_grab_focus (data->names->rf_items[0]->entry);
+        gtk_widget_grab_focus (data->names->items[0]->entry);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -1685,7 +1685,7 @@ open (GtkApplication  *application,
 
     /* Set focus on first entry if file count is greater than 0 */
     if (rfnames_get_cnt (rendata_get_rfnames (data)) > 0) {
-        gtk_widget_grab_focus (data->names->rf_items[0]->entry);
+        gtk_widget_grab_focus (data->names->items[0]->entry);
     }
     gtk_widget_show_all (window);
 }

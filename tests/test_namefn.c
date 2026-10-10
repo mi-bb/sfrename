@@ -61,7 +61,7 @@ fixture_init (Fixture *f, const char *const *names, size_t n)
         f->item_ptrs[i] = &f->items[i];
     }
     f->names.cnt      = (uint_fast32_t) n;
-    f->names.rf_items = f->item_ptrs;
+    f->names.items = f->item_ptrs;
 
     f->rd.names   = &f->names;
     f->rd.del     = &f->del;

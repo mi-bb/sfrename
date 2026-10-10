@@ -34,9 +34,9 @@ name_delete_chars (RenData             *data,
 {
     auto rdel = rendata_get_rdelete (data);
     ProcessData process = {
-        .text       =  data->names->rf_items[i]->s_new,
-        .text_len   = &data->names->rf_items[i]->new_len,
-        .text_u8len = &data->names->rf_items[i]->new_u8len,
+        .text       =  data->names->items[i]->s_new,
+        .text_len   = &data->names->items[i]->new_len,
+        .text_u8len = &data->names->items[i]->new_u8len,
         .pos        =  rdelete_get_pos (rdel),
         .count      =  rdelete_get_cnt (rdel),
     };
@@ -58,9 +58,9 @@ name_insert_string (RenData             *data,
 {
     auto rins = rendata_get_rinsert (data);
     ProcessData process = {
-        .text        =  data->names->rf_items[i]->s_new,
-        .text_len    = &data->names->rf_items[i]->new_len,
-        .text_u8len  = &data->names->rf_items[i]->new_u8len,
+        .text        =  data->names->items[i]->s_new,
+        .text_len    = &data->names->items[i]->new_len,
+        .text_u8len  = &data->names->items[i]->new_u8len,
         .first       =  rinsovr_get_text  (rins),
         .first_len   =  rinsovr_get_len   (rins),
         .first_u8len =  rinsovr_get_u8len (rins),
@@ -83,9 +83,9 @@ name_overwrite_string (RenData             *data,
 {
     auto riovr = rendata_get_roverwr (data);
     ProcessData process = {
-        .text        =  data->names->rf_items[i]->s_new,
-        .text_len    = &data->names->rf_items[i]->new_len,
-        .text_u8len  = &data->names->rf_items[i]->new_u8len,
+        .text        =  data->names->items[i]->s_new,
+        .text_len    = &data->names->items[i]->new_len,
+        .text_u8len  = &data->names->items[i]->new_u8len,
         .first       =  rinsovr_get_text  (riovr),
         .first_len   =  rinsovr_get_len   (riovr),
         .first_u8len =  rinsovr_get_u8len (riovr),
@@ -108,9 +108,9 @@ name_number_string (RenData             *data,
 {
     auto rnum = rendata_get_rnumber (data);
     ProcessData process = {
-        .text       =  data->names->rf_items[i]->s_new,
-        .text_len   = &data->names->rf_items[i]->new_len,
-        .text_u8len = &data->names->rf_items[i]->new_u8len,
+        .text       =  data->names->items[i]->s_new,
+        .text_len   = &data->names->items[i]->new_len,
+        .text_u8len = &data->names->items[i]->new_u8len,
         .pos        =  rnumber_get_pos   (rnum),
         .number     =  i,
         .start      =  rnumber_get_start (rnum),
@@ -132,9 +132,9 @@ name_to_upcase_lowercase (RenData             *data,
                           const uint_fast32_t  i)
 {
     ProcessData process = {
-        .text       =  data->names->rf_items[i]->s_new,
-        .text_len   = &data->names->rf_items[i]->new_len,
-        .text_u8len = &data->names->rf_items[i]->new_u8len,
+        .text       =  data->names->items[i]->s_new,
+        .text_len   = &data->names->items[i]->new_len,
+        .text_u8len = &data->names->items[i]->new_u8len,
     };
 
     /* to uppercase */
@@ -162,9 +162,9 @@ name_spaces_underscores (RenData             *data,
     /* underscores to spaces */
     if (rendata_get_spaces (data) == 0) {
         ProcessData process = {
-            .text       =  data->names->rf_items[i]->s_new,
-            .text_len   = &data->names->rf_items[i]->new_len,
-            .text_u8len = &data->names->rf_items[i]->new_u8len,
+            .text       =  data->names->items[i]->s_new,
+            .text_len   = &data->names->items[i]->new_len,
+            .text_u8len = &data->names->items[i]->new_u8len,
             .first = "_", .first_len = 1, .first_u8len = 1,
             .second = " ", .second_len = 1, .second_u8len = 1,
         };
@@ -175,9 +175,9 @@ name_spaces_underscores (RenData             *data,
     /* spaces to underscores */
     else if (rendata_get_spaces (data) == 1) {
         ProcessData process = {
-            .text       =  data->names->rf_items[i]->s_new,
-            .text_len   = &data->names->rf_items[i]->new_len,
-            .text_u8len = &data->names->rf_items[i]->new_u8len,
+            .text       =  data->names->items[i]->s_new,
+            .text_len   = &data->names->items[i]->new_len,
+            .text_u8len = &data->names->items[i]->new_u8len,
             .first = " ", .first_len = 1, .first_u8len = 1,
             .second = "_", .second_len = 1, .second_u8len = 1,
         };
@@ -197,9 +197,9 @@ name_replace_strings (RenData             *data,
 {
     auto rrep = rendata_get_rreplace (data);
     ProcessData process = {
-        .text         =  data->names->rf_items[i]->s_new,
-        .text_len     = &data->names->rf_items[i]->new_len,
-        .text_u8len   = &data->names->rf_items[i]->new_u8len,
+        .text         =  data->names->items[i]->s_new,
+        .text_len     = &data->names->items[i]->new_len,
+        .text_u8len   = &data->names->items[i]->new_u8len,
         .first        =  rreplace_get_from       (rrep),
         .first_len    =  rreplace_get_from_len   (rrep),
         .first_u8len  =  rreplace_get_from_u8len (rrep),

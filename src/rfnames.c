@@ -29,86 +29,86 @@
 /**
  * @brief  RFnames initialization.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @return     none
  */
-static void rfnames_init (RFnames *rf_names);
+static void rfnames_init (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Append RFitem object to RFnames.
  *
- * @param[out] rf_names Pointer to RFnames object
- * @param[in]  rf_item RFitem object to add
+ * @param[out] names Pointer to RFnames object
+ * @param[in]  item RFitem object to add
  * @return     none
  */
-static void rfnames_append (RFnames *rf_names,
-                            RFitem  *rf_item);
+static void rfnames_append (RFnames *names,
+                            RFitem  *item);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete RFitem object from RFnames list at given position.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @param[in]  ui_pos   Position of RFitem to delete
  * @return     none
  */
-static void rfnames_delete_at_pos (RFnames             *rf_names,
+static void rfnames_delete_at_pos (RFnames             *names,
                                    const uint_fast32_t  ui_pos);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete item from file list clicked.
  *
  * @param[in]  widget   The object which received the signal
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @return     none
  */
 static void event_click_del (GtkWidget *widget,
-                             RFnames   *rf_names);
+                             RFnames   *names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select items on RFnames list if they match the fun return value.
  *
- * @param[in,out] rf_names Pointer to RFnames object
+ * @param[in,out] names Pointer to RFnames object
  * @param[in]     fun      Function to examine RFitem object
  * @param[in]     b_sel    Boolean value to select or not select item
  * @return     none
  */
-static void rfnames_select_unselect (RFnames     *rf_names,
-                                     bool     (*fun) (const RFitem *rf_item),
+static void rfnames_select_unselect (RFnames     *names,
+                                     bool     (*fun) (const RFitem *item),
                                      const bool   b_sel);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select all check items on list.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @return     none
  */
-static void rfnames_select_all (RFnames *rf_names);
+static void rfnames_select_all (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Unselect all check items on list.
  *
- * @param[out] rf_names Pointer to RFnames object
+ * @param[out] names Pointer to RFnames object
  * @return     none
  */
-static void rfnames_unselect_all (RFnames *rf_names);
+static void rfnames_unselect_all (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove item from RFnames list if it matches the fun return value.
  *
- * @param[in,out] rf_names Pointer to RFnames object
+ * @param[in,out] names Pointer to RFnames object
  * @param[in]     fun      Function to examine RFitem object.
  * @return     none
  */
-static void rfnames_remove (RFnames *rf_names,
-                            bool  (*fun) (const RFitem *rf_item));
+static void rfnames_remove (RFnames *names,
+                            bool  (*fun) (const RFitem *item));
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RFnames initialization.
  */
 static void
-rfnames_init (RFnames *rf_names)
+rfnames_init (RFnames *names)
 {
-    *rf_names = (RFnames){};
+    *names = (RFnames){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -117,107 +117,107 @@ rfnames_init (RFnames *rf_names)
 RFnames *
 rfnames_new (void)
 {
-    RFnames *rf_names = nullptr;
+    RFnames *names = nullptr;
 
-    if ((rf_names = malloc (sizeof (RFnames))) == nullptr)
+    if ((names = malloc (sizeof (RFnames))) == nullptr)
         err (EXIT_FAILURE, nullptr);
 
-    rfnames_init (rf_names);
+    rfnames_init (names);
 
-    return rf_names;
+    return names;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  */
 void
-rfnames_free (RFnames *rf_names)
+rfnames_free (RFnames *names)
 {
-    while (rf_names->cnt--) {
-        rfitem_free (rf_names->rf_items[rf_names->cnt]);
+    while (names->cnt--) {
+        rfitem_free (names->items[names->cnt]);
     }
-    free (rf_names->rf_items);
-    free (rf_names);
+    free (names->items);
+    free (names);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Append RFitem object to RFnames.
  */
 static void
-rfnames_append (RFnames *rf_names,
-                RFitem  *rf_item)
+rfnames_append (RFnames *names,
+                RFitem  *item)
 {
-    RFitem **rf_tmp = nullptr;
+    RFitem **tmp = nullptr;
     /* Malloc if null, realloc if not null */
-    if (rf_names->rf_items == nullptr) {
-        rf_names->rf_items = malloc (sizeof (RFitem*));
+    if (names->items == nullptr) {
+        names->items = malloc (sizeof (RFitem*));
     }
     else {
-        rf_tmp = realloc (rf_names->rf_items,
-                          (rf_names->cnt + 1) * sizeof (RFitem*));
-        if (rf_tmp == nullptr) {
-            for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-                rfitem_free (rf_names->rf_items[i]);
+        tmp = realloc (names->items,
+                          (names->cnt + 1) * sizeof (RFitem*));
+        if (tmp == nullptr) {
+            for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+                rfitem_free (names->items[i]);
             }
-            free (rf_names->rf_items);
+            free (names->items);
             err (EXIT_FAILURE, nullptr);
         }
         else {
-            rf_names->rf_items = rf_tmp;
+            names->items = tmp;
         }
     }
-    rf_names->rf_items[rf_names->cnt++] = rf_item;
+    names->items[names->cnt++] = item;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete RFitem object from RFnames list at given position.
  */
 static void
-rfnames_delete_at_pos (RFnames             *rf_names,
+rfnames_delete_at_pos (RFnames             *names,
                        const uint_fast32_t  ui_pos)
 {
-    RFitem    **rf_tmp = nullptr;
-    GtkWidget  *gw_ibox;
-    GtkBox     *gb_pbox;
+    RFitem    **tmp = nullptr;
+    GtkWidget *gw_ibox;
+    GtkBox    *gb_pbox;
 
-    if (ui_pos >= rf_names->cnt || rf_names->cnt == 0)
+    if (ui_pos >= names->cnt || names->cnt == 0)
         return;
 
     /* Get item box and parent list box */
-    gw_ibox = rf_names->rf_items[ui_pos]->box;
+    gw_ibox = names->items[ui_pos]->box;
     gb_pbox = GTK_BOX (gtk_widget_get_parent (gw_ibox));
 
-    rfitem_delete (rf_names->rf_items[ui_pos]);
+    rfitem_delete (names->items[ui_pos]);
 
-    rf_names->cnt -= 1;
+    names->cnt -= 1;
 
     /* Reorder items on the list and on the box widget */
-    for (uint_fast32_t i = ui_pos; i < rf_names->cnt; ++i) {
-        rf_names->rf_items[i] = rf_names->rf_items[i+1];
-        gw_ibox = rf_names->rf_items[i]->box;
+    for (uint_fast32_t i = ui_pos; i < names->cnt; ++i) {
+        names->items[i] = names->items[i+1];
+        gw_ibox = names->items[i]->box;
         gtk_box_reorder_child (gb_pbox, gw_ibox, (gint) i);
     }
 
-    if (rf_names->cnt == 0) {
-        free (rf_names->rf_items);
-        rf_names->rf_items = nullptr;
+    if (names->cnt == 0) {
+        free (names->items);
+        names->items = nullptr;
         return;
     }
 
-    rf_tmp = realloc (rf_names->rf_items, (rf_names->cnt) * sizeof (RFitem*));
-    if (rf_tmp == nullptr) {
-        /* The item at index rf_names->cnt is stale: either already freed
+    tmp = realloc (names->items, (names->cnt) * sizeof (RFitem*));
+    if (tmp == nullptr) {
+        /* The item at index names->cnt is stale: either already freed
          * by rfitem_delete() above, or a duplicate of index cnt-1 left
          * behind by the reorder loop. Only the cnt live entries need
          * freeing here. */
-        for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-            rfitem_free (rf_names->rf_items[i]);
+        for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+            rfitem_free (names->items[i]);
         }
-        free (rf_names->rf_items);
+        free (names->items);
         err (EXIT_FAILURE, nullptr);
     }
     else {
-        rf_names->rf_items = rf_tmp;
+        names->items = tmp;
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -226,11 +226,11 @@ rfnames_delete_at_pos (RFnames             *rf_names,
  */
 static void
 event_click_del (GtkWidget *widget,
-                 RFnames   *rf_names)
+                 RFnames   *names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rf_names->rf_items[i]->dbut == widget) {
-            rfnames_delete_at_pos (rf_names, i);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        if (names->items[i]->dbut == widget) {
+            rfnames_delete_at_pos (names, i);
             break;
         }
     }
@@ -240,18 +240,18 @@ event_click_del (GtkWidget *widget,
  * @brief  Append file to RFnames.
  */
 GtkWidget *
-rfnames_append_gfile (RFnames *rf_names,
+rfnames_append_gfile (RFnames *names,
                       GFile   *g_file)
 {
-    RFitem *rf_item;
+    RFitem *item;
    
-    rf_item = rfitem_new_from_gfile (g_file);
-    rfnames_append (rf_names, rf_item);
+    item = rfitem_new_from_gfile (g_file);
+    rfnames_append (names, item);
 
-    g_signal_connect (G_OBJECT (rf_item->dbut), "clicked",
-                      G_CALLBACK (event_click_del), rf_names);
+    g_signal_connect (G_OBJECT (item->dbut), "clicked",
+                      G_CALLBACK (event_click_del), names);
 
-    return rf_item->box;
+    return item->box;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -259,16 +259,16 @@ rfnames_append_gfile (RFnames *rf_names,
  *         to RFnames item.
  */
 void
-rfnames_add_gfile_to_file_box (RFnames *rf_names,
+rfnames_add_gfile_to_file_box (RFnames *names,
                                GFile   *g_file)
 {
     /* Create and append file widgets (entry, check, buttons) to file
      * list, get box widget with them */
-    auto gw_widget = rfnames_append_gfile (rf_names, g_file);
+    auto gw_widget = rfnames_append_gfile (names, g_file);
     gtk_widget_show_all (gw_widget);
     /* Add box to the container */
     gtk_box_pack_start (
-            GTK_BOX (rf_names->file_box),
+            GTK_BOX (names->file_box),
             gw_widget,
             FALSE, FALSE, 0);
 }
@@ -278,11 +278,11 @@ rfnames_add_gfile_to_file_box (RFnames *rf_names,
  *         to RFnames item.
  */
 void
-rfnames_add_sfile_to_file_box (RFnames    *rf_names,
+rfnames_add_sfile_to_file_box (RFnames    *names,
                                const char *s_fn)
 {
     auto g_file = g_file_new_for_path (s_fn);
-    rfnames_add_gfile_to_file_box (rf_names, g_file);
+    rfnames_add_gfile_to_file_box (names, g_file);
     g_object_unref (g_file);
 }
 /*----------------------------------------------------------------------------*/
@@ -290,10 +290,10 @@ rfnames_add_sfile_to_file_box (RFnames    *rf_names,
  * @brief  Select all check items on list.
  */
 static void
-rfnames_select_all (RFnames *rf_names)
+rfnames_select_all (RFnames *names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_set_checked (rf_names->rf_items[i], true);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        rfitem_set_checked (names->items[i], true);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -301,10 +301,10 @@ rfnames_select_all (RFnames *rf_names)
  * @brief  Unselect all check items on list.
  */
 static void
-rfnames_unselect_all (RFnames *rf_names)
+rfnames_unselect_all (RFnames *names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_set_checked (rf_names->rf_items[i], false);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        rfitem_set_checked (names->items[i], false);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -312,18 +312,18 @@ rfnames_unselect_all (RFnames *rf_names)
  * @brief  Select or unselect all check items on list.
  */
 void
-rfnames_select_unselect_all (RFnames *rf_names)
+rfnames_select_unselect_all (RFnames *names)
 {
     bool          b_sel = true;
-    uint_fast32_t i     = rf_names->cnt;
+    uint_fast32_t i     = names->cnt;
 
-    while (i-- && (b_sel = rfitem_get_checked (rf_names->rf_items[i])));
+    while (i-- && (b_sel = rfitem_get_checked (names->items[i])));
 
     if (b_sel) {
-        rfnames_unselect_all (rf_names);
+        rfnames_unselect_all (names);
     }
     else {
-        rfnames_select_all (rf_names);
+        rfnames_select_all (names);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -331,13 +331,13 @@ rfnames_select_unselect_all (RFnames *rf_names)
  * @brief  Select items on RFnames list if they match the fun return value.
  */
 static void
-rfnames_select_unselect (RFnames     *rf_names,
-                         bool     (*fun) (const RFitem *rf_item),
+rfnames_select_unselect (RFnames     *names,
+                         bool     (*fun) (const RFitem *item),
                          const bool   b_sel)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (fun (rf_names->rf_items[i])) {
-            rfitem_set_checked (rf_names->rf_items[i], b_sel);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        if (fun (names->items[i])) {
+            rfitem_set_checked (names->items[i], b_sel);
         }
     }
 }
@@ -346,19 +346,19 @@ rfnames_select_unselect (RFnames     *rf_names,
  * @brief  Select all items with file type on list.
  */
 void
-rfnames_select_files (RFnames *rf_names)
+rfnames_select_files (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_file, true);
+    rfnames_select_unselect (names, rfitem_is_file, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Invert selection of items on list.
  */
 void
-rfnames_select_invert (RFnames *rf_names)
+rfnames_select_invert (RFnames *names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_invert_checked (rf_names->rf_items[i]);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        rfitem_invert_checked (names->items[i]);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -366,74 +366,74 @@ rfnames_select_invert (RFnames *rf_names)
  * @brief  Unselect all items with file type on list.
  */
 void
-rfnames_unselect_files (RFnames *rf_names)
+rfnames_unselect_files (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_file, false);
+    rfnames_select_unselect (names, rfitem_is_file, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select all items with folder type on list.
  */
 void
-rfnames_select_folders (RFnames *rf_names)
+rfnames_select_folders (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_folder, true);
+    rfnames_select_unselect (names, rfitem_is_folder, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Unselect all items with folder type on list.
  */
 void
-rfnames_unselect_folders (RFnames *rf_names)
+rfnames_unselect_folders (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_folder, false);
+    rfnames_select_unselect (names, rfitem_is_folder, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select all items with symlink type on list.
  */
 void
-rfnames_select_symlinks (RFnames *rf_names)
+rfnames_select_symlinks (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_symlink, true);
+    rfnames_select_unselect (names, rfitem_is_symlink, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Unselect all items with symlink type on list.
  */
 void
-rfnames_unselect_symlinks (RFnames *rf_names)
+rfnames_unselect_symlinks (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_symlink, false);
+    rfnames_select_unselect (names, rfitem_is_symlink, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select all items with hidden type on list.
  */
 void
-rfnames_select_hidden (RFnames *rf_names)
+rfnames_select_hidden (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_hidden, true);
+    rfnames_select_unselect (names, rfitem_is_hidden, true);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Unselect all items with hidden type on list.
  */
 void
-rfnames_unselect_hidden (RFnames *rf_names)
+rfnames_unselect_hidden (RFnames *names)
 {
-    rfnames_select_unselect (rf_names, rfitem_is_hidden, false);
+    rfnames_select_unselect (names, rfitem_is_hidden, false);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove all items from list.
  */
 void
-rfnames_remove_all (RFnames *rf_names)
+rfnames_remove_all (RFnames *names)
 {
-    uint_fast32_t i = rf_names->cnt;
+    uint_fast32_t i = names->cnt;
     while (i--) {
-        rfnames_delete_at_pos (rf_names, i);
+        rfnames_delete_at_pos (names, i);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -441,13 +441,13 @@ rfnames_remove_all (RFnames *rf_names)
  * @brief  Remove item from RFnames list if it matches the fun return value.
  */
 static void
-rfnames_remove (RFnames *rf_names,
-                bool  (*fun) (const RFitem *rf_item))
+rfnames_remove (RFnames *names,
+                bool  (*fun) (const RFitem *item))
 {
-    uint_fast32_t i = rf_names->cnt;
+    uint_fast32_t i = names->cnt;
     while (i--) {
-        if (fun (rf_names->rf_items[i])) {
-            rfnames_delete_at_pos (rf_names, i);
+        if (fun (names->items[i])) {
+            rfnames_delete_at_pos (names, i);
         }
     }
 }
@@ -456,45 +456,45 @@ rfnames_remove (RFnames *rf_names,
  * @brief  Remove selected items from list.
  */
 void
-rfnames_remove_selected (RFnames *rf_names)
+rfnames_remove_selected (RFnames *names)
 {
-    rfnames_remove (rf_names, rfitem_get_checked);
+    rfnames_remove (names, rfitem_get_checked);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove all files from list.
  */
 void
-rfnames_remove_all_files (RFnames *rf_names)
+rfnames_remove_all_files (RFnames *names)
 {
-    rfnames_remove (rf_names, rfitem_is_file);
+    rfnames_remove (names, rfitem_is_file);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove all folders from list.
  */
 void
-rfnames_remove_all_folders (RFnames *rf_names)
+rfnames_remove_all_folders (RFnames *names)
 {
-    rfnames_remove (rf_names, rfitem_is_folder);
+    rfnames_remove (names, rfitem_is_folder);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove all symlinks from list.
  */
 void
-rfnames_remove_all_symlinks (RFnames *rf_names)
+rfnames_remove_all_symlinks (RFnames *names)
 {
-    rfnames_remove (rf_names, rfitem_is_symlink);
+    rfnames_remove (names, rfitem_is_symlink);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Remove all hidden files/folders from list.
  */
 void
-rfnames_remove_all_hidden (RFnames *rf_names)
+rfnames_remove_all_hidden (RFnames *names)
 {
-    rfnames_remove (rf_names, rfitem_is_hidden);
+    rfnames_remove (names, rfitem_is_hidden);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -502,13 +502,13 @@ rfnames_remove_all_hidden (RFnames *rf_names)
  *         the fun return value.
  */
 static void
-rfnames_restore (RFnames *rf_names,
-                 bool  (*fun) (const RFitem *rf_item))
+rfnames_restore (RFnames *names,
+                 bool  (*fun) (const RFitem *item))
 {
-    uint_fast32_t i = rf_names->cnt;
+    uint_fast32_t i = names->cnt;
     while (i--) {
-        if (fun (rf_names->rf_items[i])) {
-            rfitem_entry_restore (rf_names->rf_items[i]);
+        if (fun (names->items[i])) {
+            rfitem_entry_restore (names->items[i]);
         }
     }
 }
@@ -517,10 +517,10 @@ rfnames_restore (RFnames *rf_names,
  * @brief  Restore original file name in all RFitem objects on list.
  */
 void
-rfnames_restore_all (RFnames *rf_names)
+rfnames_restore_all (RFnames *names)
 {
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        rfitem_entry_restore (rf_names->rf_items[i]);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        rfitem_entry_restore (names->items[i]);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -528,45 +528,45 @@ rfnames_restore_all (RFnames *rf_names)
  * @brief  Restore original file name in selected RFitem objects on list.
  */
 void
-rfnames_restore_selected (RFnames *rf_names)
+rfnames_restore_selected (RFnames *names)
 {
-    rfnames_restore (rf_names, rfitem_get_checked);
+    rfnames_restore (names, rfitem_get_checked);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Restore original file name for all files from list.
  */
 void
-rfnames_restore_all_files (RFnames *rf_names)
+rfnames_restore_all_files (RFnames *names)
 {
-    rfnames_restore (rf_names, rfitem_is_file);
+    rfnames_restore (names, rfitem_is_file);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Restore original file name for all folders from list.
  */
 void
-rfnames_restore_all_folders (RFnames *rf_names)
+rfnames_restore_all_folders (RFnames *names)
 {
-    rfnames_restore (rf_names, rfitem_is_folder);
+    rfnames_restore (names, rfitem_is_folder);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Restore original file name for all symlinks from list.
  */
 void
-rfnames_restore_all_symlinks (RFnames *rf_names)
+rfnames_restore_all_symlinks (RFnames *names)
 {
-    rfnames_restore (rf_names, rfitem_is_symlink);
+    rfnames_restore (names, rfitem_is_symlink);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Restore original file name for all hidden files/folders from list.
  */
 void
-rfnames_restore_all_hidden (RFnames *rf_names)
+rfnames_restore_all_hidden (RFnames *names)
 {
-    rfnames_restore (rf_names, rfitem_is_hidden);
+    rfnames_restore (names, rfitem_is_hidden);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -593,7 +593,7 @@ rfitem_compare_glist (gconstpointer a,
  * @brief  Sort RFitem objects in RFnames list by the original path string.
  */
 void
-rfnames_sort (RFnames *rf_names)
+rfnames_sort (RFnames *names)
 {
     GtkBox *gb_pbox;
     GList  *gl_items   = nullptr;
@@ -604,24 +604,24 @@ rfnames_sort (RFnames *rf_names)
     GList  *gl_files_h = nullptr;
     int              j = 0;
 
-    if (rf_names->cnt == 0)
+    if (names->cnt == 0)
         return;
 
-    for (uint_fast32_t i = 0; i < rf_names->cnt; ++i) {
-        if (rf_names->rf_items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
-            if (rf_names->rf_items[i]->b_hidden) {
-                gl_dirs_h = g_list_append (gl_dirs_h, rf_names->rf_items[i]);
+    for (uint_fast32_t i = 0; i < names->cnt; ++i) {
+        if (names->items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
+            if (names->items[i]->b_hidden) {
+                gl_dirs_h = g_list_append (gl_dirs_h, names->items[i]);
             }
             else {
-                gl_dirs = g_list_append (gl_dirs, rf_names->rf_items[i]);
+                gl_dirs = g_list_append (gl_dirs, names->items[i]);
             }
         }
         else {
-            if (rf_names->rf_items[i]->b_hidden) {
-                gl_files_h = g_list_append (gl_files_h, rf_names->rf_items[i]);
+            if (names->items[i]->b_hidden) {
+                gl_files_h = g_list_append (gl_files_h, names->items[i]);
             }
             else {
-                gl_files = g_list_append (gl_files, rf_names->rf_items[i]);
+                gl_files = g_list_append (gl_files, names->items[i]);
             }
         }
     }
@@ -635,14 +635,14 @@ rfnames_sort (RFnames *rf_names)
     gl_items = g_list_concat (gl_items, gl_files_h);
     gl_items = g_list_concat (gl_items, gl_files);
 
-    gb_pbox = GTK_BOX (gtk_widget_get_parent (rf_names->rf_items[0]->box));
+    gb_pbox = GTK_BOX (gtk_widget_get_parent (names->items[0]->box));
 
     gl_items1 = gl_items;
 
     while (gl_items1 != nullptr) {
-        RFitem *rf_item = gl_items1->data;
-        gtk_box_reorder_child (gb_pbox, rf_item->box, j);
-        rf_names->rf_items[j] = rf_item;
+        RFitem *item = gl_items1->data;
+        gtk_box_reorder_child (gb_pbox, item->box, j);
+        names->items[j] = item;
         gl_items1 = gl_items1->next;
         ++j;
     }
