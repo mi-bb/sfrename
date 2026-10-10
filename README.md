@@ -13,6 +13,7 @@
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Basic installation](#basic-installation)
+  * [Installing for the current user](#installing-for-the-current-user)
   * [Compilers and options](#compilers-and-options)
   * [Running the tests](#running-the-tests)
   * [Uninstalling](#uninstalling)
@@ -51,7 +52,7 @@ cmake --build --preset release
 sudo cmake --install build/release
 ```
 
-It will build app with the following options:
+`release` builds optimized with the prefix set to `/usr`
 
 * `-march=native` enables all instruction subsets supported by the local
   machine.
@@ -59,12 +60,32 @@ It will build app with the following options:
 * `-pipe` uses pipes rather than temporary files for communication between
   the various stages of compilation.
 
+### Installing for the current user
+
+To install into `~/.local` without `sudo`, use the `release_local` preset. It
+is the same optimized build as `release`, but with the prefix set to
+`$HOME/.local`:
+
+```sh
+cmake --preset release_local
+cmake --build --preset release_local
+cmake --install build/release_local
+```
+
+Make sure `~/.local/bin` is in your `PATH`.
+
 ### Uninstalling
 
 From the same build directory the program was installed from:
 
 ```sh
-sudo cmake --build build --target uninstall
+sudo cmake --build build/release --target uninstall
+```
+
+If it was installed with the `release_local` preset, no `sudo` is needed:
+
+```sh
+cmake --build build/release_local --target uninstall
 ```
 
 This removes every file listed in the build directory's

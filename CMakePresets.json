@@ -33,6 +33,14 @@
       }
     },
     {
+      "name": "release_local",
+      "displayName": "Release (install to ~/.local)",
+      "inherits": "release",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "$env{HOME}/.local"
+      }
+    },
+    {
       "name": "asan",
       "displayName": "Debug + AddressSanitizer",
       "inherits": "base",
@@ -53,6 +61,10 @@
       "configurePreset": "release"
     },
     {
+      "name": "release_local",
+      "configurePreset": "release_local"
+    },
+    {
       "name": "asan",
       "configurePreset": "asan"
     }
@@ -68,6 +80,13 @@
     {
       "name": "release",
       "configurePreset": "release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release_local",
+      "configurePreset": "release_local",
       "output": {
         "outputOnFailure": true
       }
