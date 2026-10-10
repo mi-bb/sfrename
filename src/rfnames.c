@@ -177,15 +177,15 @@ rfnames_delete_at_pos (RFnames             *names,
                        const uint_fast32_t  pos)
 {
     RFitem    **tmp = nullptr;
-    GtkWidget *gw_ibox;
-    GtkBox    *gb_pbox;
+    GtkWidget *item_box;
+    GtkBox    *parent_box;
 
     if (pos >= names->cnt || names->cnt == 0)
         return;
 
     /* Get item box and parent list box */
-    gw_ibox = names->items[pos]->box;
-    gb_pbox = GTK_BOX (gtk_widget_get_parent (gw_ibox));
+    item_box = names->items[pos]->box;
+    parent_box = GTK_BOX (gtk_widget_get_parent (item_box));
 
     rfitem_delete (names->items[pos]);
 
@@ -194,8 +194,8 @@ rfnames_delete_at_pos (RFnames             *names,
     /* Reorder items on the list and on the box widget */
     for (uint_fast32_t i = pos; i < names->cnt; ++i) {
         names->items[i] = names->items[i+1];
-        gw_ibox = names->items[i]->box;
-        gtk_box_reorder_child (gb_pbox, gw_ibox, (gint) i);
+        item_box = names->items[i]->box;
+        gtk_box_reorder_child (parent_box, item_box, (gint) i);
     }
 
     if (names->cnt == 0) {
@@ -264,12 +264,12 @@ rfnames_add_gfile_to_file_box (RFnames *names,
 {
     /* Create and append file widgets (entry, check button, buttons) to file
      * list, get box widget with them */
-    auto gw_widget = rfnames_append_gfile (names, g_file);
-    gtk_widget_show_all (gw_widget);
+    auto widget = rfnames_append_gfile (names, g_file);
+    gtk_widget_show_all (widget);
     /* Add box to the container */
     gtk_box_pack_start (
             GTK_BOX (names->file_box),
-            gw_widget,
+            widget,
             FALSE, FALSE, 0);
 }
 /*----------------------------------------------------------------------------*/
@@ -595,14 +595,14 @@ rfitem_compare_glist (gconstpointer a,
 void
 rfnames_sort (RFnames *names)
 {
-    GtkBox *gb_pbox;
-    GList  *gl_items   = nullptr;
-    GList  *gl_items1  = nullptr;
-    GList  *gl_dirs    = nullptr;
-    GList  *gl_files   = nullptr;
-    GList  *gl_dirs_h  = nullptr;
-    GList  *gl_files_h = nullptr;
-    int              j = 0;
+    GtkBox *parent_box;
+    GList  *sorted       = nullptr;
+    GList  *node         = nullptr;
+    GList  *dirs         = nullptr;
+    GList  *files        = nullptr;
+    GList  *hidden_dirs  = nullptr;
+    GList  *hidden_files = nullptr;
+    int     j            = 0;
 
     if (names->cnt == 0)
         return;
@@ -610,43 +610,43 @@ rfnames_sort (RFnames *names)
     for (uint_fast32_t i = 0; i < names->cnt; ++i) {
         if (names->items[i]->file_type == G_FILE_TYPE_DIRECTORY) {
             if (names->items[i]->is_hidden) {
-                gl_dirs_h = g_list_append (gl_dirs_h, names->items[i]);
+                hidden_dirs = g_list_append (hidden_dirs, names->items[i]);
             }
             else {
-                gl_dirs = g_list_append (gl_dirs, names->items[i]);
+                dirs = g_list_append (dirs, names->items[i]);
             }
         }
         else {
             if (names->items[i]->is_hidden) {
-                gl_files_h = g_list_append (gl_files_h, names->items[i]);
+                hidden_files = g_list_append (hidden_files, names->items[i]);
             }
             else {
-                gl_files = g_list_append (gl_files, names->items[i]);
+                files = g_list_append (files, names->items[i]);
             }
         }
     }
-    gl_dirs    = g_list_sort (gl_dirs,    rfitem_compare_glist);
-    gl_dirs_h  = g_list_sort (gl_dirs_h,  rfitem_compare_glist);
-    gl_files   = g_list_sort (gl_files,   rfitem_compare_glist);
-    gl_files_h = g_list_sort (gl_files_h, rfitem_compare_glist);
+    dirs    = g_list_sort (dirs,    rfitem_compare_glist);
+    hidden_dirs  = g_list_sort (hidden_dirs,  rfitem_compare_glist);
+    files   = g_list_sort (files,   rfitem_compare_glist);
+    hidden_files = g_list_sort (hidden_files, rfitem_compare_glist);
 
-    gl_items = g_list_concat (gl_items, gl_dirs_h);
-    gl_items = g_list_concat (gl_items, gl_dirs);
-    gl_items = g_list_concat (gl_items, gl_files_h);
-    gl_items = g_list_concat (gl_items, gl_files);
+    sorted = g_list_concat (sorted, hidden_dirs);
+    sorted = g_list_concat (sorted, dirs);
+    sorted = g_list_concat (sorted, hidden_files);
+    sorted = g_list_concat (sorted, files);
 
-    gb_pbox = GTK_BOX (gtk_widget_get_parent (names->items[0]->box));
+    parent_box = GTK_BOX (gtk_widget_get_parent (names->items[0]->box));
 
-    gl_items1 = gl_items;
+    node = sorted;
 
-    while (gl_items1 != nullptr) {
-        RFitem *item = gl_items1->data;
-        gtk_box_reorder_child (gb_pbox, item->box, j);
+    while (node != nullptr) {
+        RFitem *item = node->data;
+        gtk_box_reorder_child (parent_box, item->box, j);
         names->items[j] = item;
-        gl_items1 = gl_items1->next;
+        node = node->next;
         ++j;
     }
-    g_list_free (gl_items);
+    g_list_free (sorted);
 }
 /*----------------------------------------------------------------------------*/
 
