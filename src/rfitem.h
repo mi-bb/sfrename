@@ -90,189 +90,189 @@ RFitem {
  * @param[in] g_file GFile item
  * @return    New RFitem object
  *
- * @fn        RFitem *rfitem_new_from_sfile (const char *s_pth)
+ * @fn        RFitem *rfitem_new_from_file_path (const char *path)
  * @brief     Create and return new RFnames object from file path.
- * @param[in] s_pth File path
+ * @param[in] path File path
  * @return    New RFitem object
  */
 /*----------------------------------------------------------------------------*/
-[[nodiscard]] RFitem * rfitem_new_from_gfile (GFile      *g_file)
+[[nodiscard]] RFitem * rfitem_new_from_gfile     (GFile      *g_file)
               __attribute__ ((returns_nonnull));
 
-[[nodiscard]] RFitem * rfitem_new_from_sfile (const char *s_pth)
+[[nodiscard]] RFitem * rfitem_new_from_file_path (const char *path)
               __attribute__ ((nonnull (1), returns_nonnull));
 /*----------------------------------------------------------------------------*/
 /**
- * @fn            void rfitem_free (RFitem *rf_item)
+ * @fn            void rfitem_free (RFitem *item)
  * @brief         Free allocated memory.
- * @param[in,out] rf_item Pointer to RFitem object
+ * @param[in,out] item Pointer to RFitem object
  * @return        none
  *
- * @fn            void rfitem_delete (RFitem *rf_item)
+ * @fn            void rfitem_delete (RFitem *item)
  * @brief         Free allocated memory and delete widgets.
- * @param[in,out] rf_item Pointer to RFitem object
+ * @param[in,out] item Pointer to RFitem object
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-void rfitem_free   (RFitem *rf_item);
+void rfitem_free   (RFitem *item);
 
-void rfitem_delete (RFitem *rf_item);
+void rfitem_delete (RFitem *item);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         bool rfitem_get_checked (RFitem *rf_item)
+ * @fn         bool rfitem_get_checked (RFitem *item)
  * @brief      Get check button checked value.
- * @param[in]  rf_item Pointer to RFitem object
+ * @param[in]  item Pointer to RFitem object
  * @return     Checked value
  *
- * @fn         void rfitem_set_checked (RFitem     *rf_item,
- *                                      const bool  b_val)
+ * @fn         void rfitem_set_checked (RFitem     *item,
+ *                                      const bool  val)
  * @brief      Set check button checked value.
- * @param[out] rf_item Pointer to RFitem object
- * @param[in]  b_val   Check value
+ * @param[out] item Pointer to RFitem object
+ * @param[in]  val   Check value
  * @return     none
  *
- * @fn            void rfitem_invert_checked (RFitem *rf_item)
+ * @fn            void rfitem_invert_checked (RFitem *item)
  * @brief         Invert check item check value
- * @param[in,out] rf_item Pointer to RFitem object
+ * @param[in,out] item Pointer to RFitem object
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-static inline bool rfitem_get_checked     (const RFitem   *rf_item) {
-    return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (rf_item->check));
+static inline bool rfitem_get_checked     (const RFitem   *item) {
+    return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (item->check));
 }
-static inline void rfitem_set_checked     (RFitem         *rf_item,
-                                           const bool      b_val) {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rf_item->check), b_val);
+static inline void rfitem_set_checked     (RFitem         *item,
+                                           const bool      val) {
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check), val);
 }
-void     rfitem_invert_checked (RFitem         *rf_item);
+void     rfitem_invert_checked (RFitem         *item);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfitem_set_snew_from_sorg (RFitem *rf_item)
+ * @fn  void rfitem_set_snew_from_sorg (RFitem *item)
  *
  * @brief  Copy s_org string and length values to s_new.
  *
- * @param[in]  rf_item  RFitem object
+ * @param[in]  item  RFitem object
  * @return     none
  *
- * @fn  void rfitem_set_sorg_from_snew (RFitem *rf_item)
+ * @fn  void rfitem_set_sorg_from_snew (RFitem *item)
  *
  * @brief  Copy s_new string and length values to s_org.
  *
- * @param[in]  rf_item  RFitem object
+ * @param[in]  item  RFitem object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void     rfitem_set_snew_from_sorg (RFitem *rf_item);
+void     rfitem_set_snew_from_sorg (RFitem *item);
 
-void     rfitem_set_sorg_from_snew (RFitem *rf_item);
+void     rfitem_set_sorg_from_snew (RFitem *item);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         const char * rfitem_get_snew (const RFitem *rf_item)
+ * @fn         const char * rfitem_get_snew (const RFitem *item)
  * @brief      Get s_new value.
- * @param[in]  rf_item  RFitem object
+ * @param[in]  item  RFitem object
  * @return     s_new value
  *
- * @fn         const char * rfitem_get_sorg (const RFitem *rf_item)
+ * @fn         const char * rfitem_get_sorg (const RFitem *item)
  * @brief      Get s_org value.
- * @param[in]  rf_item  RFitem object
+ * @param[in]  item  RFitem object
  * @return     s_org value
  *
- * @fn         const char * rfitem_get_spth (const RFitem *rf_item)
+ * @fn         const char * rfitem_get_spth (const RFitem *item)
  * @brief      Get s_pth value.
- * @param[in]  rf_item  RFitem object
+ * @param[in]  item  RFitem object
  * @return     s_pth value
  */
 /*----------------------------------------------------------------------------*/
-static inline const char * rfitem_get_snew (const RFitem *rf_item) {
-    return (const char *) rf_item->s_new;
+static inline const char * rfitem_get_snew (const RFitem *item) {
+    return (const char *) item->s_new;
 }
-static inline const char * rfitem_get_sorg (const RFitem *rf_item) {
-    return (const char *) rf_item->s_org;
+static inline const char * rfitem_get_sorg (const RFitem *item) {
+    return (const char *) item->s_org;
 }
-static inline const char * rfitem_get_spth (const RFitem *rf_item) {
-    return (const char *) rf_item->s_pth;
+static inline const char * rfitem_get_spth (const RFitem *item) {
+    return (const char *) item->s_pth;
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn        const char * rfitem_entry_get_text (RFitem *rf_item)
+ * @fn        const char * rfitem_entry_get_text (RFitem *item)
  * @brief     Get text from entry.
- * @param[in] rf_item RFitem with entry
+ * @param[in] item RFitem with entry
  * @return    String with entry text
  *
- * @fn            void rfitem_entry_restore (RFitem *rf_item)
+ * @fn            void rfitem_entry_restore (RFitem *item)
  * @brief         Restore original file name to entry
- * @param[in,out] rf_item Pointer to RFitem object
+ * @param[in,out] item Pointer to RFitem object
  * @return        none
  *
- * @fn            void rfitem_entry_check_and_update (RFitem     *rf_item,
+ * @fn            void rfitem_entry_check_and_update (RFitem     *item,
                                                       const char *new_str)
  * @brief         Checks if the new entry text is equal to the previous value
  *                and changes it to a new value if it is not.
- * @param[in,out] rf_item RFitem with entry
+ * @param[in,out] item RFitem with entry
  * @param[in]     new_str New entry value
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-static inline const char * rfitem_entry_get_text (const RFitem *rf_item) {
-    return gtk_entry_get_text (GTK_ENTRY (rf_item->entry));
+static inline const char * rfitem_entry_get_text (const RFitem *item) {
+    return gtk_entry_get_text (GTK_ENTRY (item->entry));
 }
-static inline void         rfitem_entry_restore  (RFitem       *rf_item) {
-    gtk_entry_set_text (GTK_ENTRY (rf_item->entry), rf_item->s_org);
+static inline void         rfitem_entry_restore  (RFitem       *item) {
+    gtk_entry_set_text (GTK_ENTRY (item->entry), item->s_org);
 }
-void rfitem_entry_check_and_update (RFitem       *rf_item,
+void rfitem_entry_check_and_update (RFitem       *item,
                                     const char   *new_str);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Compare 2 RFitem objects.
  *
- * @param[in] rf_item1 First RFitem object
- * @param[in] rf_item2 Second RFitem object
+ * @param[in] item1 First RFitem object
+ * @param[in] item2 Second RFitem object
  * @return    Compare value
  */
-int rfitem_compare (const RFitem *rf_item1,
-                    const RFitem *rf_item2);
+int rfitem_compare (const RFitem *item1,
+                    const RFitem *item2);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  bool rfitem_is_file (const RFitem *rf_item)
+ * @fn  bool rfitem_is_file (const RFitem *item)
  *
  * @brief  Check if RFitem type is a file.
  *
- * @param[in] rf_item Pointer to RFitem object
+ * @param[in] item Pointer to RFitem object
  * @return    true if RFitem describes a file type, false if not
  *
- * @fn  bool rfitem_is_folder (const RFitem *rf_item)
+ * @fn  bool rfitem_is_folder (const RFitem *item)
  *
  * @brief  Check if RFitem type is a directory.
  *
- * @param[in] rf_item Pointer to RFitem object
+ * @param[in] item Pointer to RFitem object
  * @return    true if RFitem describes a directory type, false if not
  *
- * @fn  bool rfitem_is_symlink (const RFitem *rf_item)
+ * @fn  bool rfitem_is_symlink (const RFitem *item)
  *
  * @brief  Check if RFitem file/dir type is a symlink.
  *
- * @param[in] rf_item Pointer to RFitem object
+ * @param[in] item Pointer to RFitem object
  * @return    true if RFitem is a symlink, false if not
  *
- * @fn  bool rfitem_is_hidden  (const RFitem *rf_item)
+ * @fn  bool rfitem_is_hidden  (const RFitem *item)
  *
  * @brief  Check if RFitem file/dir is hidden.
  *
- * @param[in] rf_item Pointer to RFitem object
+ * @param[in] item Pointer to RFitem object
  * @return    true if RFitem is a hidden file/dir, false if not
  */
 /*----------------------------------------------------------------------------*/
-static inline bool rfitem_is_file        (const RFitem *rf_item) {
-    return (rf_item->f_type == G_FILE_TYPE_REGULAR);
+static inline bool rfitem_is_file        (const RFitem *item) {
+    return (item->f_type == G_FILE_TYPE_REGULAR);
 }
-static inline bool rfitem_is_folder      (const RFitem *rf_item) {
-    return (rf_item->f_type == G_FILE_TYPE_DIRECTORY);
+static inline bool rfitem_is_folder      (const RFitem *item) {
+    return (item->f_type == G_FILE_TYPE_DIRECTORY);
 }
-static inline bool rfitem_is_symlink     (const RFitem *rf_item) {
-    return rf_item->b_slink;
+static inline bool rfitem_is_symlink     (const RFitem *item) {
+    return item->b_slink;
 }
-static inline bool rfitem_is_hidden      (const RFitem *rf_item) {
-    return rf_item->b_hidden;
+static inline bool rfitem_is_hidden      (const RFitem *item) {
+    return item->b_hidden;
 }
 /*----------------------------------------------------------------------------*/
 #endif
