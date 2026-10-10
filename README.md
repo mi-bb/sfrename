@@ -46,82 +46,18 @@ The program is built with CMake. Commands to configure, build, and install
 it:
 
 ```sh
-cmake -S . -B build
-cmake --build build
-sudo cmake --install build
+cmake --preset release
+cmake --build --preset release
+sudo cmake --install build/release
 ```
 
-The first command creates a `build` directory and configures the project in
-it, the second compiles, and the third installs the binary, the `.desktop`
-file, and the icon under `/usr/local` by default. A different location can
-be chosen with `--prefix`:
+It will build app with the following options:
 
-```sh
-cmake --install build --prefix /usr
-```
-
-Although the commands above are enough, it's recommended to configure and
-compile with the more detailed options described below.
-
-### Compilers and options
-
-For normal daily use of this program, a good option is:
-
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
-```
-
-or, more specifically:
-
-```sh
-cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
-```
-
-with Clang:
-
-```sh
-cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
-```
-
-The default `CMAKE_BUILD_TYPE` is empty, which adds no flags of its own, so
-whatever is passed in `CMAKE_C_FLAGS` is what the compiler gets. `Release`
-adds `-O3 -DNDEBUG`, `Debug` adds `-g`. Debugging information is needed for
-gdb and enlarges the output file, so leaving it out is preferable for a
-release build.
-
-There is no need to pass `-std=` yourself: the project sets the C standard
-to C23 with GNU extensions (`-std=gnu23`). Do not put a `-std=` option in
-`CMAKE_C_FLAGS`, or it will override the one CMake selects.
-
-* `-DCMAKE_C_COMPILER=gcc` sets the C compiler to GCC.
-* `-DCMAKE_C_COMPILER=clang` sets the C compiler to Clang.
 * `-march=native` enables all instruction subsets supported by the local
   machine.
 * `-O2` sets the code optimization level to O2.
 * `-pipe` uses pipes rather than temporary files for communication between
   the various stages of compilation.
-
-Running:
-
-```sh
-cmake -S . -B build -LH
-```
-
-will print a detailed description of the available configuration variables.
-
-### Running the tests
-
-The unit tests are built together with the program and are run with CTest:
-
-```sh
-ctest --test-dir build
-```
-
-A single suite can be selected by name:
-
-```sh
-ctest --test-dir build -R string_functions
-```
 
 ### Uninstalling
 
@@ -133,15 +69,6 @@ sudo cmake --build build --target uninstall
 
 This removes every file listed in the build directory's
 `install_manifest.txt`.
-
-### Making a source package
-
-A source tarball (`.tar.xz` and `.tar.gz`) is created with CPack:
-
-```sh
-cd build
-cpack --config CPackSourceConfig.cmake
-```
 
 ## Running
 
@@ -159,7 +86,7 @@ and directories.
 
 Example use with MC:
 
-```
+```sh
 + ! t t
 R       Rename file
         sfrename %f
