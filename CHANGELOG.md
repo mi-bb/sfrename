@@ -25,6 +25,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Minimum required CMake version raised from 3.21 to 3.22.
+- Dropped Hungarian-notation prefixes from identifiers. Source-level only; no
+  change in behavior.
+  - `string_functions.h`: `ProcessData` fields renamed (`s_srcdst` to `text`,
+    `srcdst_len`/`srcdst_u8len` to `text_len`/`text_u8len`, `s_str1`/`s_str2`
+    to `first`/`second` with matching `_len`/`_u8len`, `ui_pos` to `pos`,
+    `ui_cnt` to `count`, `ui_no` to `number`, `ui_start` to `start`, `ui_max`
+    to `max`).
+  - `rfitem.h`: `RFitem` fields renamed (`s_new` to `new_name`, `s_org` to
+    `org_name`, `s_pth` to `path`, `f_type` to `file_type`, `b_slink` to
+    `is_symlink`, `b_hidden` to `is_hidden`, `check`/`rbut`/`dbut` to
+    `check_button`/`restore_button`/`delete_button`). Accessors renamed to
+    match: `rfitem_get_snew`/`sorg`/`spth` to
+    `rfitem_get_new_name`/`org_name`/`path`, the same for `rfitem_set_*`, and
+    `rfitem_set_snew_from_sorg`/`rfitem_set_sorg_from_snew` to
+    `rfitem_set_new_name_from_org_name`/`rfitem_set_org_name_from_new_name`.
+  - `rfnames.h`: `RFnames::rf_items` renamed to `items`;
+    `rfnames_add_sfile_to_file_box` renamed to
+    `rfnames_add_file_path_to_file_box`.
+  - `rinsovr.h`, `rreplace.h`: `RInsOvr::s_text` renamed to `text`,
+    `RReplace::s_from`/`s_to` renamed to `from`/`to`.
+  - Parameters and locals across the sources renamed accordingly (`rd_data`
+    to `data`, `rf_names` to `names`, `rf_item` to `item`, `gw_*`/`gl_*`
+    widget and list locals to plain names, and so on).
 
 ## [1.3.0] - 2026-08-31
 

@@ -625,9 +625,9 @@ rfnames_sort (RFnames *names)
             }
         }
     }
-    dirs    = g_list_sort (dirs,    rfitem_compare_glist);
+    dirs         = g_list_sort (dirs,         rfitem_compare_glist);
     hidden_dirs  = g_list_sort (hidden_dirs,  rfitem_compare_glist);
-    files   = g_list_sort (files,   rfitem_compare_glist);
+    files        = g_list_sort (files,        rfitem_compare_glist);
     hidden_files = g_list_sort (hidden_files, rfitem_compare_glist);
 
     sorted = g_list_concat (sorted, hidden_dirs);

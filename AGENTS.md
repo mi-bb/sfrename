@@ -99,8 +99,8 @@ lightweight objects with private state.
   displays them. Owns select/unselect, remove, restore, and sort, each in
   "selected only" / "all" / "by type" (files/folders/symlinks/hidden)
   variants.
-- `rfitem.c/h` — one entry: original name (`s_org`), pending new name
-  (`s_new`), path, byte/unicode lengths for both, file type metadata
+- `rfitem.c/h` — one entry: original name (`org_name`), pending new name
+  (`new_name`), path, byte/unicode lengths for both, file type metadata
   (symlink/hidden/`GFileType`), and the row's widgets (entry, checkbutton,
   restore/delete buttons).
 - Per-operation settings structs, each mirroring one dialog section:
