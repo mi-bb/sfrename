@@ -58,45 +58,45 @@ file_check_and_rename (const char *old_name,
                        const char *new_name,
                        const char *path)
 {
-    char        *s_new   = nullptr;           /* Full path for new file */
-    char        *s_old   = nullptr;           /* Full path for old file */
-    RenResult    i_res   = REN_OK;            /* Renaming result */
-    size_t       ui_dlen = strlen (path);     /* Length of file dir path */
-    size_t       ui_olen = strlen (old_name); /* Length of old file name */
-    size_t       ui_nlen = strlen (new_name); /* Length of new file name */
+    char      *new_path = nullptr;           /* Full path for new file */
+    char      *old_path = nullptr;           /* Full path for old file */
+    RenResult  result   = REN_OK;            /* Renaming result */
+    size_t     dir_len  = strlen (path);     /* Length of file dir path */
+    size_t     old_len  = strlen (old_name); /* Length of old file name */
+    size_t     new_len  = strlen (new_name); /* Length of new file name */
 
     /* Check if new file name is different than old */
-    if (ui_olen == ui_nlen && strcmp (old_name, new_name) == 0)
+    if (old_len == new_len && strcmp (old_name, new_name) == 0)
         return REN_NC; /* No chgange */
 
     /* Alloc memory for full paths of old and new file name */
-    s_new = malloc ((ui_dlen + ui_nlen + 1) * sizeof (char));
-    s_old = malloc ((ui_dlen + ui_olen + 1) * sizeof (char));
+    new_path = malloc ((dir_len + new_len + 1) * sizeof (char));
+    old_path = malloc ((dir_len + old_len + 1) * sizeof (char));
 
-    if (s_new == nullptr || s_old == nullptr) {
+    if (new_path == nullptr || old_path == nullptr) {
         fputs ("Alloc error\n", stderr);
         exit (EXIT_FAILURE);
     }
-    memcpy (s_new, path, ui_dlen);
-    memcpy (s_old, path, ui_dlen);
-    memcpy (s_new + ui_dlen, new_name, ui_nlen);
-    memcpy (s_old + ui_dlen, old_name, ui_olen);
-    s_new [ui_dlen + ui_nlen] = '\0';
-    s_old [ui_dlen + ui_olen] = '\0';
+    memcpy (new_path, path, dir_len);
+    memcpy (old_path, path, dir_len);
+    memcpy (new_path + dir_len, new_name, new_len);
+    memcpy (old_path + dir_len, old_name, old_len);
+    new_path [dir_len + new_len] = '\0';
+    old_path [dir_len + old_len] = '\0';
 
     /* Check if file with new file name don't exist */
-    if (access (s_new, F_OK) != 0) {
-        i_res = rename (s_old, s_new) == 0 ? 
+    if (access (new_path, F_OK) != 0) {
+        result = rename (old_path, new_path) == 0 ? 
                 REN_OK :     /* OK */
                 REN_NOT_REN; /* Could not rename */
     }
     else {
-        i_res = REN_EXISTS;  /* File exists */
+        result = REN_EXISTS;  /* File exists */
     }
-    free (s_new);
-    free (s_old);
+    free (new_path);
+    free (old_path);
 
-    return i_res;
+    return result;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -139,56 +139,56 @@ file_names_update_changes (RenData *data)
 /**
  * @brief  Scan folder folder content, check for adding and add files, folders.
  *
- * @param[out] names RFnames item with file list
- * @param[in]  gf_dir   Directory to scan
- * @param[in]  i_opt    Options with info which items to add (files, folders)
+ * @param[out] names   RFnames item with file list
+ * @param[in]  dir     Directory to scan
+ * @param[in]  options Options with info which items to add (files, folders)
  * @return     none
  */
 static void
 enumerate_folder (RFnames   *names,
-                  GFile     *gf_dir,
-                  const int  i_opt)
+                  GFile     *dir,
+                  const int  options)
 {
     GFileEnumerator *f_enum;
     GError          *g_err;
-    GFile           *g_file;
+    GFile           *file;
     GFileInfo       *f_info;
     GFileType        f_type;
 
     #ifdef DEBUG
-        printf ("Enumerating folder %s\n", g_file_peek_path (gf_dir));
+        printf ("Enumerating folder %s\n", g_file_peek_path (dir));
     #endif
 
-    f_enum = g_file_enumerate_children (gf_dir,
+    f_enum = g_file_enumerate_children (dir,
                                         "standard::*",
                                         G_FILE_QUERY_INFO_NONE,
                                         nullptr,
                                         &g_err);
     do {
-        g_file_enumerator_iterate (f_enum, &f_info, &g_file, nullptr, &g_err);
+        g_file_enumerator_iterate (f_enum, &f_info, &file, nullptr, &g_err);
         if (f_info != nullptr) {
             f_type = g_file_info_get_file_type (f_info);
             /* If hidden file/directory was not set skip adding it */
             if (g_file_info_get_is_hidden (f_info) &&
-                !(i_opt & FOLDER_SELECT_HIDDEN)) {
+                !(options & FOLDER_SELECT_HIDDEN)) {
                 continue;
             }
             /* If symlink file/directory was not set skip adding it */
             if (g_file_info_get_is_symlink (f_info) &&
-                !(i_opt & FOLDER_SELECT_SYMLINKS)) {
+                !(options & FOLDER_SELECT_SYMLINKS)) {
                 continue;
             }
             if (f_type == G_FILE_TYPE_DIRECTORY) {
-                if (i_opt & FOLDER_SELECT_FOLDERS) {
-                    rfnames_add_gfile_to_file_box (names, g_file);
+                if (options & FOLDER_SELECT_FOLDERS) {
+                    rfnames_add_gfile_to_file_box (names, file);
                 }
-                if (i_opt & FOLDER_SCAN_RECURSIVELY) {
-                    enumerate_folder (names, g_file, i_opt);
+                if (options & FOLDER_SCAN_RECURSIVELY) {
+                    enumerate_folder (names, file, options);
                 }
             }
             if (f_type == G_FILE_TYPE_REGULAR &&
-                (i_opt & FOLDER_SELECT_FILES)) {
-                rfnames_add_gfile_to_file_box (names, g_file);
+                (options & FOLDER_SELECT_FILES)) {
+                rfnames_add_gfile_to_file_box (names, file);
             }
         }
     }
@@ -200,23 +200,23 @@ enumerate_folder (RFnames   *names,
 /**
  * @brief  Checks if path is a folder and calls enumerate_folder if it is.
  *
- * @param[out] names RFnames item with file list
- * @param[in]  s_dir    Directory path
- * @param[in]  i_opt    Options with info which items to add (files, folders)
+ * @param[out] names    RFnames item with file list
+ * @param[in]  dir_path Directory path
+ * @param[in]  options  Options with info which items to add (files, folders)
  * @return     none
  */
 static void
 get_folder_content (RFnames    *names,
-                    const char *s_dir,
-                    const int   i_opt)
+                    const char *dir_path,
+                    const int   options)
 {
-    GFile     *gf_dir;
+    GFile     *dir;
     GError    *g_err;
     GFileInfo *f_info;
     GFileType  f_type;
 
-    gf_dir = g_file_new_for_path (s_dir);
-    f_info = g_file_query_info (gf_dir,
+    dir = g_file_new_for_path (dir_path);
+    f_info = g_file_query_info (dir,
                                 "standard::*",
                                 G_FILE_QUERY_INFO_NONE,
                                 nullptr,
@@ -226,10 +226,10 @@ get_folder_content (RFnames    *names,
         g_object_unref (f_info);
 
         if (f_type == G_FILE_TYPE_DIRECTORY) {
-            enumerate_folder (names, gf_dir, i_opt);
+            enumerate_folder (names, dir, options);
         }
     }
-    g_object_unref (gf_dir);
+    g_object_unref (dir);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -291,56 +291,56 @@ static void
 event_click_rename (GtkWidget *widget,
                     RenData   *data)
 {
-    const char    *s_old        = nullptr; /* Old file name */
-    const char    *s_new        = nullptr; /* New file name */
-    const char    *s_pth        = nullptr; /* Path to file's directory */
-    RenResult      i_renamed    = REN_OK;  /* Renaming result */
-    uint_fast32_t  ui_ren_count = 0;       /* Number of renamed files */
-    uint_fast32_t  ui_names_cnt = 0;       /* Number of files to rename */
-    RFitem        *item;                   /* Processed RFitem object */
+    const char    *old_name      = nullptr; /* Old file name */
+    const char    *new_name      = nullptr; /* New file name */
+    const char    *path          = nullptr; /* Path to file's directory */
+    RenResult      result        = REN_OK;  /* Renaming result */
+    uint_fast32_t  renamed_count = 0;       /* Number of renamed files */
+    uint_fast32_t  names_count   = 0;       /* Number of files to rename */
+    RFitem        *item;                    /* Processed RFitem object */
 
-    ui_names_cnt = rfnames_get_cnt (rendata_get_rfnames (data));
+    names_count = rfnames_get_cnt (rendata_get_rfnames (data));
 
-    for (uint_fast32_t i = 0; i < ui_names_cnt; ++i) {
+    for (uint_fast32_t i = 0; i < names_count; ++i) {
         item = data->names->items[i];
 
-        s_new = rfitem_entry_get_text (item);
-        s_old = rfitem_get_org_name (item);
-        s_pth = rfitem_get_path (item);
+        new_name = rfitem_entry_get_text (item);
+        old_name = rfitem_get_org_name (item);
+        path = rfitem_get_path (item);
 
-        i_renamed = file_check_and_rename (s_old, s_new, s_pth);
+        result = file_check_and_rename (old_name, new_name, path);
 
-        switch (i_renamed) {
+        switch (result) {
 
             case REN_OK:
-                printf ("File: %s renamed to: %s\n", s_old, s_new);
+                printf ("File: %s renamed to: %s\n", old_name, new_name);
                 /* copy new name to original in buffer */
                 rfitem_set_org_name_from_new_name (item);
-                ++ui_ren_count;
+                ++renamed_count;
                 break;
 
             case REN_NC:
-                printf ("No change in file: %s\n", s_old);
+                printf ("No change in file: %s\n", old_name);
                 break;
 
             case REN_NOT_REN:
-                printf ("File: %s could not be renamed\n", s_old);
+                printf ("File: %s could not be renamed\n", old_name);
                 break;
 
             case REN_EXISTS:
-                printf ("File: %s already exists\n", s_new);
+                printf ("File: %s already exists\n", new_name);
                 break;
         }
-        if (i_renamed != REN_OK && i_renamed != REN_NC) {
+        if (result != REN_OK && result != REN_NC) {
             /* Revert old file names to new */
             rfitem_set_new_name_from_org_name (item);
 
             /* Update file name in entry */
-            rfitem_entry_check_and_update (item, s_old);
+            rfitem_entry_check_and_update (item, old_name);
         }
     }
     printf ("Renamed %" PRIdFAST32 " files of %" PRIdFAST32 "\n",
-            ui_ren_count, ui_names_cnt);
+            renamed_count, names_count);
 
     /* exit application if "Exit after rename" checkbox was selected */
     if (rendata_get_renexit (data))
@@ -384,9 +384,9 @@ static void
 event_insert_string_entry_changed (GtkWidget *widget,
                                    RenData   *data)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *text = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    rinsovr_set_text (data->ins, s_en);
+    rinsovr_set_text (data->ins, text);
 
     file_names_update_changes (data);
 }
@@ -426,9 +426,9 @@ static void
 event_overwrite_string_entry_changed (GtkWidget *widget,
                                       RenData   *data)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *text = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    rinsovr_set_text (data->ovrw, s_en);
+    rinsovr_set_text (data->ovrw, text);
 
     file_names_update_changes (data);
 }
@@ -532,9 +532,9 @@ static void
 event_replace_from_entry_changed (GtkWidget *widget,
                                   RenData   *data)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *text = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    rreplace_set_from (data->replace, s_en);
+    rreplace_set_from (data->replace, text);
 
     file_names_update_changes (data);
 }
@@ -553,9 +553,9 @@ static void
 event_replace_to_entry_changed (GtkWidget *widget,
                                 RenData   *data)
 {
-    const char *s_en = gtk_entry_get_text (GTK_ENTRY (widget));
+    const char *text = gtk_entry_get_text (GTK_ENTRY (widget));
 
-    rreplace_set_to (data->replace, s_en);
+    rreplace_set_to (data->replace, text);
 
     if (!rreplace_empty_from (rendata_get_rreplace (data)))
         file_names_update_changes (data);
@@ -706,23 +706,23 @@ event_win_key_press (GtkWidget   *widget,
 static void
 event_click_add_files (RFnames *names)
 {
-    GSList       *gs_files = nullptr; /* File list returned by dialog */
-    GSList       *gs_fn    = nullptr; /* File list copy */
-    uint_fast32_t ui_pcnt  = 0;       /* Previous number of file items */
+    GSList        *gs_files   = nullptr; /* File list returned by dialog */
+    GSList        *gs_fn      = nullptr; /* File list copy */
+    uint_fast32_t  prev_count = 0;       /* Previous number of file items */
 
-    ui_pcnt  = rfnames_get_cnt (names);
+    prev_count  = rfnames_get_cnt (names);
     gs_files = add_files_dialog (nullptr);
     gs_fn    = gs_files;
 
     while (gs_fn) {
-        const char *s_fn = gs_fn->data;
-        rfnames_add_sfile_to_file_box (names, s_fn);
+        const char *file_path = gs_fn->data;
+        rfnames_add_sfile_to_file_box (names, file_path);
         gs_fn = gs_fn->next;
     }
     g_slist_free_full (gs_files, g_free);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rfnames_get_cnt (names) > 0) {
+    if (prev_count == 0 && rfnames_get_cnt (names) > 0) {
         gtk_widget_grab_focus (names->items[0]->entry);
     }
 }
@@ -736,26 +736,26 @@ event_click_add_files (RFnames *names)
 static void
 event_click_add_folder_files (RenData *data)
 {
-    int     i_opt   = 0;       /* Options for select files from directory */
-    size_t  ui_pcnt = 0;       /* Previous number of file items on list */
-    char   *s_dir   = nullptr; /* Folder path */
+    int     options    = 0;       /* Options for select files from directory */
+    size_t  prev_count = 0;       /* Previous number of file items on list */
+    char   *folder     = nullptr; /* Folder path */
 
-    ui_pcnt = rfnames_get_cnt (rendata_get_rfnames (data));
-    i_opt   = rendata_get_dirsel (data);
-    i_opt   = i_opt < 1 ? 1 : i_opt;
-    s_dir   = add_files_folder_dialog (nullptr, &i_opt);
+    prev_count = rfnames_get_cnt (rendata_get_rfnames (data));
+    options   = rendata_get_dirsel (data);
+    options   = options < 1 ? 1 : options;
+    folder   = add_files_folder_dialog (nullptr, &options);
 
-    if (s_dir != nullptr) {
-        if (i_opt > 0) {
-            get_folder_content (data->names, s_dir, i_opt);
-            rendata_set_dirsel (data, (int8_t) i_opt);
+    if (folder != nullptr) {
+        if (options > 0) {
+            get_folder_content (data->names, folder, options);
+            rendata_set_dirsel (data, (int8_t) options);
         }
-        free (s_dir);
+        free (folder);
     }
     gtk_widget_show_all (data->names->file_box);
 
     /* Select first entry after adding to empty list */
-    if (ui_pcnt == 0 && rfnames_get_cnt (rendata_get_rfnames (data)) > 0) {
+    if (prev_count == 0 && rfnames_get_cnt (rendata_get_rfnames (data)) > 0) {
         gtk_widget_grab_focus (data->names->items[0]->entry);
     }
 }
@@ -763,16 +763,16 @@ event_click_add_folder_files (RenData *data)
 /**
  * @brief  Create GtkImage widget with desired icon/image.
  *
- * @param[in] i_but  Icon number
+ * @param[in] icon Icon number
  * @return    Imge widget
  */
 static GtkWidget *
-create_image_widget (const IconImg i_but)
+create_image_widget (const IconImg icon)
 {
     GtkWidget *gw_img = nullptr; /* GtkImage widget to return */
     GdkPixbuf *gd_pix = nullptr; /* Pigbuf to load graphics */
 
-    if (i_but < W_ICON_COUNT && (gd_pix = get_image (i_but)) != nullptr) {
+    if (icon < W_ICON_COUNT && (gd_pix = get_image (icon)) != nullptr) {
         gw_img = gtk_image_new_from_pixbuf (gd_pix);
         g_object_unref (gd_pix);
     }
@@ -782,15 +782,15 @@ create_image_widget (const IconImg i_but)
 /**
  * @brief  Create GtkMenuItem widget with image, text, and tooltip.
  *
- * @param[in] s_label Menu entry label
- * @param[in] s_hint  Menu entry tooltip
- * @param[in] i_but   Icon number
+ * @param[in] label Menu entry label
+ * @param[in] hint  Menu entry tooltip
+ * @param[in] icon  Icon number
  * @return    Result menu entry widget
  */
 static GtkWidget *
-create_img_menu_item (const char    *s_label,
-                      const char    *s_hint,
-                      const IconImg  i_but)
+create_img_menu_item (const char    *label,
+                      const char    *hint,
+                      const IconImg  icon)
 {
     GtkWidget *gw_item; /* GtkMenuItem widget to return */
     GtkWidget *gw_box;  /* Box to pack image and label for menu item */
@@ -799,16 +799,16 @@ create_img_menu_item (const char    *s_label,
     gw_item = gtk_menu_item_new ();
     gw_box  = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
 
-    if ((gw_img = create_image_widget (i_but)) != nullptr) {
+    if ((gw_img = create_image_widget (icon)) != nullptr) {
         gtk_box_pack_start (GTK_BOX (gw_box), gw_img, FALSE, FALSE, 4);
     }
-    if (s_label != nullptr && s_label[0] != '\0') {
-        GtkWidget *gw_lab = gtk_label_new (s_label);
+    if (label != nullptr && label[0] != '\0') {
+        GtkWidget *gw_lab = gtk_label_new (label);
         /*gtk_container_add (GTK_CONTAINER (gw_box), gw_lab);*/
         gtk_box_pack_start (GTK_BOX (gw_box), gw_lab, FALSE, FALSE, 4);
     }
-    if (s_hint != nullptr && s_hint[0] != '\0') {
-        gtk_widget_set_tooltip_text (gw_item, s_hint);
+    if (hint != nullptr && hint[0] != '\0') {
+        gtk_widget_set_tooltip_text (gw_item, hint);
     }
     gtk_container_add (GTK_CONTAINER (gw_item), gw_box);
     return gw_item;
@@ -1493,14 +1493,14 @@ create_toolbar (GtkWidget **gw_container,
  * Creates container and puts entries in it.
  *
  * @param[in]     files        An array of GFiles
- * @param[in]     n_files      Length of files
- * @param[in,out] data      RenData object with file list and settings
+ * @param[in]     file_count   Length of files
+ * @param[in,out] data         RenData object with file list and settings
  * @param[out]    gw_container Pointer to entry box container pointer
  * @return        none
  */
 static void
 create_file_name_entries (GFile         **files,
-                          uint_fast32_t   n_files,
+                          uint_fast32_t   file_count,
                           RenData        *data,
                           GtkWidget     **gw_container)
 {
@@ -1513,7 +1513,7 @@ create_file_name_entries (GFile         **files,
     gw_entry_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
     data->names->file_box = gw_entry_box;
 
-    for (uint_fast32_t i = 0; i < n_files; ++i) {
+    for (uint_fast32_t i = 0; i < file_count; ++i) {
         if (g_file_query_exists (files[i], FALSE)) {
             rfnames_add_gfile_to_file_box (data->names, files[i]);
         }
@@ -1584,17 +1584,17 @@ shutdown ([[maybe_unused]] GtkApplication *application,
 /**
  * @brief  Open files in application signal.
  *
- * @param[in,out] application  GtkApplication item
- * @param[in,out] files        An array of GFiles to open
- * @param[in]     n_files      The length of the files array
- * @param[in]     hint         A hint (or ""), but never nullptr
- * @param[in,out] data      RenData object with file list and settings
+ * @param[in,out] application GtkApplication item
+ * @param[in,out] files       An array of GFiles to open
+ * @param[in]     file_count  The length of the files array
+ * @param[in]     hint        A hint (or ""), but never nullptr
+ * @param[in,out] data        RenData object with file list and settings
  * @return        none
  */
 static void
 open (GtkApplication  *application,
       GFile          **files,
-      int              n_files,
+      int              file_count,
       [[maybe_unused]] const char *hint,
       RenData         *data)
 {
@@ -1615,7 +1615,7 @@ open (GtkApplication  *application,
     GtkWidget *gw_sep;             /* Separator widget */
 
     /* Create file name entries and set r_files properties */
-    create_file_name_entries (files , (uint_fast32_t) n_files, data,
+    create_file_name_entries (files , (uint_fast32_t) file_count, data,
                               &gw_entry_box);
     /* Create main window and set properties */
     create_window (&window, application, data);
