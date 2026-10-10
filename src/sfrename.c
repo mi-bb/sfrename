@@ -121,7 +121,7 @@ file_names_update_changes (RenData *data)
             continue;
 
         /* copy original name to new to process */
-        rfitem_set_snew_from_sorg (item);
+        rfitem_set_new_name_from_org_name (item);
 
         /* Execute rename functions */
         name_to_upcase_lowercase (data, i);
@@ -132,7 +132,7 @@ file_names_update_changes (RenData *data)
         name_overwrite_string (data, i);
         name_number_string (data, i);
         /* Update file name entry if name has changed */
-        rfitem_entry_check_and_update (item, rfitem_get_snew (item));
+        rfitem_entry_check_and_update (item, rfitem_get_new_name (item));
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -305,8 +305,8 @@ event_click_rename (GtkWidget *widget,
         item = data->names->items[i];
 
         s_new = rfitem_entry_get_text (item);
-        s_old = rfitem_get_sorg (item);
-        s_pth = rfitem_get_spth (item);
+        s_old = rfitem_get_org_name (item);
+        s_pth = rfitem_get_path (item);
 
         i_renamed = file_check_and_rename (s_old, s_new, s_pth);
 
@@ -315,7 +315,7 @@ event_click_rename (GtkWidget *widget,
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", s_old, s_new);
                 /* copy new name to original in buffer */
-                rfitem_set_sorg_from_snew (item);
+                rfitem_set_org_name_from_new_name (item);
                 ++ui_ren_count;
                 break;
 
@@ -333,7 +333,7 @@ event_click_rename (GtkWidget *widget,
         }
         if (i_renamed != REN_OK && i_renamed != REN_NC) {
             /* Revert old file names to new */
-            rfitem_set_snew_from_sorg (item);
+            rfitem_set_new_name_from_org_name (item);
 
             /* Update file name in entry */
             rfitem_entry_check_and_update (item, s_old);

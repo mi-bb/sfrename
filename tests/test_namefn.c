@@ -22,7 +22,7 @@
  * These tests build RenData/RFnames/RFitem and settings structs by hand,
  * without going through rendata_new()/rfitem_new_from_gfile(). Those
  * constructors create real GTK widgets and need a display; namefn.c never
- * touches the widget fields (it only reads/writes the plain s_new buffer
+ * touches the widget fields (it only reads/writes the plain new_name buffer
  * and the settings getters), so a zero-initialized fixture is sufficient
  * and keeps these tests headless.
  *
@@ -55,7 +55,7 @@ fixture_init (Fixture *f, const char *const *names, size_t n)
 
     for (size_t i = 0; i < n; ++i) {
         strcpy (f->bufs[i], names[i]);
-        f->items[i].s_new     = f->bufs[i];
+        f->items[i].new_name     = f->bufs[i];
         f->items[i].new_len   = strlen (f->bufs[i]);
         f->items[i].new_u8len = (size_t) g_utf8_strlen (f->bufs[i], -1);
         f->item_ptrs[i] = &f->items[i];
@@ -86,7 +86,7 @@ test_delete_chars (void)
 
     name_delete_chars (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "hello");
+    g_assert_cmpstr (f.items[0].new_name, ==, "hello");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -99,7 +99,7 @@ test_delete_chars_noop_when_count_zero (void)
 
     name_delete_chars (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "hello");
+    g_assert_cmpstr (f.items[0].new_name, ==, "hello");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -114,7 +114,7 @@ test_insert_string (void)
 
     name_insert_string (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "hello world");
+    g_assert_cmpstr (f.items[0].new_name, ==, "hello world");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -127,7 +127,7 @@ test_insert_string_noop_when_text_empty (void)
 
     name_insert_string (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "unchanged");
+    g_assert_cmpstr (f.items[0].new_name, ==, "unchanged");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -142,7 +142,7 @@ test_overwrite_string (void)
 
     name_overwrite_string (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "hello THERE");
+    g_assert_cmpstr (f.items[0].new_name, ==, "hello THERE");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -160,9 +160,9 @@ test_number_string_sequence (void)
     name_number_string (&f.rd, 1);
     name_number_string (&f.rd, 2);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "file1");
-    g_assert_cmpstr (f.items[1].s_new, ==, "file2");
-    g_assert_cmpstr (f.items[2].s_new, ==, "file3");
+    g_assert_cmpstr (f.items[0].new_name, ==, "file1");
+    g_assert_cmpstr (f.items[1].new_name, ==, "file2");
+    g_assert_cmpstr (f.items[2].new_name, ==, "file3");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -175,7 +175,7 @@ test_number_string_noop_when_disabled (void)
 
     name_number_string (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "file");
+    g_assert_cmpstr (f.items[0].new_name, ==, "file");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -188,7 +188,7 @@ test_to_upcase (void)
 
     name_to_upcase_lowercase (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "HELLO");
+    g_assert_cmpstr (f.items[0].new_name, ==, "HELLO");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -201,7 +201,7 @@ test_to_lowercase (void)
 
     name_to_upcase_lowercase (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "hello");
+    g_assert_cmpstr (f.items[0].new_name, ==, "hello");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -214,7 +214,7 @@ test_to_upcase_lowercase_noop_when_disabled (void)
 
     name_to_upcase_lowercase (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "Hello");
+    g_assert_cmpstr (f.items[0].new_name, ==, "Hello");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -227,7 +227,7 @@ test_spaces_to_underscores (void)
 
     name_spaces_underscores (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "my_file_name");
+    g_assert_cmpstr (f.items[0].new_name, ==, "my_file_name");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -240,7 +240,7 @@ test_underscores_to_spaces (void)
 
     name_spaces_underscores (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "my file name");
+    g_assert_cmpstr (f.items[0].new_name, ==, "my file name");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -255,7 +255,7 @@ test_replace_strings (void)
 
     name_replace_strings (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "baz_bar_baz");
+    g_assert_cmpstr (f.items[0].new_name, ==, "baz_bar_baz");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -268,7 +268,7 @@ test_replace_strings_noop_when_from_empty (void)
 
     name_replace_strings (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "unchanged");
+    g_assert_cmpstr (f.items[0].new_name, ==, "unchanged");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -282,7 +282,7 @@ test_applyto_ext_only (void)
 
     name_to_upcase_lowercase (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "Report.PDF");
+    g_assert_cmpstr (f.items[0].new_name, ==, "Report.PDF");
 }
 /*----------------------------------------------------------------------------*/
 static void
@@ -296,7 +296,7 @@ test_applyto_name_only (void)
 
     name_to_upcase_lowercase (&f.rd, 0);
 
-    g_assert_cmpstr (f.items[0].s_new, ==, "REPORT.pdf");
+    g_assert_cmpstr (f.items[0].new_name, ==, "REPORT.pdf");
 }
 /*----------------------------------------------------------------------------*/
 int

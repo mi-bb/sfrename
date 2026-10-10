@@ -31,56 +31,56 @@
  *
  * @brief  Single file name item with name strings and widgets
  *
- * @var   RFitem::s_new
+ * @var   RFitem::new_name
  * @brief New (after change) file name string
- * @var   RFitem::s_org
+ * @var   RFitem::org_name
  * @brief Original file name string
- * @var   RFitem::s_pth
+ * @var   RFitem::path
  * @brief Path to directory with file to rename
  * @var   RFitem::new_len
- * @brief Total length in bytes of s_new string
+ * @brief Total length in bytes of new_name string
  * @var   RFitem::new_u8len
- * @brief Number of unicode chars in s_new string
+ * @brief Number of unicode chars in new_name string
  * @var   RFitem::org_len
- * @brief Total length in bytes of s_org string
+ * @brief Total length in bytes of org_name string
  * @var   RFitem::org_u8len
- * @brief Number of unicode chars in s_org string
- * @var   RFitem::f_type
+ * @brief Number of unicode chars in org_name string
+ * @var   RFitem::file_type
  * @brief File type in GFileType value
- * @var   RFitem::b_slink
+ * @var   RFitem::is_symlink
  * @brief Is file / dir a symbolic link
- * @var   RFitem::b_hidden
+ * @var   RFitem::is_hidden
  * @brief Is file / dir hidden
  * @var   RFitem::label
  * @brief Label showing file type
  * @var   RFitem::entry
  * @brief Entry for file name
- * @var   RFitem::check
+ * @var   RFitem::check_button
  * @brief Checkbutton to set file active for name change
- * @var   RFitem::rbut
+ * @var   RFitem::restore_button
  * @brief Button to restore original file name
- * @var   RFitem::dbut
+ * @var   RFitem::delete_button
  * @brief Button to delete file item from list
  * @var   RFitem::box
  * @brief Box with all file widgets
  */
 typedef struct
 RFitem {
-    char      *s_new;
-    char      *s_org;
-    char      *s_pth;
+    char      *new_name;
+    char      *org_name;
+    char      *path;
     size_t     new_len;
     size_t     new_u8len;
     size_t     org_len;
     size_t     org_u8len;
-    GFileType  f_type;
-    bool       b_slink;
-    bool       b_hidden;
+    GFileType  file_type;
+    bool       is_symlink;
+    bool       is_hidden;
     GtkWidget *label;
     GtkWidget *entry;
-    GtkWidget *check;
-    GtkWidget *rbut;
-    GtkWidget *dbut;
+    GtkWidget *check_button;
+    GtkWidget *restore_button;
+    GtkWidget *delete_button;
     GtkWidget *box;
 } RFitem;
 /*----------------------------------------------------------------------------*/
@@ -138,59 +138,60 @@ void rfitem_delete (RFitem *item);
  */
 /*----------------------------------------------------------------------------*/
 static inline bool rfitem_get_checked     (const RFitem   *item) {
-    return gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (item->check));
+    return gtk_toggle_button_get_active (
+                GTK_TOGGLE_BUTTON (item->check_button));
 }
 static inline void rfitem_set_checked     (RFitem         *item,
                                            const bool      val) {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check), val);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button), val);
 }
 void     rfitem_invert_checked (RFitem         *item);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfitem_set_snew_from_sorg (RFitem *item)
+ * @fn  void rfitem_set_new_name_from_org_name (RFitem *item)
  *
- * @brief  Copy s_org string and length values to s_new.
+ * @brief  Copy org_name string and length values to new_name.
  *
  * @param[in]  item  RFitem object
  * @return     none
  *
- * @fn  void rfitem_set_sorg_from_snew (RFitem *item)
+ * @fn  void rfitem_set_org_name_from_new_name (RFitem *item)
  *
- * @brief  Copy s_new string and length values to s_org.
+ * @brief  Copy new_name string and length values to org_name.
  *
  * @param[in]  item  RFitem object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-void     rfitem_set_snew_from_sorg (RFitem *item);
+void     rfitem_set_new_name_from_org_name (RFitem *item);
 
-void     rfitem_set_sorg_from_snew (RFitem *item);
+void     rfitem_set_org_name_from_new_name (RFitem *item);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn         const char * rfitem_get_snew (const RFitem *item)
- * @brief      Get s_new value.
+ * @fn         const char * rfitem_get_new_name (const RFitem *item)
+ * @brief      Get new_name value.
  * @param[in]  item  RFitem object
- * @return     s_new value
+ * @return     new_name value
  *
- * @fn         const char * rfitem_get_sorg (const RFitem *item)
- * @brief      Get s_org value.
+ * @fn         const char * rfitem_get_org_name (const RFitem *item)
+ * @brief      Get org_name value.
  * @param[in]  item  RFitem object
- * @return     s_org value
+ * @return     org_name value
  *
- * @fn         const char * rfitem_get_spth (const RFitem *item)
- * @brief      Get s_pth value.
+ * @fn         const char * rfitem_get_path (const RFitem *item)
+ * @brief      Get path value.
  * @param[in]  item  RFitem object
- * @return     s_pth value
+ * @return     path value
  */
 /*----------------------------------------------------------------------------*/
-static inline const char * rfitem_get_snew (const RFitem *item) {
-    return (const char *) item->s_new;
+static inline const char * rfitem_get_new_name (const RFitem *item) {
+    return (const char *) item->new_name;
 }
-static inline const char * rfitem_get_sorg (const RFitem *item) {
-    return (const char *) item->s_org;
+static inline const char * rfitem_get_org_name (const RFitem *item) {
+    return (const char *) item->org_name;
 }
-static inline const char * rfitem_get_spth (const RFitem *item) {
-    return (const char *) item->s_pth;
+static inline const char * rfitem_get_path (const RFitem *item) {
+    return (const char *) item->path;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -217,7 +218,7 @@ static inline const char * rfitem_entry_get_text (const RFitem *item) {
     return gtk_entry_get_text (GTK_ENTRY (item->entry));
 }
 static inline void         rfitem_entry_restore  (RFitem       *item) {
-    gtk_entry_set_text (GTK_ENTRY (item->entry), item->s_org);
+    gtk_entry_set_text (GTK_ENTRY (item->entry), item->org_name);
 }
 void rfitem_entry_check_and_update (RFitem       *item,
                                     const char   *new_str);
@@ -263,16 +264,16 @@ int rfitem_compare (const RFitem *item1,
  */
 /*----------------------------------------------------------------------------*/
 static inline bool rfitem_is_file        (const RFitem *item) {
-    return (item->f_type == G_FILE_TYPE_REGULAR);
+    return (item->file_type == G_FILE_TYPE_REGULAR);
 }
 static inline bool rfitem_is_folder      (const RFitem *item) {
-    return (item->f_type == G_FILE_TYPE_DIRECTORY);
+    return (item->file_type == G_FILE_TYPE_DIRECTORY);
 }
 static inline bool rfitem_is_symlink     (const RFitem *item) {
-    return item->b_slink;
+    return item->is_symlink;
 }
 static inline bool rfitem_is_hidden      (const RFitem *item) {
-    return item->b_hidden;
+    return item->is_hidden;
 }
 /*----------------------------------------------------------------------------*/
 #endif

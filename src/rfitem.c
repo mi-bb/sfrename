@@ -139,14 +139,14 @@ rfitem_label_set_markup (RFitem *item)
     const char *colour = "";  /* Optional colour attribute */
     char        c_type;       /* Single letter naming the type */
 
-    if (item->b_slink) {
+    if (item->is_symlink) {
         colour = " foreground=\"blue\"";
     }
-    else if (item->b_hidden) {
+    else if (item->is_hidden) {
         colour = " foreground=\"green\"";
     }
 
-    switch (item->f_type) {
+    switch (item->file_type) {
         case G_FILE_TYPE_REGULAR:       c_type = 'F'; break;
         case G_FILE_TYPE_DIRECTORY:     c_type = 'D'; break;
         case G_FILE_TYPE_SYMBOLIC_LINK: c_type = 'S'; break;
@@ -190,11 +190,11 @@ rfitem_new_from_gfile (GFile *g_file)
 
     rfitem_init (item);
 
-    item->s_org = malloc ((FN_LEN + 1) * sizeof (char));
-    item->s_new = malloc ((FN_LEN + 1) * sizeof (char));
-    item->s_pth = malloc ((FN_LEN + 1) * sizeof (char));
-    if (item->s_org == nullptr || item->s_new == nullptr ||
-        item->s_pth == nullptr) {
+    item->org_name = malloc ((FN_LEN + 1) * sizeof (char));
+    item->new_name = malloc ((FN_LEN + 1) * sizeof (char));
+    item->path = malloc ((FN_LEN + 1) * sizeof (char));
+    if (item->org_name == nullptr || item->new_name == nullptr ||
+        item->path == nullptr) {
         free (item);
         err (EXIT_FAILURE, nullptr);
     }
@@ -207,23 +207,23 @@ rfitem_new_from_gfile (GFile *g_file)
                                 nullptr,
                                 &g_err);
     if (f_info != nullptr) {
-        item->f_type   = g_file_info_get_file_type (f_info);
-        item->b_hidden = g_file_info_get_is_hidden (f_info);
-        item->b_slink  = g_file_info_get_is_symlink (f_info);
+        item->file_type  = g_file_info_get_file_type (f_info);
+        item->is_hidden  = g_file_info_get_is_hidden (f_info);
+        item->is_symlink = g_file_info_get_is_symlink (f_info);
         g_object_unref (f_info);
     }
     else {
         #ifdef DEBUG
         printf ("Could not get ifno of %s\n", s_fn);
         #endif
-        item->f_type = G_FILE_TYPE_UNKNOWN;
+        item->file_type = G_FILE_TYPE_UNKNOWN;
     }
-    item->label = gtk_label_new (nullptr);
-    item->entry = gtk_entry_new ();
-    item->check = gtk_check_button_new ();
-    item->rbut  = gtk_button_new_with_label ("R");
-    item->dbut  = gtk_button_new_with_label ("D");
-    item->box   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
+    item->label          = gtk_label_new (nullptr);
+    item->entry          = gtk_entry_new ();
+    item->check_button   = gtk_check_button_new ();
+    item->restore_button = gtk_button_new_with_label ("R");
+    item->delete_button  = gtk_button_new_with_label ("D");
+    item->box            = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
     /* Set type label markup (file or dir, type color) */
     rfitem_label_set_markup (item);
     /* Create entry and set max length to defined file name length */
@@ -233,10 +233,11 @@ rfitem_new_from_gfile (GFile *g_file)
     /* Set full path as a tooltip */
     gtk_widget_set_tooltip_text (item->entry, f_path);
     /* Set item active to apply changes */
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check), TRUE);
+    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button),
+                                  TRUE);
 
-    gtk_widget_set_tooltip_text (item->rbut, "Restore original");
-    gtk_widget_set_tooltip_text (item->dbut, "Remove from list");
+    gtk_widget_set_tooltip_text (item->restore_button, "Restore original");
+    gtk_widget_set_tooltip_text (item->delete_button, "Remove from list");
     gtk_widget_set_margin_bottom (item->box, 4);
 
     /* Copy verified file names to original and new file name string */
@@ -244,28 +245,33 @@ rfitem_new_from_gfile (GFile *g_file)
     item->org_u8len = (size_t) g_utf8_strlen (f_name, -1);
     item->new_len = item->org_len;
     item->new_u8len = item->org_u8len;
-    memcpy (item->s_pth, f_path, len);
-    item->s_pth[len] = '\0';
-    memcpy (item->s_org, f_name, item->org_len + 1);
-    memcpy (item->s_new, f_name, item->org_len + 1);
-    /*item->s_org[FN_LEN] = '\0';*/
-    /*item->s_new[FN_LEN] = '\0';*/
-    /* rfitem_set_snew_from_sorg (item); */
+    memcpy (item->path, f_path, len);
+    item->path[len] = '\0';
+    memcpy (item->org_name, f_name, item->org_len + 1);
+    memcpy (item->new_name, f_name, item->org_len + 1);
+    /*item->org_name[FN_LEN] = '\0';*/
+    /*item->new_name[FN_LEN] = '\0';*/
+    /* rfitem_set_new_name_from_org_name (item); */
 
-    gtk_box_pack_start (GTK_BOX (item->box), item->check, FALSE, FALSE,0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->label, FALSE, FALSE,0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->entry, TRUE,  TRUE, 0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->rbut,  FALSE, FALSE,0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->dbut,  FALSE, FALSE,0);
+    gtk_box_pack_start (GTK_BOX (item->box), item->check_button,
+                        FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (item->box), item->label,
+                        FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (item->box), item->entry,
+                        TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX (item->box), item->restore_button,
+                        FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (item->box), item->delete_button,
+                        FALSE, FALSE, 0);
 
     #ifdef DEBUG
-    printf ("loaded : %s\n", item->s_org);
-    printf ("   dir : %s\n", item->s_pth);
+    printf ("loaded : %s\n", item->org_name);
+    printf ("   dir : %s\n", item->path);
     printf ("  full : %s\n", f_path);
-    printf ("  type : %d\n", item->f_type);
+    printf ("  type : %d\n", item->file_type);
     #endif
 
-    g_signal_connect (G_OBJECT (item->rbut), "clicked",
+    g_signal_connect (G_OBJECT (item->restore_button), "clicked",
                       G_CALLBACK (event_click_rev), item);
 
     return item;
@@ -289,9 +295,9 @@ rfitem_new_from_file_path (const char *path)
 static void
 rfitem_free_data (RFitem *item)
 {
-    free (item->s_new);
-    free (item->s_org);
-    free (item->s_pth);
+    free (item->new_name);
+    free (item->org_name);
+    free (item->path);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -316,56 +322,56 @@ rfitem_delete (RFitem *item)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Copy s_org string and length values to s_new.
+ * @brief  Copy org_name string and length values to new_name.
  */
 void
-rfitem_set_snew_from_sorg (RFitem *item)
+rfitem_set_new_name_from_org_name (RFitem *item)
 {
     item->new_len = item->org_len;
     item->new_u8len = item->org_u8len;
-    memcpy (item->s_new, item->s_org, item->org_len + 1);
+    memcpy (item->new_name, item->org_name, item->org_len + 1);
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Copy s_new string and length values to s_org.
+ * @brief  Copy new_name string and length values to org_name.
  */
 void
-rfitem_set_sorg_from_snew (RFitem *item)
+rfitem_set_org_name_from_new_name (RFitem *item)
 {
     item->org_len = item->new_len;
     item->org_u8len = item->new_u8len;
-    memcpy (item->s_org, item->s_new, item->new_len + 1);
+    memcpy (item->org_name, item->new_name, item->new_len + 1);
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Set s_new value.
+ * @brief  Set new_name value.
 static void
-rfitem_set_snew (RFitem     *item,
+rfitem_set_new_name (RFitem     *item,
                  const char *val)
 {
     item->new_len = strlen (val);
-    memcpy (item->s_new, val, item->new_len+1);
+    memcpy (item->new_name, val, item->new_len+1);
     item->new_u8len = (size_t) g_utf8_strlen (val, -1);
 }
  */
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Set s_org value.
+ * @brief  Set org_name value.
 static void
-rfitem_set_sorg (RFitem     *item,
+rfitem_set_org_name (RFitem     *item,
                  const char *val)
 {
-    strcpy (item->s_org, val);
+    strcpy (item->org_name, val);
 }
  */
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Set s_pth value.
+ * @brief  Set path value.
 static void
-rfitem_set_spth (RFitem     *item,
+rfitem_set_path (RFitem     *item,
                  const char *val)
 {
-    strcpy (item->s_pth, val);
+    strcpy (item->path, val);
 }
  */
 /*----------------------------------------------------------------------------*/
@@ -385,8 +391,7 @@ event_click_rev ([[maybe_unused]] GtkWidget *widget,
 void
 rfitem_invert_checked (RFitem *item)
 {
-    rfitem_set_checked (item,
-            !gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (item->check)));
+    rfitem_set_checked (item, !rfitem_get_checked (item));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -408,9 +413,9 @@ int
 rfitem_compare (const RFitem *item1,
                 const RFitem *item2)
 {
-    int  result  = 0;
-    auto str1 = g_utf8_casefold (item1->s_org, -1);
-    auto str2 = g_utf8_casefold (item2->s_org, -1);
+    int  result = 0;
+    auto str1   = g_utf8_casefold (item1->org_name, -1);
+    auto str2   = g_utf8_casefold (item2->org_name, -1);
 
     result = str_compare (str1, str2);
 

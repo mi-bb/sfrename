@@ -229,7 +229,7 @@ event_click_del (GtkWidget *widget,
                  RFnames   *names)
 {
     for (uint_fast32_t i = 0; i < names->cnt; ++i) {
-        if (names->items[i]->dbut == widget) {
+        if (names->items[i]->delete_button == widget) {
             rfnames_delete_at_pos (names, i);
             break;
         }
@@ -248,7 +248,7 @@ rfnames_append_gfile (RFnames *names,
     item = rfitem_new_from_gfile (g_file);
     rfnames_append (names, item);
 
-    g_signal_connect (G_OBJECT (item->dbut), "clicked",
+    g_signal_connect (G_OBJECT (item->delete_button), "clicked",
                       G_CALLBACK (event_click_del), names);
 
     return item->box;
@@ -262,7 +262,7 @@ void
 rfnames_add_gfile_to_file_box (RFnames *names,
                                GFile   *g_file)
 {
-    /* Create and append file widgets (entry, check, buttons) to file
+    /* Create and append file widgets (entry, check button, buttons) to file
      * list, get box widget with them */
     auto gw_widget = rfnames_append_gfile (names, g_file);
     gtk_widget_show_all (gw_widget);
@@ -608,8 +608,8 @@ rfnames_sort (RFnames *names)
         return;
 
     for (uint_fast32_t i = 0; i < names->cnt; ++i) {
-        if (names->items[i]->f_type == G_FILE_TYPE_DIRECTORY) {
-            if (names->items[i]->b_hidden) {
+        if (names->items[i]->file_type == G_FILE_TYPE_DIRECTORY) {
+            if (names->items[i]->is_hidden) {
                 gl_dirs_h = g_list_append (gl_dirs_h, names->items[i]);
             }
             else {
@@ -617,7 +617,7 @@ rfnames_sort (RFnames *names)
             }
         }
         else {
-            if (names->items[i]->b_hidden) {
+            if (names->items[i]->is_hidden) {
                 gl_files_h = g_list_append (gl_files_h, names->items[i]);
             }
             else {
