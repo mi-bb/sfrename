@@ -26,10 +26,10 @@
 #include "string_functions.h"
 /*----------------------------------------------------------------------------*/
 static ProcessData
-make_pd (char *s_srcdst, size_t *len, size_t *u8len)
+make_pd (char *text, size_t *len, size_t *u8len)
 {
     ProcessData pd = {
-        .s_srcdst = s_srcdst, .srcdst_len = len, .srcdst_u8len = u8len,
+        .text = text, .text_len = len, .text_u8len = u8len,
     };
     return pd;
 }
@@ -118,8 +118,8 @@ test_delete_chars_middle (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 5; /* delete starting at the space */
-    pd.ui_cnt = 6; /* " world" */
+    pd.pos = 5; /* delete starting at the space */
+    pd.count = 6; /* " world" */
 
     string_delete_chars (&pd);
 
@@ -139,8 +139,8 @@ test_delete_chars_beyond_end_clamps (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 100; /* far beyond string length */
-    pd.ui_cnt = 2;
+    pd.pos = 100; /* far beyond string length */
+    pd.count = 2;
 
     string_delete_chars (&pd);
 
@@ -160,10 +160,10 @@ test_insert_string_middle (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = " ";
-    pd.str1_len = 1;
-    pd.str1_u8len = 1;
-    pd.ui_pos = 5;
+    pd.first = " ";
+    pd.first_len = 1;
+    pd.first_u8len = 1;
+    pd.pos = 5;
 
     string_insert_string (&pd);
 
@@ -184,10 +184,10 @@ test_insert_string_truncates_at_max (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "XYZ";
-    pd.str1_len = 3;
-    pd.str1_u8len = 3;
-    pd.ui_pos = 0;
+    pd.first = "XYZ";
+    pd.first_len = 3;
+    pd.first_u8len = 3;
+    pd.pos = 0;
 
     string_insert_string (&pd);
 
@@ -207,9 +207,9 @@ test_overwrite_string_middle (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "THERE";
-    pd.str1_u8len = 5;
-    pd.ui_pos = 6; /* overwrite "world" */
+    pd.first = "THERE";
+    pd.first_u8len = 5;
+    pd.pos = 6; /* overwrite "world" */
 
     string_overwrite_string (&pd);
 
@@ -227,9 +227,9 @@ test_replace_in_basic (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "foo";
-    pd.str1_len = 3;
-    pd.s_str2 = "baz";
+    pd.first = "foo";
+    pd.first_len = 3;
+    pd.second = "baz";
 
     string_replace_in (&pd);
 
@@ -247,9 +247,9 @@ test_replace_in_no_match_is_noop (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "xyz";
-    pd.str1_len = 3;
-    pd.s_str2 = "abc";
+    pd.first = "xyz";
+    pd.first_len = 3;
+    pd.second = "abc";
 
     string_replace_in (&pd);
 
@@ -268,10 +268,10 @@ test_add_number_basic (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 4;   /* append at end */
-    pd.ui_no = 2;    /* this is the 3rd file (0-indexed) */
-    pd.ui_start = 1;
-    pd.ui_max = 8;   /* 9 files total (0..8); with start offset 1, highest
+    pd.pos = 4;   /* append at end */
+    pd.number = 2;    /* this is the 3rd file (0-indexed) */
+    pd.start = 1;
+    pd.max = 8;   /* 9 files total (0..8); with start offset 1, highest
                       * numbered file is 9 -> single digit, no zero-padding */
 
     string_add_number (&pd);
@@ -290,10 +290,10 @@ test_add_number_zero_pads (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 4;
-    pd.ui_no = 0;
-    pd.ui_start = 0;
-    pd.ui_max = 10; /* two-digit range (00..10) forces zero padding */
+    pd.pos = 4;
+    pd.number = 0;
+    pd.start = 0;
+    pd.max = 10; /* two-digit range (00..10) forces zero padding */
 
     string_add_number (&pd);
 
