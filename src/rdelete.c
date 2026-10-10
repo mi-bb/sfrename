@@ -28,13 +28,13 @@
 /**
  * @brief  RDelete initialization.
  *
- * @param[out] r_delete Pointer to RDelete object
+ * @param[out] del Pointer to RDelete object
  * @return     none
  */
 static void
-rdelete_init (RDelete *r_delete)
+rdelete_init (RDelete *del)
 {
-    *r_delete = (RDelete){};
+    *del = (RDelete){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -43,22 +43,22 @@ rdelete_init (RDelete *r_delete)
 RDelete *
 rdelete_new (void)
 {
-    RDelete *rd_new = nullptr;
+    RDelete *del = nullptr;
 
-    if ((rd_new = malloc (sizeof (RDelete))) == nullptr)
+    if ((del = malloc (sizeof (RDelete))) == nullptr)
         err (EXIT_FAILURE, nullptr);
 
-    rdelete_init (rd_new);
-    return rd_new;
+    rdelete_init (del);
+    return del;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  */
 void
-rdelete_free (RDelete *r_delete)
+rdelete_free (RDelete *del)
 {
-    free (r_delete);
+    free (del);
 }
 /*----------------------------------------------------------------------------*/
 

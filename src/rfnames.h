@@ -71,8 +71,8 @@ void      rfnames_free (RFnames *names);
 /**
  * @brief  Append file to RFnames.
  *
- * @param[out] names Pointer to RFnames object
- * @param[in]  g_file   GFile object for file to add
+ * @param[out] names     Pointer to RFnames object
+ * @param[in]  g_file    GFile object for file to add
  * @return     Box widget with item widgets
  */
 [[nodiscard]] GtkWidget * rfnames_append_gfile (RFnames *names,
@@ -85,26 +85,26 @@ void      rfnames_free (RFnames *names);
  * @brief  Create new RFitem object using data from gfile item and add it
  *         to RFnames item.
  *
- * @param[out] names Pointer to RFnames object
- * @param[in]  g_file   GFile object
+ * @param[out] names     Pointer to RFnames object
+ * @param[in]  g_file    GFile object
  * @return     none
  *
- * @fn  void rfnames_add_sfile_to_file_box (RFnames    *names,
- *                                          const char *s_fn)
+ * @fn  void rfnames_add_file_path_to_file_box (RFnames    *names,
+ *                                              const char *file_path)
  *
- * @brief  Create new RFitem object using data from s_fn string and add it
+ * @brief  Create new RFitem object using data from file_path string and add it
  *         to RFnames item.
  *
- * @param[out] names Pointer to RFnames object
- * @param[in]  s_fn     String with file path
+ * @param[out] names     Pointer to RFnames object
+ * @param[in]  file_path String with file path
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
 void rfnames_add_gfile_to_file_box (RFnames    *names,
                                     GFile      *g_file);
 /*----------------------------------------------------------------------------*/
-void rfnames_add_sfile_to_file_box (RFnames    *names,
-                                    const char *s_fn);
+void rfnames_add_file_path_to_file_box (RFnames    *names,
+                                        const char *file_path);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get length of items list

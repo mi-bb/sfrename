@@ -54,105 +54,105 @@ RNumber {
  *
  * @return New RNumber object
  *
- * @fn  void rnumber_free (RNumber *r_number)
+ * @fn  void rnumber_free (RNumber *number)
  *
  * @brief  Free allocated memory.
  *
- * @param[out] r_number Pointer to RNumber object
+ * @param[out] number Pointer to RNumber object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
 [[nodiscard]] RNumber * rnumber_new  (void)
               __attribute__ ((malloc, returns_nonnull));
 
-void      rnumber_free (RNumber *r_number);
+void      rnumber_free (RNumber *number);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  int8_t rnumber_get_opt (const RNumber *r_number)
+ * @fn  int8_t rnumber_get_opt (const RNumber *number)
  *
  * @brief  Get opt value.
  *
- * @param[in]  r_number  RNumber object
+ * @param[in]  number  RNumber object
  * @return     opt value
  *
- * @fn  void rnumber_set_opt (RNumber      *r_number,
+ * @fn  void rnumber_set_opt (RNumber      *number,
  *                            const int8_t  val)
  * @brief  Set opt value.
  *
- * @param[out] r_number  RNumber object
+ * @param[out] number  RNumber object
  * @param[in]  val       New opt value
  * @return     none
  *
- * @fn  uint_fast32_t rnumber_get_start (const RNumber *r_number)
+ * @fn  uint_fast32_t rnumber_get_start (const RNumber *number)
  *
  * @brief  Get start value.
  *
- * @param[in]  r_number  RNumber object
+ * @param[in]  number  RNumber object
  * @return     start value
  *
- * @fn  void rnumber_set_start (RNumber             *r_number,
+ * @fn  void rnumber_set_start (RNumber             *number,
  *                              const uint_fast32_t  val)
  * @brief  Set start value.
  *
- * @param[out] r_number  RNumber object
+ * @param[out] number  RNumber object
  * @param[in]  val       New start value
  * @return     none
  *
- * @fn  uint8_t rnumber_get_pos (const RNumber *r_number)
+ * @fn  uint8_t rnumber_get_pos (const RNumber *number)
  *
  * @brief  Get pos value.
  *
- * @param[in]  r_number  RNumber object
+ * @param[in]  number  RNumber object
  * @return     pos value
  *
- * @fn  void rnumber_set_pos (RNumber       *r_number,
+ * @fn  void rnumber_set_pos (RNumber       *number,
  *                            const uint8_t  val)
  * @brief  Set pos value.
  *
- * @param[out] r_number  RNumber object
+ * @param[out] number  RNumber object
  * @param[in]  val       New pos value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-static inline int8_t        rnumber_get_opt   (const RNumber       *r_number) {
-    return r_number->opt;
+static inline int8_t        rnumber_get_opt   (const RNumber       *number) {
+    return number->opt;
 }
-static inline void          rnumber_set_opt   (RNumber             *r_number,
+static inline void          rnumber_set_opt   (RNumber             *number,
                                                const int8_t         val) {
-    r_number->opt = val;
+    number->opt = val;
 }
 /*----------------------------------------------------------------------------*/
-static inline uint_fast32_t rnumber_get_start (const RNumber       *r_number) {
-    return r_number->start;
+static inline uint_fast32_t rnumber_get_start (const RNumber       *number) {
+    return number->start;
 }
-static inline void          rnumber_set_start (RNumber             *r_number,
+static inline void          rnumber_set_start (RNumber             *number,
                                                const uint_fast32_t  val) {
-    r_number->start = val;
+    number->start = val;
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  uint8_t rnumber_get_pos (const RNumber *r_number)
+ * @fn  uint8_t rnumber_get_pos (const RNumber *number)
  *
  * @brief  Get pos value.
  *
- * @param[in]  r_number  RNumber object
+ * @param[in]  number  RNumber object
  * @return     pos value
  *
- * @fn  void rnumber_set_pos (RNumber       *r_number,
+ * @fn  void rnumber_set_pos (RNumber       *number,
  *                            const uint8_t  val)
  * @brief  Set pos value.
  *
- * @param[out] r_number  RNumber object
+ * @param[out] number  RNumber object
  * @param[in]  val       New pos value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-static inline uint8_t rnumber_get_pos   (const RNumber *r_number) {
-    return r_number->pos;
+static inline uint8_t rnumber_get_pos   (const RNumber *number) {
+    return number->pos;
 }
-static inline void    rnumber_set_pos   (RNumber       *r_number,
+static inline void    rnumber_set_pos   (RNumber       *number,
                                          const uint8_t  val) {
-    r_number->pos = val;
+    number->pos = val;
 }
 /*----------------------------------------------------------------------------*/
 #endif

@@ -716,7 +716,7 @@ event_click_add_files (RFnames *names)
 
     while (gs_fn) {
         const char *file_path = gs_fn->data;
-        rfnames_add_sfile_to_file_box (names, file_path);
+        rfnames_add_file_path_to_file_box (names, file_path);
         gs_fn = gs_fn->next;
     }
     g_slist_free_full (gs_files, g_free);

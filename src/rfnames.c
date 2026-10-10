@@ -48,11 +48,11 @@ static void rfnames_append (RFnames *names,
  * @brief  Delete RFitem object from RFnames list at given position.
  *
  * @param[out] names Pointer to RFnames object
- * @param[in]  ui_pos   Position of RFitem to delete
+ * @param[in]  pos   Position of RFitem to delete
  * @return     none
  */
 static void rfnames_delete_at_pos (RFnames             *names,
-                                   const uint_fast32_t  ui_pos);
+                                   const uint_fast32_t  pos);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Delete item from file list clicked.
@@ -69,12 +69,12 @@ static void event_click_del (GtkWidget *widget,
  *
  * @param[in,out] names Pointer to RFnames object
  * @param[in]     fun      Function to examine RFitem object
- * @param[in]     b_sel    Boolean value to select or not select item
+ * @param[in]     selected    Boolean value to select or not select item
  * @return     none
  */
 static void rfnames_select_unselect (RFnames     *names,
                                      bool     (*fun) (const RFitem *item),
-                                     const bool   b_sel);
+                                     const bool   selected);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Select all check items on list.
@@ -174,25 +174,25 @@ rfnames_append (RFnames *names,
  */
 static void
 rfnames_delete_at_pos (RFnames             *names,
-                       const uint_fast32_t  ui_pos)
+                       const uint_fast32_t  pos)
 {
     RFitem    **tmp = nullptr;
     GtkWidget *gw_ibox;
     GtkBox    *gb_pbox;
 
-    if (ui_pos >= names->cnt || names->cnt == 0)
+    if (pos >= names->cnt || names->cnt == 0)
         return;
 
     /* Get item box and parent list box */
-    gw_ibox = names->items[ui_pos]->box;
+    gw_ibox = names->items[pos]->box;
     gb_pbox = GTK_BOX (gtk_widget_get_parent (gw_ibox));
 
-    rfitem_delete (names->items[ui_pos]);
+    rfitem_delete (names->items[pos]);
 
     names->cnt -= 1;
 
     /* Reorder items on the list and on the box widget */
-    for (uint_fast32_t i = ui_pos; i < names->cnt; ++i) {
+    for (uint_fast32_t i = pos; i < names->cnt; ++i) {
         names->items[i] = names->items[i+1];
         gw_ibox = names->items[i]->box;
         gtk_box_reorder_child (gb_pbox, gw_ibox, (gint) i);
@@ -274,14 +274,14 @@ rfnames_add_gfile_to_file_box (RFnames *names,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Create new RFitem object using data from s_fn string and add it
+ * @brief  Create new RFitem object using data from file_path string and add it
  *         to RFnames item.
  */
 void
-rfnames_add_sfile_to_file_box (RFnames    *names,
-                               const char *s_fn)
+rfnames_add_file_path_to_file_box (RFnames    *names,
+                                   const char *file_path)
 {
-    auto g_file = g_file_new_for_path (s_fn);
+    auto g_file = g_file_new_for_path (file_path);
     rfnames_add_gfile_to_file_box (names, g_file);
     g_object_unref (g_file);
 }
@@ -314,12 +314,12 @@ rfnames_unselect_all (RFnames *names)
 void
 rfnames_select_unselect_all (RFnames *names)
 {
-    bool          b_sel = true;
-    uint_fast32_t i     = names->cnt;
+    bool          selected = true;
+    uint_fast32_t i        = names->cnt;
 
-    while (i-- && (b_sel = rfitem_get_checked (names->items[i])));
+    while (i-- && (selected = rfitem_get_checked (names->items[i])));
 
-    if (b_sel) {
+    if (selected) {
         rfnames_unselect_all (names);
     }
     else {
@@ -333,11 +333,11 @@ rfnames_select_unselect_all (RFnames *names)
 static void
 rfnames_select_unselect (RFnames     *names,
                          bool     (*fun) (const RFitem *item),
-                         const bool   b_sel)
+                         const bool   selected)
 {
     for (uint_fast32_t i = 0; i < names->cnt; ++i) {
         if (fun (names->items[i])) {
-            rfitem_set_checked (names->items[i], b_sel);
+            rfitem_set_checked (names->items[i], selected);
         }
     }
 }

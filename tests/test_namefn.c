@@ -123,7 +123,7 @@ test_insert_string_noop_when_text_empty (void)
     Fixture f;
     const char *names[] = { "unchanged" };
     fixture_init (&f, names, 1);
-    /* ins.s_text defaults to "" */
+    /* ins.text defaults to "" */
 
     name_insert_string (&f.rd, 0);
 
@@ -264,7 +264,7 @@ test_replace_strings_noop_when_from_empty (void)
     Fixture f;
     const char *names[] = { "unchanged" };
     fixture_init (&f, names, 1);
-    /* replace.s_from defaults to "" */
+    /* replace.from defaults to "" */
 
     name_replace_strings (&f.rd, 0);
 

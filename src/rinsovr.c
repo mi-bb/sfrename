@@ -31,13 +31,13 @@
 /**
  * @brief  RInsOvr initialization.
  *
- * @param[out] r_insovr Pointer to RInsOvr object
+ * @param[out] insovr Pointer to RInsOvr object
  * @return     none
  */
 static void
-rinsovr_init (RInsOvr *r_insovr)
+rinsovr_init (RInsOvr *insovr)
 {
-    *r_insovr = (RInsOvr){};
+    *insovr = (RInsOvr){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -46,37 +46,37 @@ rinsovr_init (RInsOvr *r_insovr)
 RInsOvr *
 rinsovr_new (void)
 {
-    RInsOvr *r_ins = nullptr;
+    RInsOvr *insovr = nullptr;
 
-    if ((r_ins = malloc (sizeof (RInsOvr))) == nullptr)
+    if ((insovr = malloc (sizeof (RInsOvr))) == nullptr)
         err (EXIT_FAILURE, nullptr);
 
-    rinsovr_init (r_ins);
-    return r_ins;
+    rinsovr_init (insovr);
+    return insovr;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  */
 void
-rinsovr_free (RInsOvr *r_insovr)
+rinsovr_free (RInsOvr *insovr)
 {
-    free (r_insovr);
+    free (insovr);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set text string.
  */
 void 
-rinsovr_set_text (RInsOvr    *rio_item,
+rinsovr_set_text (RInsOvr    *insovr,
                   const char *val)
 {
-    size_t ui_len = string_get_valid_length (val, FN_LEN);
+    size_t len = string_get_valid_length (val, FN_LEN);
 
-    memcpy (rio_item->s_text, val, ui_len);
-    rio_item->s_text[ui_len] = '\0';
-    rio_item->len = ui_len;
-    rio_item->u8len = (size_t) g_utf8_strlen (val, -1);
+    memcpy (insovr->text, val, len);
+    insovr->text[len] = '\0';
+    insovr->len = len;
+    insovr->u8len = (size_t) g_utf8_strlen (val, -1);
 }
 /*----------------------------------------------------------------------------*/
 

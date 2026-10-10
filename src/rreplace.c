@@ -31,13 +31,13 @@
 /**
  * @brief  RReplace initialization.
  *
- * @param[out] r_replace Pointer to RReplace object
+ * @param[out] replace Pointer to RReplace object
  * @return     none
  */
 static void
-rreplace_init (RReplace *r_replace)
+rreplace_init (RReplace *replace)
 {
-    *r_replace = (RReplace){};
+    *replace = (RReplace){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -46,52 +46,52 @@ rreplace_init (RReplace *r_replace)
 RReplace *
 rreplace_new (void)
 {
-    RReplace *r_rep = nullptr;
+    RReplace *replace = nullptr;
 
-    if ((r_rep = malloc (sizeof (RReplace))) == nullptr)
+    if ((replace = malloc (sizeof (RReplace))) == nullptr)
         err (EXIT_FAILURE, nullptr);
 
-    rreplace_init (r_rep);
-    return r_rep;
+    rreplace_init (replace);
+    return replace;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  */
 void
-rreplace_free (RReplace *r_replace)
+rreplace_free (RReplace *replace)
 {
-    free (r_replace);
+    free (replace);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set "from" string.
  */
 void
-rreplace_set_from (RReplace   *r_replace,
+rreplace_set_from (RReplace   *replace,
                    const char *val)
 {
-    size_t ui_len = string_get_valid_length (val, FN_LEN);
+    size_t len = string_get_valid_length (val, FN_LEN);
 
-    memcpy (r_replace->s_from, val, ui_len);
-    r_replace->s_from[ui_len] = '\0';
-    r_replace->from_len   = ui_len;
-    r_replace->from_u8len = (size_t) g_utf8_strlen (val, -1);
+    memcpy (replace->from, val, len);
+    replace->from[len] = '\0';
+    replace->from_len   = len;
+    replace->from_u8len = (size_t) g_utf8_strlen (val, -1);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set "to" string.
  */
 void
-rreplace_set_to (RReplace   *r_replace,
+rreplace_set_to (RReplace   *replace,
                  const char *val)
 {
-    size_t ui_len = string_get_valid_length (val, FN_LEN);
+    size_t len = string_get_valid_length (val, FN_LEN);
 
-    memcpy (r_replace->s_to, val, ui_len);
-    r_replace->s_to[ui_len] = '\0';
-    r_replace->to_len   = ui_len;
-    r_replace->to_u8len = (size_t) g_utf8_strlen (val, -1);
+    memcpy (replace->to, val, len);
+    replace->to[len] = '\0';
+    replace->to_len   = len;
+    replace->to_u8len = (size_t) g_utf8_strlen (val, -1);
 }
 /*----------------------------------------------------------------------------*/
 

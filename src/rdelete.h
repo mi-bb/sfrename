@@ -50,64 +50,64 @@ RDelete {
  *
  * @return  New RDelete object
  *
- * @fn  void rdelete_free (RDelete *r_delete)
+ * @fn  void rdelete_free (RDelete *del)
  *
  * @brief  Free allocated memory.
  *
- * @param[out] r_delete Pointer to RDelete object
+ * @param[out] del Pointer to RDelete object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
 [[nodiscard]] RDelete * rdelete_new  (void)
               __attribute__ ((malloc, returns_nonnull));
 
-void      rdelete_free (RDelete *r_delete);
+void      rdelete_free (RDelete *del);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  uint8_t rdelete_get_cnt (const RDelete *r_delete)
+ * @fn  uint8_t rdelete_get_cnt (const RDelete *del)
  *
  * @brief  Get cnt value.
  *
- * @param[in]  r_delete  RDelete object
+ * @param[in]  del  RDelete object
  * @return     cnt value
  *
- * @fn  void rdelete_set_cnt (RDelete *r_delete,
+ * @fn  void rdelete_set_cnt (RDelete *del,
  *                            uint8_t  val)
  * @brief  Set cnt value.
  *
- * @param[out] r_delete  RDelete object
+ * @param[out] del  RDelete object
  * @param[in]  val       New cnt value
  * @return     none
  *
- * @fn  uint8_t rdelete_get_pos (const RDelete *r_delete)
+ * @fn  uint8_t rdelete_get_pos (const RDelete *del)
  *
  * @brief  Get pos value.
  *
- * @param[in]  r_delete  RDelete object
+ * @param[in]  del  RDelete object
  * @return     pos value
  *
- * @fn  void rdelete_set_pos (RDelete *r_delete,
+ * @fn  void rdelete_set_pos (RDelete *del,
  *                            uint8_t  val)
  * @brief  Set pos value.
  *
- * @param[out] r_delete  RDelete object
+ * @param[out] del  RDelete object
  * @param[in]  val       New pos value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-static inline uint8_t rdelete_get_cnt (const RDelete *r_delete) {
-    return r_delete->cnt;
+static inline uint8_t rdelete_get_cnt (const RDelete *del) {
+    return del->cnt;
 }
-static inline void    rdelete_set_cnt (RDelete       *r_delete,
+static inline void    rdelete_set_cnt (RDelete       *del,
                                        uint8_t        val) {
-    r_delete->cnt = val;
+    del->cnt = val;
 }
-static inline uint8_t rdelete_get_pos (const RDelete *r_delete) {
-    return r_delete->pos;
+static inline uint8_t rdelete_get_pos (const RDelete *del) {
+    return del->pos;
 }
-static inline void    rdelete_set_pos (RDelete       *r_delete,
+static inline void    rdelete_set_pos (RDelete       *del,
                                        uint8_t        val) {
-    r_delete->pos = val;
+    del->pos = val;
 }
 /*----------------------------------------------------------------------------*/
 #endif

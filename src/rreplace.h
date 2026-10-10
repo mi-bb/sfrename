@@ -32,32 +32,32 @@
  *
  * @brief  Replace strings in name settings
  *
- * @var   RReplace::s_from
+ * @var   RReplace::from
  * @brief Replace from string
  *
- * @var   RReplace::s_to
+ * @var   RReplace::to
  * @brief Replace to string
  *
  * @var   RReplace::from_len
- * @brief Number of chars (bytes) in s_from
+ * @brief Number of chars (bytes) in from
  *
  * @var   RReplace::from_u8len
- * @brief Number of unicode chars in s_from
+ * @brief Number of unicode chars in from
  *
  * @var   RReplace::to_len
- * @brief Number of chars (bytes) in s_to
+ * @brief Number of chars (bytes) in to
  *
  * @var   RReplace::to_u8len
- * @brief Number of unicode chars in s_to
+ * @brief Number of unicode chars in to
  */
 typedef struct
 RReplace {
-    char      s_from [FN_LEN + 1];
-    char      s_to   [FN_LEN + 1];
-    size_t    from_len;
-    size_t    from_u8len;
-    size_t    to_len;
-    size_t    to_u8len;
+    char   from [FN_LEN + 1];
+    char   to [FN_LEN + 1];
+    size_t from_len;
+    size_t from_u8len;
+    size_t to_len;
+    size_t to_u8len;
 } RReplace;
 /*----------------------------------------------------------------------------*/
 /**
@@ -67,128 +67,128 @@ RReplace {
  *
  * @return  New RReplace object
  *
- * @fn  void rreplace_free (RReplace *r_replace)
+ * @fn  void rreplace_free (RReplace *replace)
  *
  * @brief  Free allocated memory.
  *
- * @param[out] r_replace Pointer to RReplace object
+ * @param[out] replace Pointer to RReplace object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
 [[nodiscard]] RReplace * rreplace_new  (void)
               __attribute__ ((malloc, returns_nonnull));
 
-void       rreplace_free (RReplace *r_replace);
+void       rreplace_free (RReplace *replace);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  const char * rreplace_get_from (const RReplace *r_replace)
+ * @fn  const char * rreplace_get_from (const RReplace *replace)
  *
  * @brief  Get "from" string.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     "from" string
  *
- * @fn  void rreplace_set_from (RReplace   *r_replace,
+ * @fn  void rreplace_set_from (RReplace   *replace,
  *                              const char *val)
  * @brief  Set "from" string.
  *
- * @param[out] r_replace  RReplace object
+ * @param[out] replace  RReplace object
  * @param[in]  val        New "from" string
  * @return     none
  *
- * @fn  const char * rreplace_get_to (const RReplace *r_replace)
+ * @fn  const char * rreplace_get_to (const RReplace *replace)
  *
  * @brief  Get "to" string.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     "to" string
  *
- * @fn  void rreplace_set_to   (RReplace   *r_replace,
+ * @fn  void rreplace_set_to   (RReplace   *replace,
  *                              const char *val)
  * @brief  Set "to" string.
  *
- * @param[out] r_replace  RReplace object
+ * @param[out] replace  RReplace object
  * @param[in]  val        New "to" string
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
-static inline const char * rreplace_get_from (const RReplace *r_replace) {
-    return r_replace->s_from;
+static inline const char * rreplace_get_from (const RReplace *replace) {
+    return replace->from;
 }
-static inline const char * rreplace_get_to   (const RReplace *r_replace) {
-    return r_replace->s_to;
+static inline const char * rreplace_get_to   (const RReplace *replace) {
+    return replace->to;
 }
 
-void                       rreplace_set_from (RReplace       *r_replace,
+void                       rreplace_set_from (RReplace       *replace,
                                               const char     *val);
 
-void                       rreplace_set_to   (RReplace       *r_replace,
+void                       rreplace_set_to   (RReplace       *replace,
                                               const char     *val);
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  size_t rreplace_get_from_len (const RReplace *r_replace)
+ * @fn  size_t rreplace_get_from_len (const RReplace *replace)
  *
- * @brief  Get s_from string length value.
+ * @brief  Get from string length value.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     String length in chars (bytes) value
  *
- * @fn  size_t rreplace_get_from_u8len (const RReplace *r_replace)
+ * @fn  size_t rreplace_get_from_u8len (const RReplace *replace)
  *
- * @brief  Get s_from string unicode length value.
+ * @brief  Get from string unicode length value.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     String length in unicode chars value
  *
- * @fn  size_t rreplace_get_to_len (const RReplace *r_replace)
+ * @fn  size_t rreplace_get_to_len (const RReplace *replace)
  *
- * @brief  Get s_to string length value.
+ * @brief  Get to string length value.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     String length in chars (bytes) value
  *
- * @fn  size_t rreplace_get_to_u8len (const RReplace *r_replace)
+ * @fn  size_t rreplace_get_to_u8len (const RReplace *replace)
  *
- * @brief  Get s_to string unicode length value.
+ * @brief  Get to string unicode length value.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     String length in unicode chars value
  */
 /*----------------------------------------------------------------------------*/
-static inline size_t rreplace_get_from_len   (const RReplace *r_replace) {
-    return r_replace->from_len;
+static inline size_t rreplace_get_from_len   (const RReplace *replace) {
+    return replace->from_len;
 }
-static inline size_t rreplace_get_from_u8len (const RReplace *r_replace) {
-    return r_replace->from_u8len;
+static inline size_t rreplace_get_from_u8len (const RReplace *replace) {
+    return replace->from_u8len;
 }
-static inline size_t rreplace_get_to_len     (const RReplace *r_replace) {
-    return r_replace->to_len;
+static inline size_t rreplace_get_to_len     (const RReplace *replace) {
+    return replace->to_len;
 }
-static inline size_t rreplace_get_to_u8len   (const RReplace *r_replace) {
-    return r_replace->to_u8len;
+static inline size_t rreplace_get_to_u8len   (const RReplace *replace) {
+    return replace->to_u8len;
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  bool rreplace_empty_from (const RReplace *r_replace)
+ * @fn  bool rreplace_empty_from (const RReplace *replace)
  *
  * @brief  Check if "from" string is an empty string.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     Check result
  *
- * @fn  bool rreplace_empty_to (const RReplace *r_replace)
+ * @fn  bool rreplace_empty_to (const RReplace *replace)
  *
  * @brief  Check if "to" string is an empty string.
  *
- * @param[in]  r_replace  RReplace object
+ * @param[in]  replace  RReplace object
  * @return     Check result
  */
 /*----------------------------------------------------------------------------*/
-static inline bool rreplace_empty_from (const RReplace *r_replace) {
-    return (r_replace->s_from[0] == '\0');
+static inline bool rreplace_empty_from (const RReplace *replace) {
+    return (replace->from[0] == '\0');
 }
-static inline bool rreplace_empty_to   (const RReplace *r_replace) {
-    return (r_replace->s_to[0] == '\0');
+static inline bool rreplace_empty_to   (const RReplace *replace) {
+    return (replace->to[0] == '\0');
 }
 /*----------------------------------------------------------------------------*/
 #endif

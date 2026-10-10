@@ -28,13 +28,13 @@
 /**
  * @brief  RNumber initialization.
  *
- * @param[out] r_number Pointer to RNumber object
+ * @param[out] number Pointer to RNumber object
  * @return     none
  */
 static void
-rnumber_init (RNumber *r_number)
+rnumber_init (RNumber *number)
 {
-    *r_number = (RNumber){};
+    *number = (RNumber){};
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -43,21 +43,21 @@ rnumber_init (RNumber *r_number)
 RNumber *
 rnumber_new (void)
 {
-    RNumber *r_num = nullptr;
+    RNumber *number = nullptr;
 
-    if ((r_num = malloc (sizeof (RNumber))) == nullptr)
+    if ((number = malloc (sizeof (RNumber))) == nullptr)
         err (EXIT_FAILURE, nullptr);
 
-    rnumber_init (r_num);
-    return r_num;
+    rnumber_init (number);
+    return number;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Free allocated memory.
  */
 void
-rnumber_free (RNumber *r_number)
+rnumber_free (RNumber *number)
 {
-    free (r_number);
+    free (number);
 }
 /*----------------------------------------------------------------------------*/

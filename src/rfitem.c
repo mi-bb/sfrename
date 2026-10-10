@@ -123,7 +123,7 @@ str_compare (const char *a,
         }
     }
     else {
-        //i_res = strcmp (a, b);
+        //result = strcmp (a, b);
         result = g_utf8_collate (a, b);
     }
     return result;
@@ -214,7 +214,7 @@ rfitem_new_from_gfile (GFile *g_file)
     }
     else {
         #ifdef DEBUG
-        printf ("Could not get ifno of %s\n", s_fn);
+        printf ("Could not get info of %s\n", f_path);
         #endif
         item->file_type = G_FILE_TYPE_UNKNOWN;
     }
