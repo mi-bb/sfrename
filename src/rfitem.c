@@ -31,8 +31,8 @@
  *                                            size_t     *len)
  * @brief      Get file name pointer and length of directory string in given
  *             file path.
- * @param[in]  path   Input file path
- * @param[out] len  Output for directory string length
+ * @param[in]  path  Input file path
+ * @param[out] len   Output for directory string length
  * @return     Pointer to file name in path
  *
  * @fn         static int str_compare (const char *a, const char *b)
@@ -60,7 +60,7 @@
                                              RFitem     *item)
  * @brief      Restore original file name button clicked.
  * @param[in]  widget  The object which received the signal
- * @param[out] item Pointer to RFitem object
+ * @param[out] item    Pointer to RFitem object
  * @return     none
  */
 /*----------------------------------------------------------------------------*/

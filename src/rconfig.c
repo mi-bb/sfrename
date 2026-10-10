@@ -511,8 +511,8 @@ parse_number_obj (const char **p, long *opt, long *start, long *pos)
 bool
 rconfig_parse (RenData *data, const char *path)
 {
-    char       *buf = nullptr;
-    gsize       len = 0;
+    char       *buf  = nullptr;
+    gsize       len  = 0;
     GError     *gerr = nullptr;
     const char *p;
 
@@ -657,7 +657,7 @@ bool
 rconfig_save (const RenData *data)
 {
     auto path = rconfig_get_path ();
-    bool ok   = true;
+    bool ok = true;
 
     if (rendata_get_rememberopt (data)) {
         ok = rconfig_write (data, path);
@@ -678,7 +678,7 @@ bool
 rconfig_load (RenData *data)
 {
     auto path = rconfig_get_path ();
-    bool ok   = false;
+    bool ok = false;
 
     if (g_file_test (path, G_FILE_TEST_EXISTS))
         ok = rconfig_parse (data, path);

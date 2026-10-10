@@ -284,7 +284,7 @@ event_close (GtkWidget *widget,
  * If exit after rename is selected, application is closed after rename.
  *
  * @param[in]     widget  Button which received the signal
- * @param[in,out] data RenData object with file list and settings
+ * @param[in,out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -356,7 +356,7 @@ event_click_rename (GtkWidget *widget,
  * insert string text is not empty.
  *
  * @param[in]  sp_button SpinButton which received the signal
- * @param[out] data   RenData object with file list and settings
+ * @param[out] data      RenData object with file list and settings
  * @return     none
  */
 static void
@@ -377,7 +377,7 @@ event_insert_pos_changed (GtkSpinButton *sp_button,
  * name changes.
  *
  * @param[in]  widget  Entry widget which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -398,7 +398,7 @@ event_insert_string_entry_changed (GtkWidget *widget,
  * overwrite string text is not empty.
  *
  * @param[in]  sp_button SpinButton which received the signal
- * @param[out] data   RenData object with file list and settings
+ * @param[out] data      RenData object with file list and settings
  * @return     none
  */
 static void
@@ -419,7 +419,7 @@ event_overwrite_pos_changed (GtkSpinButton *sp_button,
  * name changes.
  *
  * @param[in]  widget  Entry widget which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -440,7 +440,7 @@ event_overwrite_string_entry_changed (GtkWidget *widget,
  * changes.
  *
  * @param[in]  sp_button SpinButton which received the signal
- * @param[out] data   RenData object with file list and settings
+ * @param[out] data      RenData object with file list and settings
  * @return     none
  */
 static void
@@ -460,7 +460,7 @@ event_delete_cnt_changed (GtkSpinButton *sp_button,
  * it calls to update file name changes.
  *
  * @param[in]  sp_button SpinButton which received the signal
- * @param[out] data   RenData object with file list and settings
+ * @param[out] data      RenData object with file list and settings
  * @return     none
  */
 static void
@@ -481,7 +481,7 @@ event_delete_pos_changed (GtkSpinButton *sp_button,
  * function.
  *
  * @param[in]  radiob  RadioButton which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -503,7 +503,7 @@ event_case_radio_active (GtkRadioButton *radiob,
  * function.
  *
  * @param[in]  radiob  RadioButton which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -525,7 +525,7 @@ event_spaces_radio_active (GtkRadioButton *radiob,
  * function.
  *
  * @param[in]  widget  Entry widget which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -546,7 +546,7 @@ event_replace_from_entry_changed (GtkWidget *widget,
  * empty and calls update changes function.
  *
  * @param[in]  widget  Entry widget which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -569,7 +569,7 @@ event_replace_to_entry_changed (GtkWidget *widget,
  * checks for strings replacement and updates entries if needed.
  *
  * @param[in]  radiob  RadioButton which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -590,7 +590,7 @@ event_apply_radio_active (GtkRadioButton *radiob,
  * @brief  Number names CheckBox state changed.
  *
  * @param[in]  toggleb ToggleButton which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -607,7 +607,7 @@ event_toggle_number_names (GtkToggleButton *toggleb,
  * @brief  Numbering strings start value in SpinButton changed.
  *
  * @param[in]  sp_button SpinButton which received the signal
- * @param[out] data   RenData object with file list and settings
+ * @param[out] data      RenData object with file list and settings
  * @return     none
  */
 static void
@@ -625,7 +625,7 @@ event_number_start_changed (GtkSpinButton *sp_button,
  * @brief  Numbering strings position in string SpinButton changed.
  *
  * @param[in]  sp_button SpinButton which received the signal
- * @param[out] data   RenData object with file list and settings
+ * @param[out] data      RenData object with file list and settings
  * @return     none
  */
 static void
@@ -645,7 +645,7 @@ event_number_pos_changed (GtkSpinButton *sp_button,
  * Sets renexit value in r_files structure based on the value of ChackBox.
  *
  * @param[in]  toggleb ToggleButton which received the signal
- * @param[out] data RenData object with file list and settings
+ * @param[out] data    RenData object with file list and settings
  * @return     none
  */
 static void
@@ -679,7 +679,7 @@ event_toggle_remember_options (GtkToggleButton *toggleb,
  *
  * @param[in]     widget    The object which received the signal
  * @param[in]     event     The event which triggered this signal
- * @param[in,out] data   RenData object with file list and settings
+ * @param[in,out] data      RenData object with file list and settings
  */
 static gboolean
 event_win_key_press (GtkWidget   *widget,
@@ -1495,7 +1495,7 @@ create_toolbar (GtkWidget **container,
  * @param[in]     files        An array of GFiles
  * @param[in]     file_count   Length of files
  * @param[in,out] data         RenData object with file list and settings
- * @param[out]    container Pointer to entry box container pointer
+ * @param[out]    container    Pointer to entry box container pointer
  * @return        none
  */
 static void
@@ -1537,7 +1537,7 @@ create_file_name_entries (GFile         **files,
  *
  * @param[out]    window       Pointer to a app window container
  * @param[in,out] application  GtkApplication item
- * @param[in,out] data      RenData object with file list and settings
+ * @param[in,out] data         RenData object with file list and settings
  * @return        none
  */
 static void
@@ -1570,7 +1570,7 @@ create_window (GtkWidget        **window,
  * @brief  Application shutdown signal.
  *
  * @param[in]  application  GtkApplication item
- * @param[out] data      RenData object with file list and settings
+ * @param[out] data         RenData object with file list and settings
  * @return     none
  */
 static void
@@ -1694,7 +1694,7 @@ open (GtkApplication  *application,
  * @brief  Application activate signal.
  *
  * @param[in,out] application  GtkApplication item
- * @param[in,out] data      RenData object with file list and settings
+ * @param[in,out] data         RenData object with file list and settings
  * @return        none
  */
 static void
@@ -1740,5 +1740,4 @@ main (int    argc,
     return status;
 }
 /*----------------------------------------------------------------------------*/
-
 

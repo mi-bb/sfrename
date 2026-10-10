@@ -33,7 +33,7 @@
  * Prepares data and calls delete chars in string function.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_delete_chars        (RenData             *data,
@@ -45,7 +45,7 @@ void name_delete_chars        (RenData             *data,
  * Prepares data and calls insert string in string function.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_insert_string       (RenData             *data,
@@ -57,7 +57,7 @@ void name_insert_string       (RenData             *data,
  * Prepares data and calls overwrite string in string function.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_overwrite_string    (RenData             *data,
@@ -69,7 +69,7 @@ void name_overwrite_string    (RenData             *data,
  * Prepares data and calls numbering string function.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_number_string       (RenData             *data,
@@ -79,7 +79,7 @@ void name_number_string       (RenData             *data,
  * @brief  Change specified file name to upcase or lowercase.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_to_upcase_lowercase (RenData             *data,
@@ -90,7 +90,7 @@ void name_to_upcase_lowercase (RenData             *data,
  *         other.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_spaces_underscores  (RenData             *data,
@@ -101,7 +101,7 @@ void name_spaces_underscores  (RenData             *data,
  *         If "replace from" string is not empty, perform string replace.
  *
  * @param[in,out] data Pointer to RenData with rename process info
- * @param[in]     i       Index of file name to change
+ * @param[in]     i    Index of file name to change
  * @return        none
  */
 void name_replace_strings     (RenData             *data,

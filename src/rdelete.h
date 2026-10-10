@@ -76,7 +76,7 @@ void      rdelete_free (RDelete *del);
  * @brief  Set cnt value.
  *
  * @param[out] del  RDelete object
- * @param[in]  val       New cnt value
+ * @param[in]  val  New cnt value
  * @return     none
  *
  * @fn  uint8_t rdelete_get_pos (const RDelete *del)
@@ -91,7 +91,7 @@ void      rdelete_free (RDelete *del);
  * @brief  Set pos value.
  *
  * @param[out] del  RDelete object
- * @param[in]  val       New pos value
+ * @param[in]  val  New pos value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/

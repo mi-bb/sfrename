@@ -179,7 +179,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
  * @brief  Set uplo value.
  *
  * @param[out] data  RenData object
- * @param[in]  val      New uplo value
+ * @param[in]  val   New uplo value
  * @return     none
  *
  * @fn  int8_t rendata_get_spaces (const RenData *data)
@@ -194,7 +194,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
  * @brief  Set spaces value.
  *
  * @param[out] data  RenData object
- * @param[in]  val      New spaces value
+ * @param[in]  val   New spaces value
  * @return     none
  *
  * @fn  int8_t rendata_get_applyto (const RenData *data)
@@ -209,7 +209,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
  * @brief  Set applyto value.
  *
  * @param[out] data  RenData object
- * @param[in]  val      New applyto value
+ * @param[in]  val   New applyto value
  * @return     none
  *
  * @fn  bool rendata_get_renexit (const RenData *data)
@@ -224,7 +224,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
  * @brief  Set renexit value.
  *
  * @param[out] data  RenData object
- * @param[in]  val      New renexit value
+ * @param[in]  val   New renexit value
  * @return     none
  *
  * @fn  int8_t rendata_get_dirsel (const RenData *data)
@@ -239,7 +239,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
  * @brief  Set dirsel value.
  *
  * @param[out] data  RenData object
- * @param[in]  val      New dirsel value
+ * @param[in]  val   New dirsel value
  * @return     none
  *
  * @fn  bool rendata_get_rememberopt (const RenData *data)
@@ -254,7 +254,7 @@ static inline const RNumber * rendata_get_rnumber   (const RenData *data) {
  * @brief  Set rememberopt value.
  *
  * @param[out] data  RenData object
- * @param[in]  val      New rememberopt value
+ * @param[in]  val   New rememberopt value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/

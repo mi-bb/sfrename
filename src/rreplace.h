@@ -93,7 +93,7 @@ void       rreplace_free (RReplace *replace);
  * @brief  Set "from" string.
  *
  * @param[out] replace  RReplace object
- * @param[in]  val        New "from" string
+ * @param[in]  val      New "from" string
  * @return     none
  *
  * @fn  const char * rreplace_get_to (const RReplace *replace)
@@ -108,7 +108,7 @@ void       rreplace_free (RReplace *replace);
  * @brief  Set "to" string.
  *
  * @param[out] replace  RReplace object
- * @param[in]  val        New "to" string
+ * @param[in]  val      New "to" string
  * @return     none
  */
 /*----------------------------------------------------------------------------*/

@@ -38,7 +38,7 @@ static void rfnames_init (RFnames *names);
  * @brief  Append RFitem object to RFnames.
  *
  * @param[out] names Pointer to RFnames object
- * @param[in]  item RFitem object to add
+ * @param[in]  item  RFitem object to add
  * @return     none
  */
 static void rfnames_append (RFnames *names,
@@ -57,8 +57,8 @@ static void rfnames_delete_at_pos (RFnames             *names,
 /**
  * @brief  Delete item from file list clicked.
  *
- * @param[in]  widget   The object which received the signal
- * @param[out] names Pointer to RFnames object
+ * @param[in]  widget The object which received the signal
+ * @param[out] names  Pointer to RFnames object
  * @return     none
  */
 static void event_click_del (GtkWidget *widget,
@@ -67,9 +67,9 @@ static void event_click_del (GtkWidget *widget,
 /**
  * @brief  Select items on RFnames list if they match the fun return value.
  *
- * @param[in,out] names Pointer to RFnames object
- * @param[in]     fun      Function to examine RFitem object
- * @param[in]     selected    Boolean value to select or not select item
+ * @param[in,out] names     Pointer to RFnames object
+ * @param[in]     fun       Function to examine RFitem object
+ * @param[in]     selected  Boolean value to select or not select item
  * @return     none
  */
 static void rfnames_select_unselect (RFnames     *names,
@@ -96,7 +96,7 @@ static void rfnames_unselect_all (RFnames *names);
  * @brief  Remove item from RFnames list if it matches the fun return value.
  *
  * @param[in,out] names Pointer to RFnames object
- * @param[in]     fun      Function to examine RFitem object.
+ * @param[in]     fun   Function to examine RFitem object.
  * @return     none
  */
 static void rfnames_remove (RFnames *names,

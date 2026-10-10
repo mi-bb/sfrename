@@ -127,7 +127,7 @@ void rfitem_delete (RFitem *item);
  * @fn         void rfitem_set_checked (RFitem     *item,
  *                                      const bool  val)
  * @brief      Set check button checked value.
- * @param[out] item Pointer to RFitem object
+ * @param[out] item  Pointer to RFitem object
  * @param[in]  val   Check value
  * @return     none
  *

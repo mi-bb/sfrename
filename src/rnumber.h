@@ -80,7 +80,7 @@ void      rnumber_free (RNumber *number);
  * @brief  Set opt value.
  *
  * @param[out] number  RNumber object
- * @param[in]  val       New opt value
+ * @param[in]  val     New opt value
  * @return     none
  *
  * @fn  uint_fast32_t rnumber_get_start (const RNumber *number)
@@ -95,7 +95,7 @@ void      rnumber_free (RNumber *number);
  * @brief  Set start value.
  *
  * @param[out] number  RNumber object
- * @param[in]  val       New start value
+ * @param[in]  val     New start value
  * @return     none
  *
  * @fn  uint8_t rnumber_get_pos (const RNumber *number)
@@ -110,7 +110,7 @@ void      rnumber_free (RNumber *number);
  * @brief  Set pos value.
  *
  * @param[out] number  RNumber object
- * @param[in]  val       New pos value
+ * @param[in]  val     New pos value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/
@@ -143,7 +143,7 @@ static inline void          rnumber_set_start (RNumber             *number,
  * @brief  Set pos value.
  *
  * @param[out] number  RNumber object
- * @param[in]  val       New pos value
+ * @param[in]  val     New pos value
  * @return     none
  */
 /*----------------------------------------------------------------------------*/

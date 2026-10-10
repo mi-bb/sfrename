@@ -86,7 +86,7 @@ void      rinsovr_free (RInsOvr *insovr);
  * @brief  Set text string.
  *
  * @param[out] insovr  RInsOvr object
- * @param[in]  val       New text string
+ * @param[in]  val     New text string
  * @return     none
  *
  * @fn  uint8_t rinsovr_get_pos (const RInsOvr *insovr)
@@ -101,7 +101,7 @@ void      rinsovr_free (RInsOvr *insovr);
  * @brief  Set pos value.
  *
  * @param[out] insovr  RInsOvr object
- * @param[in]  val       New pos value
+ * @param[in]  val     New pos value
  * @return     none
  *
  * @fn  size_t rinsovr_get_len (const RInsOvr *insovr)

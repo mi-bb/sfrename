@@ -46,8 +46,8 @@
  *
  * Creates the parent directory if it does not already exist.
  *
- * @param[in] data RenData object to serialize
- * @param[in] path    Destination file path
+ * @param[in] data  RenData object to serialize
+ * @param[in] path  Destination file path
  * @return    true on success, false on failure
  *
  * @fn  bool rconfig_parse (RenData    *data,
@@ -58,8 +58,8 @@
  * Uses a parse-then-apply strategy: if the file is missing, unreadable, or
  * malformed, data is left completely unmodified and false is returned.
  *
- * @param[out] data RenData object to update
- * @param[in]  path    Source file path
+ * @param[out] data  RenData object to update
+ * @param[in]  path  Source file path
  * @return     true on success, false on failure
  */
 /*----------------------------------------------------------------------------*/
