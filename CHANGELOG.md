@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Minimum required CMake version raised from 3.21 to 3.22.
+
 ## [1.3.0] - 2026-08-31
 
 ### Added

@@ -36,7 +36,7 @@ be used standalone or with other programs.
 * GNU/Linux or FreeBSD
 * A C23-capable compiler: GCC 14 or later, or Clang 18 or later
 * GTK+ 3 (3.22 or later)
-* CMake 3.21 or later
+* CMake 3.22 or later
 
 ## Installation
 

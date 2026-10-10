@@ -24,7 +24,7 @@ Suggested release build flags (from README.md):
 cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
 ```
 
-- Requires CMake >= 3.21, GCC >= 14 or Clang >= 18 (C23), and GTK+ 3 >= 3.22
+- Requires CMake >= 3.22, GCC >= 14 or Clang >= 18 (C23), and GTK+ 3 >= 3.22
   (checked via `pkg-config`). Configure errors out on older compilers.
 - **Never pass `-std=` in `CMAKE_C_FLAGS`** — `CMakeLists.txt` sets
   `CMAKE_C_STANDARD 23` with extensions on (`-std=gnu23`); a user `-std=`
