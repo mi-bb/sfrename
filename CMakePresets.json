@@ -35,7 +35,7 @@
     },
     {
       "name": "release_native",
-      "displayName": "Release native",
+      "displayName": "Release (march=native)",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -70,6 +70,10 @@
     {
       "name": "release",
       "configurePreset": "release"
+    },
+    {
+      "name": "release_native",
+      "configurePreset": "release_native"
     },
     {
       "name": "release_local",
