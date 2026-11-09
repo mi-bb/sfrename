@@ -26,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CPack configuration for binary packages: `cpack` in the build directory
   now produces a `.tar.gz` archive, a `.deb` package and an `.rpm` package.
+- GitHub release workflow (`.github/workflows/release.yml`): pushing a
+  `vX.Y.Z` tag builds `.deb` (Ubuntu 24.04+, Debian 13+) and `.rpm` (current
+  Fedora) packages for amd64 and arm64 and attaches them to the GitHub
+  release, with notes taken from this changelog.
 
 ### Changed
 
