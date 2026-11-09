@@ -26,8 +26,6 @@
  *
  * @date November 15, 2020
  *
- * @version 1.3.0
- *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <ctype.h>
