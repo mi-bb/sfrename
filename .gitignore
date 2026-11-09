@@ -11,6 +11,7 @@ CTestTestfile.cmake
 install_manifest.txt
 Testing/
 compile_commands.json
+aur/
 
 # CPack source packages
 /_CPack_Packages/
