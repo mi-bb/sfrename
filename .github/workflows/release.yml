@@ -1,0 +1,211 @@
+# Copyright (C) 2019-2026 Michal Babik
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# Builds .deb and .rpm packages for amd64 and arm64 with the `release` CMake
+# preset and CPack (configured in the root CMakeLists.txt), and attaches them
+# to a GitHub release.
+#
+# Pushing a tag vX.Y.Z builds the packages and publishes release vX.Y.Z,
+# with the notes taken from the matching "## [X.Y.Z]" section of
+# CHANGELOG.md. The tag must match project(VERSION) in CMakeLists.txt and
+# APP_VER in src/defs.h. Running the workflow by hand (Actions tab) builds
+# the packages as workflow artifacts only, without making a release.
+
+name: Release packages
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: Check version
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # The version lives in two places; both must agree with each other
+      # and, on a tag push, with the tag.
+      - name: Compare tag with project version
+        id: version
+        run: |
+          version=$(sed -nE 's/^project\(sfrename VERSION ([0-9.]+).*/\1/p' CMakeLists.txt)
+          app_ver=$(sed -nE 's/^#define APP_VER +"([0-9.]+)".*/\1/p' src/defs.h)
+          if [ -z "$version" ] || [ -z "$app_ver" ]; then
+            echo "::error::Could not read the version from CMakeLists.txt or src/defs.h"
+            exit 1
+          fi
+          if [ "$version" != "$app_ver" ]; then
+            echo "::error::CMakeLists.txt version $version does not match APP_VER $app_ver in src/defs.h"
+            exit 1
+          fi
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match project version $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  deb:
+    name: Debian package (${{ matrix.arch }})
+    needs: version
+    # Built on the oldest supported Ubuntu, so the package installs on
+    # Ubuntu 24.04+ and Debian 13+. Its default GCC 13 lacks the C23
+    # support CMakeLists.txt requires, hence gcc-14.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    env:
+      CC: gcc-14
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential gcc-14 cmake ninja-build pkg-config dpkg-dev file \
+            libgtk-3-dev
+
+      - name: Configure
+        run: cmake --preset release
+
+      - name: Build
+        run: cmake --build --preset release
+
+      - name: Test
+        run: ctest --preset release
+
+      - name: Package
+        working-directory: build/release
+        run: cpack -G DEB
+
+      - name: Show package info
+        run: |
+          dpkg-deb --info build/release/*.deb
+          dpkg-deb --contents build/release/*.deb
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: deb-${{ matrix.arch }}
+          path: build/release/*.deb
+          if-no-files-found: error
+
+  rpm:
+    name: RPM package (${{ matrix.arch }})
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    container: fedora:latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install build dependencies
+        run: |
+          dnf install -y \
+            gcc cmake ninja-build pkgconf-pkg-config rpm-build file \
+            gtk3-devel
+
+      - name: Configure
+        run: cmake --preset release
+
+      - name: Build
+        run: cmake --build --preset release
+
+      - name: Test
+        run: ctest --preset release
+
+      - name: Package
+        working-directory: build/release
+        run: cpack -G RPM
+
+      - name: Show package info
+        run: |
+          rpm -qpi build/release/*.rpm
+          rpm -qpl build/release/*.rpm
+          rpm -qpR build/release/*.rpm
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rpm-${{ matrix.arch }}
+          path: build/release/*.rpm
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: [version, deb, rpm]
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          awk -v ver="$VERSION" '
+            index($0, "## [" ver "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found && /^\[[^]]+\]: / { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ] || ! grep -q '[^[:space:]]' notes.md; then
+            echo "::warning::No CHANGELOG.md section for $VERSION, using generated notes"
+            : > notes.md
+          fi
+
+      # Create the release, or add the packages to one that already exists
+      # (e.g. drafted by hand before tagging).
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -s notes.md ]; then
+            notes=(--notes-file notes.md)
+          else
+            notes=(--generate-notes)
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+          else
+            gh release create "$TAG" dist/* --verify-tag \
+              --title "Small File Renamer $TAG" "${notes[@]}"
+          fi

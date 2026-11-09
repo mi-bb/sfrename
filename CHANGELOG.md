@@ -20,6 +20,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-11-09
+
+### Added
+
+- CPack configuration for binary packages: `cpack` in the build directory
+  now produces a `.tar.gz` archive, a `.deb` package and an `.rpm` package.
+- GitHub release workflow (`.github/workflows/release.yml`): pushing a
+  `vX.Y.Z` tag builds `.deb` (Ubuntu 24.04+, Debian 13+) and `.rpm` (current
+  Fedora) packages for amd64 and arm64 and attaches them to the GitHub
+  release, with notes taken from this changelog.
+
+### Changed
+
+- Minimum required CMake version raised from 3.21 to 3.22.
+- Dropped Hungarian-notation prefixes from identifiers. Source-level only; no
+  change in behavior.
+  - `string_functions.h`: `ProcessData` fields renamed (`s_srcdst` to `text`,
+    `srcdst_len`/`srcdst_u8len` to `text_len`/`text_u8len`, `s_str1`/`s_str2`
+    to `first`/`second` with matching `_len`/`_u8len`, `ui_pos` to `pos`,
+    `ui_cnt` to `count`, `ui_no` to `number`, `ui_start` to `start`, `ui_max`
+    to `max`).
+  - `rfitem.h`: `RFitem` fields renamed (`s_new` to `new_name`, `s_org` to
+    `org_name`, `s_pth` to `path`, `f_type` to `file_type`, `b_slink` to
+    `is_symlink`, `b_hidden` to `is_hidden`, `check`/`rbut`/`dbut` to
+    `check_button`/`restore_button`/`delete_button`). Accessors renamed to
+    match: `rfitem_get_snew`/`sorg`/`spth` to
+    `rfitem_get_new_name`/`org_name`/`path`, the same for `rfitem_set_*`, and
+    `rfitem_set_snew_from_sorg`/`rfitem_set_sorg_from_snew` to
+    `rfitem_set_new_name_from_org_name`/`rfitem_set_org_name_from_new_name`.
+  - `rfnames.h`: `RFnames::rf_items` renamed to `items`;
+    `rfnames_add_sfile_to_file_box` renamed to
+    `rfnames_add_file_path_to_file_box`.
+  - `rinsovr.h`, `rreplace.h`: `RInsOvr::s_text` renamed to `text`,
+    `RReplace::s_from`/`s_to` renamed to `from`/`to`.
+  - Parameters and locals across the sources renamed accordingly (`rd_data`
+    to `data`, `rf_names` to `names`, `rf_item` to `item`, `gw_*`/`gl_*`
+    widget and list locals to plain names, and so on).
+
 ## [1.3.0] - 2026-08-31
 
 ### Added
@@ -68,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `cmake_minimum_required` raised from 3.10 to 3.21, the first release that
     knows the C23 standard value. `CMAKE_C_FLAGS` must no longer carry a
     `-std=` option, as it would override the standard CMake selects.
-  - `strfn.c` (`string_replace_in`): made the `fp` find-pointer `const char *`.
+  - `string_functions.c` (`string_replace_in`): made the `fp` find-pointer `const char *`.
     C23 makes `strstr()` const-preserving, so assigning its result from a
     `const char *` haystack to a `char *` warned under `-std=gnu23`.
   - `README.md`: documented the C23 requirement and dropped `-std=gnu11` from
@@ -87,9 +125,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `typedef enum RenResult : int_fast8_t`, and `sfrename.c` carries the value
     in a `RenResult` instead of an `int_fast8_t`. The switch over it lost its
     unreachable `default:`, so `-Wswitch` now reports a missing case.
-    `imgs.h`: `IconImg` likewise gained a fixed underlying type.
+    `images.h`: `IconImg` likewise gained a fixed underlying type.
   - All 196 `NULL`s became `nullptr`. This matters most at the five variadic
-    sentinels (`dlgs.c`, `rconfig.c`, `tests/test_rconfig.c` and the
+    sentinels (`dialogs.c`, `rconfig.c`, `tests/test_rconfig.c` and the
     `g_test_init` calls), where `nullptr_t` is pointer-sized by definition.
   - Internal `gboolean` became `bool`: the JSON parser helpers and public API
     in `rconfig.{c,h}`, the `b_slink`/`b_hidden` fields and `rfitem_is_*` /
@@ -113,14 +151,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     indeterminate until they were assigned later; they are now zeroed.
   - `auto` replaces the type name in a dozen single declarations whose
     initialiser already names the type. The aligned multi-declaration blocks
-    in `strfn.c` keep their explicit types, which serve as documentation.
-  - `imgs.c`: the nine SVGs became `static const char[]` instead of
+    in `string_functions.c` keep their explicit types, which serve as documentation.
+  - `images.c`: the nine SVGs became `static const char[]` instead of
     `const char *`, so their length is `sizeof - 1` at compile time rather
     than nine runtime `strlen` calls; `rev` is now `constexpr` (it was the one
     data array that was not even `const`); and the hand-maintained
     `rev_size`/`about_img_size` constants were dropped in favour of `sizeof`,
     which cannot drift.
-  - `namefn.c`, `strfn.c`, `tests/test_strfn.c`: the ten 14-field positional
+  - `namefn.c`, `string_functions.c`, `tests/test_string_functions.c`: the ten 14-field positional
     `ProcessData` initialisers became designated initialisers, and the
     repeated `rendata_get_r*()` calls inside them are hoisted into a local.
 
@@ -139,7 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `FOLDER_SELECT_*` flags, but the range check clamped it with
   `dirsel ? 1 : 0`, so any combination collapsed to `FOLDER_SELECT_FILES`.
   It is now validated against the real flag range. The flag constants moved
-  from `dlgs.h` to `defs.h` (joining the other shared constants) so that
+  from `dialogs.h` to `defs.h` (joining the other shared constants) so that
   `rconfig.c` can use them without pulling in GTK, and gained a
   `FOLDER_SELECT_ALL` mask. `tests/test_rconfig.c`: added regression tests
   covering every `dirsel` value, out-of-range values, and unknown-key
@@ -149,9 +187,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rfnames.c` (`rfnames_sort`): dropped a `g_list_free (gl_items1)` that
   always freed nothing, since the loop above had already walked `gl_items1`
   to `nullptr` and `gl_items` owns every node the concatenation produced.
-- `strfn.c` (`string_replace_in`): removed a dead store to `ui_len` that was
+- `string_functions.c` (`string_replace_in`): removed a dead store to `ui_len` that was
   unconditionally overwritten on the next line.
-- `strfn.c` (`string_add_number`): `sprintf` into a fixed 20-byte buffer
+- `string_functions.c` (`string_add_number`): `sprintf` into a fixed 20-byte buffer
   became `snprintf`.
 - `rfitem.c` (`rfitem_label_set_markup`): replaced the unchecked
   `strcpy` + `strcat` chain into a 100-byte buffer with a single `snprintf`.
@@ -201,8 +239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CMakeLists.txt`: new file, CMake build environment as an alternative to
   Autotools. Builds sfrename against GTK+3 (>=3.22) and installs the binary,
   desktop file, and pixmap icon.
-- `tests/test_strfn.c`, `tests/test_namefn.c`: new files, GLib-based (GTest)
-  unit tests for `strfn.c` and `namefn.c`. Cover the GTK-independent logic
+- `tests/test_string_functions.c`, `tests/test_namefn.c`: new files, GLib-based (GTest)
+  unit tests for `string_functions.c` and `namefn.c`. Cover the GTK-independent logic
   layer only; `RenData`/`RFnames`/`RFitem` fixtures are built by hand rather
   than via their real constructors, since those create GTK widgets and need
   a display.
@@ -212,7 +250,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `rXXX_new()`/`rXXX_free()` constructors. Covers defaults, getter/setter
   round-trips, UTF-8 byte/char length accounting, `FN_LEN` truncation, and
   the `empty_*` predicates.
-- `tests/Makefile.am`, `CMakeLists.txt`: wired `test_strfn`/`test_namefn`/
+- `tests/Makefile.am`, `CMakeLists.txt`: wired `test_string_functions`/`test_namefn`/
   `test_rsettings` into `make check` and `ctest`.
 
 ### Fixed
@@ -229,7 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `imgs.c`: changed some icons to SVG.
+- `images.c`: changed some icons to SVG.
 - Some code updates.
 
 ## [1.2.8] - 2020-06-05
@@ -257,7 +295,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `strfn.h`: `ProcessData` structure gained a string to modify (`s_srcdst`)
+- `string_functions.h`: `ProcessData` structure gained a string to modify (`s_srcdst`)
   and the length of strings; all callers updated.
 
 ## [1.2.6] - 2020-04-18
@@ -294,7 +332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `name_number_string`, `name_to_upcase_lowercase`,
   `name_spaces_underscores`, `name_replace_strings`): changed access to
   the `RenData`, `RDelete`, `RInsOvr`, `RReplace`, `RNumber` parameters.
-- `strfn.c` (`string_get_valid_length`): renamed from `get_valid_length`.
+- `string_functions.c` (`string_get_valid_length`): renamed from `get_valid_length`.
 - `rdelete.c/.h`, `rinsovr.c/.h`, `rreplace.c/.h`, `rnumber.c/.h`: `RDelete`,
   `RInsOvr`, `RReplace`, `RNumber` structure and functions moved here from
   `rendata.c`.
@@ -320,7 +358,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rfitem.c` (`rfitem_is_file`, `rfitem_is_folder`, `rfitem_is_symlink`,
   `rfitem_is_hidden`): new functions checking whether an `RFitem` is a
   file/folder/symlink/hidden item.
-- `imgs.h`, `imgs.c`: added `W_ICON_SELECT_BW`, `W_ICON_SELECT_BL` to the
+- `images.h`, `images.c`: added `W_ICON_SELECT_BW`, `W_ICON_SELECT_BL` to the
   `IconImg` enum for the b/w and blue select icons; `get_image` updated to
   return them.
 - `sfrename.c` (`create_toolbar`): added menu items for unselecting files,
@@ -330,9 +368,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `dlgs.c` (`about_app_dialog`): updated the link to the author's page.
+- `dialogs.c` (`about_app_dialog`): updated the link to the author's page.
 - `rendata.c` (`rendata_init`): default `i_opt` value set to 1.
-- `strfn.c` (`string_replace_in`, `string_insert_string`,
+- `string_functions.c` (`string_replace_in`, `string_insert_string`,
   `string_overwrite_string`): some changes in pointer iteration.
 - Source code updates.
 
@@ -347,7 +385,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `dlgs.c` (`add_files_folder_dialog`): changed to set toggle buttons based
+- `dialogs.c` (`add_files_folder_dialog`): changed to set toggle buttons based
   on the `i_opt` value.
 - `sfrename.c` (`event_click_add_folder_files`): reads `i_opt` from the
   `RenData` item, checks whether it is less than 1 and sets it to 1 if so
@@ -375,7 +413,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `imgs.c`, `imgs.h`: new files with graphics for the toolbar buttons.
+- `images.c`, `images.h`: new files with graphics for the toolbar buttons.
 - `sfrename.c` (`create_file_name_entries`): added forgotten check for
   file existence.
   - (`create_toolbar`): changed to load pixbufs into tool items.
@@ -422,7 +460,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     created.
   - `file_check_and_rename`: changed to work with files from different
     directory paths.
-- `strfn.c` (`string_replace_in`, `string_insert_string`,
+- `string_functions.c` (`string_replace_in`, `string_insert_string`,
   `string_overwrite_string`): small updates to improve performance.
 - Cosmetic code updates.
 
@@ -430,7 +468,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `sfrfn.c`, `strfn.h`: new files for string-modify functions.
+- `sfrfn.c`, `string_functions.h`: new files for string-modify functions.
 - `namefn.c`, `namefn.h`: new files for functions to modify file name
   strings.
 - Configuration and build scripts.
@@ -442,7 +480,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `string_insert_string`, `string_overwrite_string`, `string_add_number`,
     `string_to_lower`, `string_to_upper`, `string_extract_name_ext`,
     `string_combine_name_ext`, `string_process_filename`: moved to
-    `strfn.c`.
+    `string_functions.c`.
   - `name_delete_chars`, `name_insert_string`, `name_overwrite_string`,
     `name_number_string`, `name_to_upcase_lowercase`,
     `name_spaces_underscores`, `name_replace_strings`: moved to
@@ -507,3 +545,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The project's history predates this changelog's version tracking; the
 first commit (`sfrename.c`, 2019-01-25) was the initial release.
+
+[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/mi-bb/sfrename/compare/v1.2.10...v1.3.0
+[1.2.10]: https://github.com/mi-bb/sfrename/releases/tag/v1.2.10

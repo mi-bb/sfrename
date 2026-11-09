@@ -1,5 +1,5 @@
 /**
- * @file  imgs.c
+ * @file  images.c
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -21,7 +21,7 @@
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
-#include "imgs.h"
+#include "images.h"
 /*----------------------------------------------------------------------------*/
 /**
  * @var    add_svg
@@ -661,26 +661,26 @@ static constexpr unsigned char about_img[] =
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Make pixbuf from pure data without specific info, scale it to width
- *         of i_dim.
+ *         of dim.
  *
- * @param[in]  s_data  Input data
- * @param[in]  i_size  Size of input data
- * @param[in]  i_dim   Image with for scaling
+ * @param[in]  data  Input data
+ * @param[in]  size  Size of input data
+ * @param[in]  dim   Image with for scaling
  * @return     Pixbuf with icon
  */
 static GdkPixbuf *
-pbuf_from_data_scaled (const unsigned char *s_data,
-                       gssize               i_size,
-                       int                  i_dim)
+pbuf_from_data_scaled (const unsigned char *data,
+                       gssize               size,
+                       int                  dim)
 {
-    GdkPixbuf    *g_pbuf = nullptr; /* Return pixbuf */
+    GdkPixbuf    *pixbuf = nullptr; /* Return pixbuf */
     GInputStream *stream;           /* Stream for passing data to pixbuf */
 
     stream = g_memory_input_stream_new ();
     g_memory_input_stream_add_data (G_MEMORY_INPUT_STREAM (stream),
-                                    s_data, i_size, nullptr);
-    g_pbuf = gdk_pixbuf_new_from_stream_at_scale (stream,
-                                                  i_dim,
+                                    data, size, nullptr);
+    pixbuf = gdk_pixbuf_new_from_stream_at_scale (stream,
+                                                  dim,
                                                   -1,
                                                   TRUE,
                                                   nullptr,
@@ -688,103 +688,103 @@ pbuf_from_data_scaled (const unsigned char *s_data,
     g_input_stream_close (stream, nullptr, nullptr);
     g_object_unref (stream);
 
-    return g_pbuf;
+    return pixbuf;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Make image from pure data without specific info.
  *
- * @param[in]  s_data  Input data
- * @param[in]  i_size  Size of input data
+ * @param[in]  data  Input data
+ * @param[in]  size  Size of input data
  * @return     Pixbuf with image
  */
 static GdkPixbuf *
-pbuf_from_data (const unsigned char *s_data,
-                gssize               i_size)
+pbuf_from_data (const unsigned char *data,
+                gssize               size)
 {
-    GdkPixbuf    *g_pbuf = nullptr; /* Return pixbuf */
+    GdkPixbuf    *pixbuf = nullptr; /* Return pixbuf */
     GInputStream *stream;           /* Stream for passing data to pixbuf */
 
     stream = g_memory_input_stream_new ();
     g_memory_input_stream_add_data (G_MEMORY_INPUT_STREAM (stream),
-                                    s_data, i_size, nullptr);
-    g_pbuf = gdk_pixbuf_new_from_stream (stream, nullptr, nullptr);
+                                    data, size, nullptr);
+    pixbuf = gdk_pixbuf_new_from_stream (stream, nullptr, nullptr);
     g_input_stream_close (stream, nullptr, nullptr);
     g_object_unref (stream);
 
-    return g_pbuf;
+    return pixbuf;
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get image from stored data.
  */
 GdkPixbuf *
-get_image (const IconImg i_img)
+get_image (const IconImg image_no)
 {
-    GdkPixbuf *gp_pbuf = nullptr; /* Return pixbuf */
+    GdkPixbuf *pixbuf = nullptr; /* Return pixbuf */
 
-    switch (i_img) {
+    switch (image_no) {
 
         case W_ICON_ADD:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) add_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) add_svg,
                                              (gssize) (sizeof add_svg - 1),
                                              16);
             break;
 
         case W_ICON_ADD_DIR:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) add_dir_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) add_dir_svg,
                                              (gssize) (sizeof add_dir_svg - 1),
                                              16);
             break;
 
         case W_ICON_REMOVE:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) rem_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) rem_svg,
                                              (gssize) (sizeof rem_svg - 1),
                                              16);
             break;
 
         case W_ICON_REVERT:
-            gp_pbuf = pbuf_from_data (rev, (gssize) sizeof rev);
+            pixbuf = pbuf_from_data (rev, (gssize) sizeof rev);
             break;
 
         case W_ICON_SORT:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) sort_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) sort_svg,
                                              (gssize) (sizeof sort_svg - 1),
                                              16);
             break;
 
         case W_ICON_SELECT:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) check_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) check_svg,
                                              (gssize) (sizeof check_svg - 1),
                                              16);
             break;
 
         case W_ICON_SELECT_BW:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) check_bw_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) check_bw_svg,
                                              (gssize) (sizeof check_bw_svg - 1),
                                              16);
             break;
 
         case W_ICON_SELECT_BL:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) check_bl_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) check_bl_svg,
                                              (gssize) (sizeof check_bl_svg - 1),
                                              16);
             break;
 
         case W_ICON_DUPL:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) dupl_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) dupl_svg,
                                              (gssize) (sizeof dupl_svg - 1),
                                              16);
             break;
 
         case W_ICON_INFO:
-            gp_pbuf = pbuf_from_data_scaled ((const unsigned char*) info_svg,
+            pixbuf = pbuf_from_data_scaled ((const unsigned char*) info_svg,
                                              (gssize) (sizeof info_svg - 1),
                                              20);
             break;
 
         case W_ICON_ABOUT:
-            gp_pbuf = pbuf_from_data (about_img, (gssize) sizeof about_img);
+            pixbuf = pbuf_from_data (about_img, (gssize) sizeof about_img);
             break;
 
         case W_ICON_COUNT:
@@ -793,7 +793,7 @@ get_image (const IconImg i_img)
         default:
             break;
     }
-    return gp_pbuf;
+    return pixbuf;
 }
 /*----------------------------------------------------------------------------*/
 

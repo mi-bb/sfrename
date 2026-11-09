@@ -22,7 +22,7 @@
  * Like test_rsettings.c, RenData is built by hand on the stack (with
  * rd.names left nullptr, since rconfig.c never touches the file list) rather
  * than via rendata_new()/rendata_free(), avoiding an unnecessary dependency
- * on rfnames.c/rfitem.c/imgs.c for this GTK-independent logic.
+ * on rfnames.c/rfitem.c/images.c for this GTK-independent logic.
  *
  * rconfig_write()/rconfig_parse() (the low-level, path-explicit API) are
  * exercised against a private tmp directory. rconfig_save()/rconfig_load()

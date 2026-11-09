@@ -1,5 +1,5 @@
 /**
- * @file  imgs.h
+ * @file  images.h
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -21,8 +21,8 @@
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
-#ifndef IMGS_H
-#define IMGS_H
+#ifndef IMAGES_H
+#define IMAGES_H
 
 #include <stdint.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -48,9 +48,9 @@ typedef enum IconImg : uint_fast8_t {
 /**
  * @brief  Get image from stored data.
  *
- * @param[in]  i_img  Image number
+ * @param[in]  image_no  Image number
  * @return     Pixbuf with image
  */
-GdkPixbuf *get_image (const IconImg i_img);
+GdkPixbuf *get_image (const IconImg image_no);
 /*----------------------------------------------------------------------------*/
 #endif

@@ -13,9 +13,11 @@
 * [Requirements](#requirements)
 * [Installation](#installation)
   * [Basic installation](#basic-installation)
+  * [Installing for the current user](#installing-for-the-current-user)
   * [Compilers and options](#compilers-and-options)
   * [Running the tests](#running-the-tests)
   * [Uninstalling](#uninstalling)
+  * [Making binary packages](#making-binary-packages)
   * [Making a source package](#making-a-source-package)
 * [Running](#running)
 * [License](#license)
@@ -36,7 +38,7 @@ be used standalone or with other programs.
 * GNU/Linux or FreeBSD
 * A C23-capable compiler: GCC 14 or later, or Clang 18 or later
 * GTK+ 3 (3.22 or later)
-* CMake 3.21 or later
+* CMake 3.22 or later
 
 ## Installation
 
@@ -46,102 +48,65 @@ The program is built with CMake. Commands to configure, build, and install
 it:
 
 ```sh
-cmake -S . -B build
-cmake --build build
-sudo cmake --install build
+cmake --preset release
+cmake --build --preset release
+sudo cmake --install build/release
 ```
 
-The first command creates a `build` directory and configures the project in
-it, the second compiles, and the third installs the binary, the `.desktop`
-file, and the icon under `/usr/local` by default. A different location can
-be chosen with `--prefix`:
+`release` builds optimized with the prefix set to `/usr`
 
-```sh
-cmake --install build --prefix /usr
-```
-
-Although the commands above are enough, it's recommended to configure and
-compile with the more detailed options described below.
-
-### Compilers and options
-
-For normal daily use of this program, a good option is:
-
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
-```
-
-or, more specifically:
-
-```sh
-cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
-```
-
-with Clang:
-
-```sh
-cmake -S . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_C_FLAGS="-march=native -O2 -pipe"
-```
-
-The default `CMAKE_BUILD_TYPE` is empty, which adds no flags of its own, so
-whatever is passed in `CMAKE_C_FLAGS` is what the compiler gets. `Release`
-adds `-O3 -DNDEBUG`, `Debug` adds `-g`. Debugging information is needed for
-gdb and enlarges the output file, so leaving it out is preferable for a
-release build.
-
-There is no need to pass `-std=` yourself: the project sets the C standard
-to C23 with GNU extensions (`-std=gnu23`). Do not put a `-std=` option in
-`CMAKE_C_FLAGS`, or it will override the one CMake selects.
-
-* `-DCMAKE_C_COMPILER=gcc` sets the C compiler to GCC.
-* `-DCMAKE_C_COMPILER=clang` sets the C compiler to Clang.
 * `-march=native` enables all instruction subsets supported by the local
   machine.
 * `-O2` sets the code optimization level to O2.
 * `-pipe` uses pipes rather than temporary files for communication between
   the various stages of compilation.
 
-Running:
+### Installing for the current user
+
+To install into `~/.local` without `sudo`, use the `release_local` preset. It
+is the same optimized build as `release`, but with the prefix set to
+`$HOME/.local`:
 
 ```sh
-cmake -S . -B build -LH
+cmake --preset release_local
+cmake --build --preset release_local
+cmake --install build/release_local
 ```
 
-will print a detailed description of the available configuration variables.
-
-### Running the tests
-
-The unit tests are built together with the program and are run with CTest:
-
-```sh
-ctest --test-dir build
-```
-
-A single suite can be selected by name:
-
-```sh
-ctest --test-dir build -R strfn
-```
+Make sure `~/.local/bin` is in your `PATH`.
 
 ### Uninstalling
 
 From the same build directory the program was installed from:
 
 ```sh
-sudo cmake --build build --target uninstall
+sudo cmake --build build/release --target uninstall
+```
+
+If it was installed with the `release_local` preset, no `sudo` is needed:
+
+```sh
+cmake --build build/release_local --target uninstall
 ```
 
 This removes every file listed in the build directory's
 `install_manifest.txt`.
 
-### Making a source package
+### Making binary packages
 
-A source tarball (`.tar.xz` and `.tar.gz`) is created with CPack:
+CPack builds a `.tar.gz` archive, a `.deb` package and an `.rpm` package
+from a configured and built tree:
 
 ```sh
-cd build
-cpack --config CPackSourceConfig.cmake
+cmake --preset release
+cmake --build --preset release
+cd build/release && cpack
 ```
+
+To build only one kind of package, pass `-G TGZ`, `-G DEB` or `-G RPM`.
+DEB and RPM packages are only made on GNU/Linux, and RPM packages need
+`rpmbuild`. When `dpkg-shlibdeps` is installed, the `.deb` gets exact library
+dependencies; otherwise it depends on `libgtk-3-0 (>= 3.22)`.
 
 ## Running
 
@@ -159,7 +124,7 @@ and directories.
 
 Example use with MC:
 
-```
+```sh
 + ! t t
 R       Rename file
         sfrename %f
@@ -174,5 +139,7 @@ the menu; the selected files and directories will be passed to the program
 as command-line arguments.
 
 ## License
+
+Copyright (C) 2019-2026 Michal Babik
 
 This project is licensed under the GPL-3.0 License — see [COPYING](COPYING) for details.

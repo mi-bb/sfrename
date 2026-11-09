@@ -1,5 +1,5 @@
 /**
- * @file  dlgs.h
+ * @file  dialogs.h
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -21,23 +21,23 @@
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
-#ifndef DLGS_H
-#define DLGS_H
+#ifndef DIALOGS_H
+#define DIALOGS_H
 /*----------------------------------------------------------------------------*/
 #include <gtk/gtk.h>
 #include "defs.h"   /* FOLDER_SELECT_* flags */
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  char * add_files_folder_dialog (GtkWindow *gw_parent, int *i_opt)
+ * @fn  char * add_files_folder_dialog (GtkWindow *parent, int *options)
  * @brief         Select folder dialog.
- * @param[in]     gw_parent Dialog parent widget
- * @param[in,out] i_opt     Pointer to int value with options for selecting
- *                          files/dirs
+ * @param[in]     parent  Dialog parent widget
+ * @param[in,out] options Pointer to int value with options for selecting
+ *                        files/dirs
  * @return        Foler path or nullptr.
  *
- * @fn  GSList * add_files_dialog (GtkWindow *gw_parent)
+ * @fn  GSList * add_files_dialog (GtkWindow *parent)
  * @brief     Select files dialog.
- * @param[in] gw_parent  Dialog parent widget
+ * @param[in] parent  Dialog parent widget
  * @return    List with files.
  *
  * @fn  void about_app_dialog (void);
@@ -46,12 +46,12 @@
  * @return    none
  */
 /*----------------------------------------------------------------------------*/
-char   * add_files_folder_dialog (GtkWindow  *gw_parent,
-                                  int        *i_opt);
+char   * add_files_folder_dialog (GtkWindow  *parent,
+                                  int        *options);
 
-GSList * add_files_dialog        (GtkWindow  *gw_parent);
+GSList * add_files_dialog        (GtkWindow  *parent);
 
-void     about_app_dialog        (gpointer data);
+void     about_app_dialog        (gpointer    data);
 /*----------------------------------------------------------------------------*/
 #endif
 

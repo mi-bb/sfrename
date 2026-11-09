@@ -1,5 +1,5 @@
 /**
- * @file  test_strfn.c
+ * @file  test_string_functions.c
  * @copyright Copyright (C) 2019-2026 Michal Babik
  *
  * This file is part of Small File Renamer.
@@ -17,19 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  Unit tests for strfn.c
+ * @brief  Unit tests for string_functions.c
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include <glib.h>
 #include <string.h>
-#include "strfn.h"
+#include "string_functions.h"
 /*----------------------------------------------------------------------------*/
 static ProcessData
-make_pd (char *s_srcdst, size_t *len, size_t *u8len)
+make_pd (char *text, size_t *len, size_t *u8len)
 {
     ProcessData pd = {
-        .s_srcdst = s_srcdst, .srcdst_len = len, .srcdst_u8len = u8len,
+        .text = text, .text_len = len, .text_u8len = u8len,
     };
     return pd;
 }
@@ -118,8 +118,8 @@ test_delete_chars_middle (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 5; /* delete starting at the space */
-    pd.ui_cnt = 6; /* " world" */
+    pd.pos = 5; /* delete starting at the space */
+    pd.count = 6; /* " world" */
 
     string_delete_chars (&pd);
 
@@ -139,8 +139,8 @@ test_delete_chars_beyond_end_clamps (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 100; /* far beyond string length */
-    pd.ui_cnt = 2;
+    pd.pos = 100; /* far beyond string length */
+    pd.count = 2;
 
     string_delete_chars (&pd);
 
@@ -160,10 +160,10 @@ test_insert_string_middle (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = " ";
-    pd.str1_len = 1;
-    pd.str1_u8len = 1;
-    pd.ui_pos = 5;
+    pd.first = " ";
+    pd.first_len = 1;
+    pd.first_u8len = 1;
+    pd.pos = 5;
 
     string_insert_string (&pd);
 
@@ -184,10 +184,10 @@ test_insert_string_truncates_at_max (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "XYZ";
-    pd.str1_len = 3;
-    pd.str1_u8len = 3;
-    pd.ui_pos = 0;
+    pd.first = "XYZ";
+    pd.first_len = 3;
+    pd.first_u8len = 3;
+    pd.pos = 0;
 
     string_insert_string (&pd);
 
@@ -207,9 +207,9 @@ test_overwrite_string_middle (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "THERE";
-    pd.str1_u8len = 5;
-    pd.ui_pos = 6; /* overwrite "world" */
+    pd.first = "THERE";
+    pd.first_u8len = 5;
+    pd.pos = 6; /* overwrite "world" */
 
     string_overwrite_string (&pd);
 
@@ -227,9 +227,9 @@ test_replace_in_basic (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "foo";
-    pd.str1_len = 3;
-    pd.s_str2 = "baz";
+    pd.first = "foo";
+    pd.first_len = 3;
+    pd.second = "baz";
 
     string_replace_in (&pd);
 
@@ -247,9 +247,9 @@ test_replace_in_no_match_is_noop (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.s_str1 = "xyz";
-    pd.str1_len = 3;
-    pd.s_str2 = "abc";
+    pd.first = "xyz";
+    pd.first_len = 3;
+    pd.second = "abc";
 
     string_replace_in (&pd);
 
@@ -268,10 +268,10 @@ test_add_number_basic (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 4;   /* append at end */
-    pd.ui_no = 2;    /* this is the 3rd file (0-indexed) */
-    pd.ui_start = 1;
-    pd.ui_max = 8;   /* 9 files total (0..8); with start offset 1, highest
+    pd.pos = 4;   /* append at end */
+    pd.number = 2;    /* this is the 3rd file (0-indexed) */
+    pd.start = 1;
+    pd.max = 8;   /* 9 files total (0..8); with start offset 1, highest
                       * numbered file is 9 -> single digit, no zero-padding */
 
     string_add_number (&pd);
@@ -290,10 +290,10 @@ test_add_number_zero_pads (void)
     u8len = (size_t) g_utf8_strlen (s, -1);
 
     ProcessData pd = make_pd (s, &len, &u8len);
-    pd.ui_pos = 4;
-    pd.ui_no = 0;
-    pd.ui_start = 0;
-    pd.ui_max = 10; /* two-digit range (00..10) forces zero padding */
+    pd.pos = 4;
+    pd.number = 0;
+    pd.start = 0;
+    pd.max = 10; /* two-digit range (00..10) forces zero padding */
 
     string_add_number (&pd);
 
@@ -377,33 +377,33 @@ main (int argc, char *argv[])
 {
     g_test_init (&argc, &argv, nullptr);
 
-    g_test_add_func ("/strfn/get_valid_length/ascii", test_get_valid_length_ascii);
-    g_test_add_func ("/strfn/get_valid_length/utf8_boundary", test_get_valid_length_utf8_boundary);
+    g_test_add_func ("/string_functions/get_valid_length/ascii", test_get_valid_length_ascii);
+    g_test_add_func ("/string_functions/get_valid_length/utf8_boundary", test_get_valid_length_utf8_boundary);
 
-    g_test_add_func ("/strfn/name_ext/basic", test_extract_combine_name_ext_basic);
-    g_test_add_func ("/strfn/name_ext/multiple_dots", test_extract_name_ext_multiple_dots);
-    g_test_add_func ("/strfn/name_ext/no_ext", test_extract_name_ext_no_ext);
-    g_test_add_func ("/strfn/name_ext/hidden_dotfile", test_extract_name_ext_hidden_dotfile);
+    g_test_add_func ("/string_functions/name_ext/basic", test_extract_combine_name_ext_basic);
+    g_test_add_func ("/string_functions/name_ext/multiple_dots", test_extract_name_ext_multiple_dots);
+    g_test_add_func ("/string_functions/name_ext/no_ext", test_extract_name_ext_no_ext);
+    g_test_add_func ("/string_functions/name_ext/hidden_dotfile", test_extract_name_ext_hidden_dotfile);
 
-    g_test_add_func ("/strfn/delete_chars/middle", test_delete_chars_middle);
-    g_test_add_func ("/strfn/delete_chars/beyond_end_clamps", test_delete_chars_beyond_end_clamps);
+    g_test_add_func ("/string_functions/delete_chars/middle", test_delete_chars_middle);
+    g_test_add_func ("/string_functions/delete_chars/beyond_end_clamps", test_delete_chars_beyond_end_clamps);
 
-    g_test_add_func ("/strfn/insert_string/middle", test_insert_string_middle);
-    g_test_add_func ("/strfn/insert_string/truncates_at_max", test_insert_string_truncates_at_max);
+    g_test_add_func ("/string_functions/insert_string/middle", test_insert_string_middle);
+    g_test_add_func ("/string_functions/insert_string/truncates_at_max", test_insert_string_truncates_at_max);
 
-    g_test_add_func ("/strfn/overwrite_string/middle", test_overwrite_string_middle);
+    g_test_add_func ("/string_functions/overwrite_string/middle", test_overwrite_string_middle);
 
-    g_test_add_func ("/strfn/replace_in/basic", test_replace_in_basic);
-    g_test_add_func ("/strfn/replace_in/no_match_is_noop", test_replace_in_no_match_is_noop);
+    g_test_add_func ("/string_functions/replace_in/basic", test_replace_in_basic);
+    g_test_add_func ("/string_functions/replace_in/no_match_is_noop", test_replace_in_no_match_is_noop);
 
-    g_test_add_func ("/strfn/add_number/basic", test_add_number_basic);
-    g_test_add_func ("/strfn/add_number/zero_pads", test_add_number_zero_pads);
+    g_test_add_func ("/string_functions/add_number/basic", test_add_number_basic);
+    g_test_add_func ("/string_functions/add_number/zero_pads", test_add_number_zero_pads);
 
-    g_test_add_func ("/strfn/case/upper_lower", test_to_upper_lower);
+    g_test_add_func ("/string_functions/case/upper_lower", test_to_upper_lower);
 
-    g_test_add_func ("/strfn/process_filename/name_only", test_process_filename_applies_to_name_only);
-    g_test_add_func ("/strfn/process_filename/ext_only", test_process_filename_applies_to_ext_only);
-    g_test_add_func ("/strfn/process_filename/both", test_process_filename_applies_to_both);
+    g_test_add_func ("/string_functions/process_filename/name_only", test_process_filename_applies_to_name_only);
+    g_test_add_func ("/string_functions/process_filename/ext_only", test_process_filename_applies_to_ext_only);
+    g_test_add_func ("/string_functions/process_filename/both", test_process_filename_applies_to_both);
 
     return g_test_run ();
 }
