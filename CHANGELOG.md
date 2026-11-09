@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CPack configuration for binary packages: `cpack` in the build directory
+  now produces a `.tar.gz` archive, a `.deb` package and an `.rpm` package.
+
 ### Changed
 
 - Minimum required CMake version raised from 3.21 to 3.22.

@@ -17,6 +17,7 @@
   * [Compilers and options](#compilers-and-options)
   * [Running the tests](#running-the-tests)
   * [Uninstalling](#uninstalling)
+  * [Making binary packages](#making-binary-packages)
   * [Making a source package](#making-a-source-package)
 * [Running](#running)
 * [License](#license)
@@ -90,6 +91,22 @@ cmake --build build/release_local --target uninstall
 
 This removes every file listed in the build directory's
 `install_manifest.txt`.
+
+### Making binary packages
+
+CPack builds a `.tar.gz` archive, a `.deb` package and an `.rpm` package
+from a configured and built tree:
+
+```sh
+cmake --preset release
+cmake --build --preset release
+cd build/release && cpack
+```
+
+To build only one kind of package, pass `-G TGZ`, `-G DEB` or `-G RPM`.
+DEB and RPM packages are only made on GNU/Linux, and RPM packages need
+`rpmbuild`. When `dpkg-shlibdeps` is installed, the `.deb` gets exact library
+dependencies; otherwise it depends on `libgtk-3-0 (>= 3.22)`.
 
 ## Running
 

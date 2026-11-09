@@ -32,6 +32,9 @@ cmake -S . -B build -DCMAKE_C_COMPILER=gcc -DCMAKE_C_FLAGS="-march=native -O2 -p
 - `uninstall` (`sudo cmake --build build --target uninstall`) and CPack
   (`cd build && cpack --config CPackSourceConfig.cmake`, produces
   `.tar.xz`/`.tar.gz`) replace the old `make uninstall` / `make dist`.
+- Binary packages: `cd build && cpack` produces TGZ, DEB and RPM (DEB/RPM
+  only on Linux; RPM only if `rpmbuild` is found). Packages install under
+  `/usr`; `-G DEB` etc. picks one generator.
 - Everything under `build/`, plus `compile_commands.json`, is gitignored —
   never hand-edit or commit it.
 

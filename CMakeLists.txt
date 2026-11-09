@@ -118,8 +118,78 @@ if(BUILD_TESTING)
     add_test(NAME rconfig COMMAND test_rconfig)
 endif()
 
-# Source package generation ("cpack --config CPackSourceConfig.cmake" from the
-# build directory), the replacement for the Autotools "make dist" target.
+# Packaging with CPack, run from the build directory:
+#   cpack                                    binary packages (TGZ, DEB, RPM)
+#   cpack -G DEB                             one generator only
+#   cpack --config CPackSourceConfig.cmake   source tarballs (old "make dist")
+
+# Binary packages. DEB and RPM only make sense on Linux; RPM also needs
+# rpmbuild. DEB is written by CPack itself, so it builds on any Linux host.
+set(CPACK_GENERATOR "TGZ")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    list(APPEND CPACK_GENERATOR "DEB")
+    find_program(RPMBUILD_EXECUTABLE rpmbuild)
+    if(RPMBUILD_EXECUTABLE)
+        list(APPEND CPACK_GENERATOR "RPM")
+    else()
+        message(STATUS "rpmbuild not found, RPM package generation disabled")
+    endif()
+endif()
+
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.nongnu.org/small-file-renamer/")
+set(CPACK_PACKAGE_DESCRIPTION
+"Small File Renamer is a GTK+3 application for renaming files and
+directories in batch: deleting, inserting, overwriting and replacing text,
+numbering, changing case and converting spaces to underscores. It works
+standalone, with files passed on the command line, or from Midnight
+Commander's user menu.")
+set(CPACK_PACKAGE_FILE_NAME
+    "${PROJECT_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+set(CPACK_STRIP_FILES ON)
+
+# DEB
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Michal Babik <michal.babik@protonmail.com>")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+# dpkg-shlibdeps computes exact library dependencies; without it (e.g. when
+# building on a non-Debian host) fall back to a hand-written list.
+find_program(DPKG_SHLIBDEPS_EXECUTABLE dpkg-shlibdeps)
+if(DPKG_SHLIBDEPS_EXECUTABLE)
+    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+else()
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-3-0 (>= 3.22), libglib2.0-0")
+endif()
+# CPack falls back to "i386" when dpkg is missing, so map the common
+# architectures by hand.
+find_program(DPKG_EXECUTABLE dpkg)
+if(NOT DPKG_EXECUTABLE)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64|amd64)$")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "arm64")
+    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^i[3-6]86$")
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "i386")
+    else()
+        set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "${CMAKE_SYSTEM_PROCESSOR}")
+    endif()
+endif()
+
+# RPM (library dependencies are detected automatically by rpmbuild)
+set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
+set(CPACK_RPM_PACKAGE_RELEASE 1)
+set(CPACK_RPM_PACKAGE_RELEASE_DIST ON)
+set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
+set(CPACK_RPM_PACKAGE_GROUP "Applications/File")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION}")
+# Directories owned by the system "filesystem" package, not by sfrename.
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+    /usr/share/applications
+    /usr/share/pixmaps)
+
+# Source package generation.
 set(CPACK_SOURCE_GENERATOR "TXZ;TGZ")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}")
 set(CPACK_SOURCE_IGNORE_FILES
