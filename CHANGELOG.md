@@ -20,6 +20,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- After a rename that failed (for example because a file with the new name
+  already exists), the entry showed the attempted name again, so it looked
+  like the file had been renamed. The entry now keeps the file's current
+  name.
+- After renaming a file whose name was typed by hand, the list kept the
+  name from the rename options instead of the name the file got on disk.
+  The entry went back to the old name and later renames of that file
+  failed.
+
 ## [1.3.1] - 2026-11-09
 
 ### Added
@@ -546,6 +559,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 The project's history predates this changelog's version tracking; the
 first commit (`sfrename.c`, 2019-01-25) was the initial release.
 
-[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/mi-bb/sfrename/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/mi-bb/sfrename/compare/v1.2.10...v1.3.0
 [1.2.10]: https://github.com/mi-bb/sfrename/releases/tag/v1.2.10

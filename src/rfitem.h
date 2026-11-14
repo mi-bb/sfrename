@@ -161,11 +161,26 @@ void     rfitem_invert_checked (RFitem         *item);
  *
  * @param[in]  item  RFitem object
  * @return     none
+ *
+ * @fn  void rfitem_set_org_name (RFitem *item, const char *val)
+ *
+ * @brief  Set org_name string and length values.
+ *
+ * Used after a successful rename to store the name the file now has on
+ * disk. The value is truncated to FN_LEN bytes.
+ *
+ * @param[out] item  RFitem object
+ * @param[in]  val   New org_name value
+ * @return     none
  */
 /*----------------------------------------------------------------------------*/
 void     rfitem_set_new_name_from_org_name (RFitem *item);
 
 void     rfitem_set_org_name_from_new_name (RFitem *item);
+
+void     rfitem_set_org_name               (RFitem     *item,
+                                            const char *val)
+                                           __attribute__ ((nonnull (1, 2)));
 /*----------------------------------------------------------------------------*/
 /**
  * @fn         const char * rfitem_get_new_name (const RFitem *item)
