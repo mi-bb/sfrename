@@ -356,14 +356,22 @@ rfitem_set_new_name (RFitem     *item,
  */
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Set org_name value.
-static void
-rfitem_set_org_name (RFitem     *item,
-                 const char *val)
-{
-    strcpy (item->org_name, val);
-}
+ * @brief  Set org_name string and length values.
  */
+void
+rfitem_set_org_name (RFitem     *item,
+                     const char *val)
+{
+    size_t len = strlen (val);
+
+    if (len > FN_LEN)
+        len = FN_LEN;
+
+    memcpy (item->org_name, val, len);
+    item->org_name[len] = '\0';
+    item->org_len = len;
+    item->org_u8len = (size_t) g_utf8_strlen (item->org_name, -1);
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set path value.

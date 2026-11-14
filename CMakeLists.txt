@@ -18,7 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Keep VERSION in sync with APP_VER in src/defs.h; it also names the source
 # tarball produced by CPack.
-project(sfrename VERSION 1.3.1
+project(sfrename VERSION 1.3.2
     DESCRIPTION "Small File Renamer is an application for renaming files and directories."
     HOMEPAGE_URL "https://www.nongnu.org/small-file-renamer/"
     LANGUAGES C)

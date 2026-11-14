@@ -24,7 +24,7 @@
  *
  * Program renames files.
  *
- * @date November 09, 2026
+ * @date November 14, 2026
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
@@ -98,6 +98,39 @@ file_check_and_rename (const char *old_name,
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Apply changes to one file name in buffer and update its entry.
+ *
+ * Items that are not checked are left untouched.
+ *
+ * @param[in,out] data RenData object with file list and settings
+ * @param[in]     i    Index of the item in the file list
+ * @return        none
+ */
+static void
+file_name_update_changes (RenData             *data,
+                          const uint_fast32_t  i)
+{
+    RFitem *item = data->names->items[i]; /* RFitem object to process */
+
+    if (!rfitem_get_checked (item))
+        return;
+
+    /* copy original name to new to process */
+    rfitem_set_new_name_from_org_name (item);
+
+    /* Execute rename functions */
+    name_to_upcase_lowercase (data, i);
+    name_spaces_underscores (data, i);
+    name_delete_chars (data, i);
+    name_replace_strings (data, i);
+    name_insert_string (data, i);
+    name_overwrite_string (data, i);
+    name_number_string (data, i);
+    /* Update file name entry if name has changed */
+    rfitem_entry_check_and_update (item, rfitem_get_new_name (item));
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Apply changes to all file names in buffer and update entries.
  *
  * @param[in,out] data RenData object with file list and settings
@@ -106,32 +139,10 @@ file_check_and_rename (const char *old_name,
 static void
 file_names_update_changes (RenData *data)
 {
-    RFitem        *item;  /* RFitem object to process */
-    uint_fast32_t  i = 0; /* i */
+    uint_fast32_t i = rfnames_get_cnt (rendata_get_rfnames (data));
 
-    i = rfnames_get_cnt (rendata_get_rfnames (data));
-
-    /* Check if file is checked and skip to next one if it is not */
-    while (i--) {
-        item = data->names->items[i];
-
-        if (!rfitem_get_checked (item))
-            continue;
-
-        /* copy original name to new to process */
-        rfitem_set_new_name_from_org_name (item);
-
-        /* Execute rename functions */
-        name_to_upcase_lowercase (data, i);
-        name_spaces_underscores (data, i);
-        name_delete_chars (data, i);
-        name_replace_strings (data, i);
-        name_insert_string (data, i);
-        name_overwrite_string (data, i);
-        name_number_string (data, i);
-        /* Update file name entry if name has changed */
-        rfitem_entry_check_and_update (item, rfitem_get_new_name (item));
-    }
+    while (i--)
+        file_name_update_changes (data, i);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -278,7 +289,9 @@ event_close (GtkWidget *widget,
  * @brief  Rename button clicked.
  *
  * Reads value of each Entry with file name and tries to rename file.
- * If File can not be renamed it prints the reason.
+ * If File can not be renamed it prints the reason and its entry is reset
+ * to the original name, so the list shows the name the file still has.
+ * Renamed and unchanged items get the current settings applied again.
  * If exit after rename is selected, application is closed after rename.
  *
  * @param[in]     widget  Button which received the signal
@@ -296,6 +309,7 @@ event_click_rename (GtkWidget *widget,
     uint_fast32_t  renamed_count = 0;       /* Number of renamed files */
     uint_fast32_t  names_count   = 0;       /* Number of files to rename */
     RFitem        *item;                    /* Processed RFitem object */
+    const bool     exit_after    = rendata_get_renexit (data);
 
     names_count = rfnames_get_cnt (rendata_get_rfnames (data));
 
@@ -312,8 +326,9 @@ event_click_rename (GtkWidget *widget,
 
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", old_name, new_name);
-                /* copy new name to original in buffer */
-                rfitem_set_org_name_from_new_name (item);
+                /* Store the name the file has now. Take it from the entry,
+                 * not from new_name, the entry could be edited by hand. */
+                rfitem_set_org_name (item, new_name);
                 ++renamed_count;
                 break;
 
@@ -329,11 +344,16 @@ event_click_rename (GtkWidget *widget,
                 printf ("File: %s already exists\n", new_name);
                 break;
         }
-        if (result != REN_OK && result != REN_NC) {
-            /* Revert old file names to new */
+        if (result == REN_OK || result == REN_NC) {
+            /* Apply current settings to the (possibly new) name */
+            if (!exit_after)
+                file_name_update_changes (data, i);
+        }
+        else {
+            /* Rename failed, revert new file name to the original one and
+             * keep it in the entry, so it is visible the file still has
+             * its old name. */
             rfitem_set_new_name_from_org_name (item);
-
-            /* Update file name in entry */
             rfitem_entry_check_and_update (item, old_name);
         }
     }
@@ -341,10 +361,8 @@ event_click_rename (GtkWidget *widget,
             renamed_count, names_count);
 
     /* exit application if "Exit after rename" checkbox was selected */
-    if (rendata_get_renexit (data))
+    if (exit_after)
         event_close (widget, nullptr);
-    else
-        file_names_update_changes (data);
 }
 /*----------------------------------------------------------------------------*/
 /**
