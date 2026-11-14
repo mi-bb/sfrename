@@ -24,7 +24,7 @@
  *
  * Program renames files.
  *
- * @date November 09, 2026
+ * @date November 14, 2026
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
