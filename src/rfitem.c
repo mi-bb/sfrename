@@ -210,16 +210,18 @@ rfitem_new_from_gfile (GFile *g_file)
 
     rfitem_init (item);
 
+    f_path = g_file_peek_path (g_file);
+    f_name = get_name_dir_len (f_path, &len);
+
     item->org_name = malloc ((FN_LEN + 1) * sizeof (char));
     item->new_name = malloc ((FN_U8_LEN + 1) * sizeof (char));
-    item->path = malloc ((FN_LEN + 1) * sizeof (char));
+    /* A directory path can be longer than a file name */
+    item->path = malloc ((len + 1) * sizeof (char));
     if (item->org_name == nullptr || item->new_name == nullptr ||
         item->path == nullptr) {
         free (item);
         err (EXIT_FAILURE, nullptr);
     }
-    f_path = g_file_peek_path (g_file);
-    f_name = get_name_dir_len (f_path, &len);
 
     f_info = g_file_query_info (g_file,
                                 "standard::*",

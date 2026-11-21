@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and crashed the program. Links are still listed, but the scan no longer
   enters them.
 
+### Security
+
+- Adding a file from a directory path longer than 255 bytes overflowed a
+  heap buffer. The path buffer now has the size of the path.
+
 ## [1.3.2] - 2026-11-14
 
 ### Fixed
