@@ -34,68 +34,14 @@
 #include <gtk/gtk.h>
 #include <gio/gio.h>
 #include <gdk/gdkkeysyms.h>
-#include <unistd.h>
 #include "dialogs.h"
 #include "string_functions.h"
 #include "rendata.h"
 #include "rconfig.h"
+#include "rrename.h"
 #include "namefn.h"
 #include "images.h"
 #include "defs.h"
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Check if file can be renamed and rename it.
- *
- * @param[in] old_name Old file name
- * @param[in] new_name New file name
- * @param[in] path     Path to directory where the file is located
- * @return    Renaming status
- */
-static RenResult
-file_check_and_rename (const char *old_name,
-                       const char *new_name,
-                       const char *path)
-{
-    char      *new_path = nullptr;           /* Full path for new file */
-    char      *old_path = nullptr;           /* Full path for old file */
-    RenResult  result   = REN_OK;            /* Renaming result */
-    size_t     dir_len  = strlen (path);     /* Length of file dir path */
-    size_t     old_len  = strlen (old_name); /* Length of old file name */
-    size_t     new_len  = strlen (new_name); /* Length of new file name */
-
-    /* Check if new file name is different than old */
-    if (old_len == new_len && strcmp (old_name, new_name) == 0)
-        return REN_NC; /* No chgange */
-
-    /* Alloc memory for full paths of old and new file name */
-    new_path = malloc ((dir_len + new_len + 1) * sizeof (char));
-    old_path = malloc ((dir_len + old_len + 1) * sizeof (char));
-
-    if (new_path == nullptr || old_path == nullptr) {
-        fputs ("Alloc error\n", stderr);
-        exit (EXIT_FAILURE);
-    }
-    memcpy (new_path, path, dir_len);
-    memcpy (old_path, path, dir_len);
-    memcpy (new_path + dir_len, new_name, new_len);
-    memcpy (old_path + dir_len, old_name, old_len);
-    new_path [dir_len + new_len] = '\0';
-    old_path [dir_len + old_len] = '\0';
-
-    /* Check if file with new file name don't exist */
-    if (access (new_path, F_OK) != 0) {
-        result = rename (old_path, new_path) == 0 ? 
-                REN_OK :     /* OK */
-                REN_NOT_REN; /* Could not rename */
-    }
-    else {
-        result = REN_EXISTS;  /* File exists */
-    }
-    free (new_path);
-    free (old_path);
-
-    return result;
-}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Apply changes to one file name in buffer and update its entry.
@@ -127,7 +73,7 @@ file_name_update_changes (RenData             *data,
     name_overwrite_string (data, i);
     name_number_string (data, i);
     /* Update file name entry if name has changed */
-    rfitem_entry_check_and_update (item, rfitem_get_new_name (item));
+    rfitem_entry_sync (item);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -159,7 +105,7 @@ enumerate_folder (RFnames   *names,
                   const int  options)
 {
     GFileEnumerator *f_enum;
-    GError          *g_err;
+    GError          *g_err = nullptr;
     GFile           *file;
     GFileInfo       *f_info;
     GFileType        f_type;
@@ -173,36 +119,45 @@ enumerate_folder (RFnames   *names,
                                         G_FILE_QUERY_INFO_NONE,
                                         nullptr,
                                         &g_err);
-    do {
-        g_file_enumerator_iterate (f_enum, &f_info, &file, nullptr, &g_err);
-        if (f_info != nullptr) {
-            f_type = g_file_info_get_file_type (f_info);
-            /* If hidden file/directory was not set skip adding it */
-            if (g_file_info_get_is_hidden (f_info) &&
-                !(options & FOLDER_SELECT_HIDDEN)) {
-                continue;
-            }
-            /* If symlink file/directory was not set skip adding it */
-            if (g_file_info_get_is_symlink (f_info) &&
-                !(options & FOLDER_SELECT_SYMLINKS)) {
-                continue;
-            }
-            if (f_type == G_FILE_TYPE_DIRECTORY) {
-                if (options & FOLDER_SELECT_FOLDERS) {
-                    rfnames_add_gfile_to_file_box (names, file);
-                }
-                if (options & FOLDER_SCAN_RECURSIVELY) {
-                    enumerate_folder (names, file, options);
-                }
-            }
-            if (f_type == G_FILE_TYPE_REGULAR &&
-                (options & FOLDER_SELECT_FILES)) {
+    if (f_enum == nullptr) {
+        g_printerr ("Could not read folder %s: %s\n",
+                    g_file_peek_path (dir), g_err->message);
+        g_error_free (g_err);
+        return;
+    }
+    while (g_file_enumerator_iterate (f_enum, &f_info, &file, nullptr, &g_err)
+           && f_info != nullptr) {
+        f_type = g_file_info_get_file_type (f_info);
+        /* If hidden file/directory was not set skip adding it */
+        if (g_file_info_get_is_hidden (f_info) &&
+            !(options & FOLDER_SELECT_HIDDEN)) {
+            continue;
+        }
+        /* If symlink file/directory was not set skip adding it */
+        if (g_file_info_get_is_symlink (f_info) &&
+            !(options & FOLDER_SELECT_SYMLINKS)) {
+            continue;
+        }
+        if (f_type == G_FILE_TYPE_DIRECTORY) {
+            if (options & FOLDER_SELECT_FOLDERS) {
                 rfnames_add_gfile_to_file_box (names, file);
             }
+            /* Do not enter symlinks, one can lead back to a parent folder */
+            if ((options & FOLDER_SCAN_RECURSIVELY) &&
+                !g_file_info_get_is_symlink (f_info)) {
+                enumerate_folder (names, file, options);
+            }
+        }
+        if (f_type == G_FILE_TYPE_REGULAR &&
+            (options & FOLDER_SELECT_FILES)) {
+            rfnames_add_gfile_to_file_box (names, file);
         }
     }
-    while (f_info != nullptr);
-
+    if (g_err != nullptr) {
+        g_printerr ("Could not read all of folder %s: %s\n",
+                    g_file_peek_path (dir), g_err->message);
+        g_error_free (g_err);
+    }
     g_object_unref (f_enum);
 }
 /*----------------------------------------------------------------------------*/
@@ -220,7 +175,7 @@ get_folder_content (RFnames    *names,
                     const int   options)
 {
     GFile     *dir;
-    GError    *g_err;
+    GError    *g_err = nullptr;
     GFileInfo *f_info;
     GFileType  f_type;
 
@@ -237,6 +192,11 @@ get_folder_content (RFnames    *names,
         if (f_type == G_FILE_TYPE_DIRECTORY) {
             enumerate_folder (names, dir, options);
         }
+    }
+    else {
+        g_printerr ("Could not read folder %s: %s\n",
+                    dir_path, g_err->message);
+        g_error_free (g_err);
     }
     g_object_unref (dir);
 }
@@ -288,7 +248,8 @@ event_close (GtkWidget *widget,
 /**
  * @brief  Rename button clicked.
  *
- * Reads value of each Entry with file name and tries to rename file.
+ * Tries to rename the file of each checked item to its pending name.
+ * Unchecked items are left alone.
  * If File can not be renamed it prints the reason and its entry is reset
  * to the original name, so the list shows the name the file still has.
  * Renamed and unchanged items get the current settings applied again.
@@ -302,12 +263,12 @@ static void
 event_click_rename (GtkWidget *widget,
                     RenData   *data)
 {
-    const char    *old_name      = nullptr; /* Old file name */
-    const char    *new_name      = nullptr; /* New file name */
-    const char    *path          = nullptr; /* Path to file's directory */
+    char          *old_name      = nullptr; /* Old file name */
+    char          *new_name      = nullptr; /* New file name */
     RenResult      result        = REN_OK;  /* Renaming result */
     uint_fast32_t  renamed_count = 0;       /* Number of renamed files */
-    uint_fast32_t  names_count   = 0;       /* Number of files to rename */
+    uint_fast32_t  checked_count = 0;       /* Number of checked files */
+    uint_fast32_t  names_count   = 0;       /* Number of files on list */
     RFitem        *item;                    /* Processed RFitem object */
     const bool     exit_after    = rendata_get_renexit (data);
 
@@ -316,19 +277,19 @@ event_click_rename (GtkWidget *widget,
     for (uint_fast32_t i = 0; i < names_count; ++i) {
         item = data->names->items[i];
 
-        new_name = rfitem_entry_get_text (item);
-        old_name = rfitem_get_org_name (item);
-        path = rfitem_get_path (item);
+        /* Copies for messages, rrename_item() updates the item's names */
+        old_name = g_strdup (rfitem_get_org_name (item));
+        new_name = g_strdup (rfitem_get_new_name (item));
 
-        result = file_check_and_rename (old_name, new_name, path);
+        result = rrename_item (item);
+
+        if (result != REN_SKIP)
+            ++checked_count;
 
         switch (result) {
 
             case REN_OK:
                 printf ("File: %s renamed to: %s\n", old_name, new_name);
-                /* Store the name the file has now. Take it from the entry,
-                 * not from new_name, the entry could be edited by hand. */
-                rfitem_set_org_name (item, new_name);
                 ++renamed_count;
                 break;
 
@@ -343,22 +304,26 @@ event_click_rename (GtkWidget *widget,
             case REN_EXISTS:
                 printf ("File: %s already exists\n", new_name);
                 break;
+
+            case REN_SKIP:
+                break;
         }
         if (result == REN_OK || result == REN_NC) {
             /* Apply current settings to the (possibly new) name */
             if (!exit_after)
                 file_name_update_changes (data, i);
         }
-        else {
-            /* Rename failed, revert new file name to the original one and
-             * keep it in the entry, so it is visible the file still has
-             * its old name. */
-            rfitem_set_new_name_from_org_name (item);
-            rfitem_entry_check_and_update (item, old_name);
+        else if (result != REN_SKIP) {
+            /* Rename failed, new_name is back to the original one. Show it
+             * in the entry, so it is visible the file still has its old
+             * name. */
+            rfitem_entry_sync (item);
         }
+        g_free (old_name);
+        g_free (new_name);
     }
     printf ("Renamed %" PRIdFAST32 " files of %" PRIdFAST32 "\n",
-            renamed_count, names_count);
+            renamed_count, checked_count);
 
     /* exit application if "Exit after rename" checkbox was selected */
     if (exit_after)
@@ -1740,8 +1705,12 @@ main (int    argc,
     data = rendata_new ();
     rconfig_load (data);
 
+    /* Non-unique: every run has its own file list and settings. A unique
+     * application would hand new files to the running process, which has one
+     * RenData shared by all of its windows. */
     app = gtk_application_new ("org.nongnu.SmallFileRenamer",
-                               G_APPLICATION_HANDLES_OPEN);
+                               G_APPLICATION_HANDLES_OPEN |
+                               G_APPLICATION_NON_UNIQUE);
 
     g_signal_connect (app, "shutdown", G_CALLBACK (shutdown), data);
     g_signal_connect (app, "activate", G_CALLBACK (activate), data);
