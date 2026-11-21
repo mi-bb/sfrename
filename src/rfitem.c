@@ -63,15 +63,15 @@
  * @param[out] item    Pointer to RFitem object
  * @return     none
  *
- * @fn         static void event_entry_changed (GtkEntry *entry,
-                                                RFitem   *item)
+ * @fn         static void event_entry_changed (GtkEditable *entry,
+                                                RFitem      *item)
  * @brief      Entry text changed by the user, store it as the pending name.
  * @param[in]  entry   The entry which received the signal
  * @param[out] item    Pointer to RFitem object
  * @return     none
  *
- * @fn         static void event_check_toggled (GtkToggleButton *button,
-                                                RFitem          *item)
+ * @fn         static void event_check_toggled (GtkCheckButton *button,
+                                                RFitem         *item)
  * @brief      Check button toggled, store its state.
  * @param[in]  button  The button which received the signal
  * @param[out] item    Pointer to RFitem object
@@ -94,11 +94,11 @@ static void         rfitem_free_data        (RFitem     *item);
 static void         event_click_rev         (GtkWidget  *widget,
                                              RFitem     *item);
 
-static void         event_entry_changed     (GtkEntry   *entry,
-                                             RFitem     *item);
+static void         event_entry_changed     (GtkEditable *entry,
+                                             RFitem      *item);
 
-static void         event_check_toggled     (GtkToggleButton *button,
-                                             RFitem          *item);
+static void         event_check_toggled     (GtkCheckButton *button,
+                                             RFitem         *item);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get file name pointer and length of directory string in given
@@ -249,13 +249,14 @@ rfitem_new_from_gfile (GFile *g_file)
     /* Create entry and set max length to defined file name length */
     gtk_entry_set_max_length (GTK_ENTRY (item->entry), FN_LEN);
     /* Set entry file names */
-    gtk_entry_set_text (GTK_ENTRY (item->entry), f_name);
+    gtk_editable_set_text (GTK_EDITABLE (item->entry), f_name);
+    /* Enter in the entry activates the Rename button */
+    gtk_entry_set_activates_default (GTK_ENTRY (item->entry), TRUE);
     /* Set full path as a tooltip */
     gtk_widget_set_tooltip_text (item->entry, f_path);
     /* Set item active to apply changes */
     item->checked = true;
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button),
-                                  TRUE);
+    gtk_check_button_set_active (GTK_CHECK_BUTTON (item->check_button), TRUE);
 
     gtk_widget_set_tooltip_text (item->restore_button, "Restore original");
     gtk_widget_set_tooltip_text (item->delete_button, "Remove from list");
@@ -274,16 +275,12 @@ rfitem_new_from_gfile (GFile *g_file)
     /*item->new_name[FN_LEN] = '\0';*/
     /* rfitem_set_new_name_from_org_name (item); */
 
-    gtk_box_pack_start (GTK_BOX (item->box), item->check_button,
-                        FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->label,
-                        FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->entry,
-                        TRUE, TRUE, 0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->restore_button,
-                        FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (item->box), item->delete_button,
-                        FALSE, FALSE, 0);
+    gtk_widget_set_hexpand (item->entry, TRUE);
+    gtk_box_append (GTK_BOX (item->box), item->check_button);
+    gtk_box_append (GTK_BOX (item->box), item->label);
+    gtk_box_append (GTK_BOX (item->box), item->entry);
+    gtk_box_append (GTK_BOX (item->box), item->restore_button);
+    gtk_box_append (GTK_BOX (item->box), item->delete_button);
 
     #ifdef DEBUG
     printf ("loaded : %s\n", item->org_name);
@@ -341,8 +338,16 @@ rfitem_free (RFitem *item)
 void
 rfitem_delete (RFitem *item)
 {
-    /* Widgets first, their signal handlers use the item data */
-    gtk_widget_destroy (item->box);
+    GtkWidget *parent = gtk_widget_get_parent (item->box);
+
+    /* The widgets can outlive the item while a click on them is processed */
+    g_signal_handlers_disconnect_by_data (item->entry, item);
+    g_signal_handlers_disconnect_by_data (item->check_button, item);
+    g_signal_handlers_disconnect_by_data (item->restore_button, item);
+
+    if (parent != nullptr)
+        gtk_box_remove (GTK_BOX (parent), item->box);
+
     rfitem_free_data (item);
     free (item);
 }
@@ -430,20 +435,20 @@ event_click_rev ([[maybe_unused]] GtkWidget *widget,
  * @brief  Entry text changed by the user, store it as the pending name.
  */
 static void
-event_entry_changed (GtkEntry *entry,
-                     RFitem   *item)
+event_entry_changed (GtkEditable *entry,
+                     RFitem      *item)
 {
-    rfitem_set_new_name (item, gtk_entry_get_text (entry));
+    rfitem_set_new_name (item, gtk_editable_get_text (entry));
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Check button toggled, store its state.
  */
 static void
-event_check_toggled (GtkToggleButton *button,
-                     RFitem          *item)
+event_check_toggled (GtkCheckButton *button,
+                     RFitem         *item)
 {
-    item->checked = gtk_toggle_button_get_active (button);
+    item->checked = gtk_check_button_get_active (button);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -455,8 +460,8 @@ rfitem_set_checked (RFitem     *item,
 {
     item->checked = val;
     if (item->check_button != nullptr) {
-        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button),
-                                      val);
+        gtk_check_button_set_active (GTK_CHECK_BUTTON (item->check_button),
+                                     val);
     }
 }
 /*----------------------------------------------------------------------------*/
@@ -492,11 +497,11 @@ rfitem_entry_sync (RFitem *item)
         return;
 
     if (strcmp (item->new_name,
-                gtk_entry_get_text (GTK_ENTRY (item->entry))) != 0) {
+                gtk_editable_get_text (GTK_EDITABLE (item->entry))) != 0) {
         g_signal_handlers_block_by_func (item->entry,
                                          G_CALLBACK (event_entry_changed),
                                          item);
-        gtk_entry_set_text (GTK_ENTRY (item->entry), item->new_name);
+        gtk_editable_set_text (GTK_EDITABLE (item->entry), item->new_name);
         g_signal_handlers_unblock_by_func (item->entry,
                                            G_CALLBACK (event_entry_changed),
                                            item);

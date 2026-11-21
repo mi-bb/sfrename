@@ -35,7 +35,7 @@ if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS
 endif()
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0>=3.22)
+pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk4>=4.14 gdk-pixbuf-2.0)
 
 add_executable(sfrename
     src/sfrename.c
@@ -55,7 +55,11 @@ add_executable(sfrename
 )
 
 target_link_libraries(sfrename PRIVATE PkgConfig::GTK)
-target_compile_definitions(sfrename PRIVATE G_DISABLE_DEPRECATED)
+# Warn about GTK API that is deprecated in, or newer than, the minimum version.
+target_compile_definitions(sfrename PRIVATE
+    G_DISABLE_DEPRECATED
+    GDK_VERSION_MIN_REQUIRED=GDK_VERSION_4_14
+    GDK_VERSION_MAX_ALLOWED=GDK_VERSION_4_14)
 
 include(GNUInstallDirs)
 install(TARGETS sfrename RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -152,7 +156,7 @@ endif()
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.nongnu.org/small-file-renamer/")
 set(CPACK_PACKAGE_DESCRIPTION
-"Small File Renamer is a GTK+3 application for renaming files and
+"Small File Renamer is a GTK4 application for renaming files and
 directories in batch: deleting, inserting, overwriting and replacing text,
 numbering, changing case and converting spaces to underscores. It works
 standalone, with files passed on the command line, or from Midnight
@@ -173,7 +177,7 @@ find_program(DPKG_SHLIBDEPS_EXECUTABLE dpkg-shlibdeps)
 if(DPKG_SHLIBDEPS_EXECUTABLE)
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 else()
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-3-0 (>= 3.22), libglib2.0-0")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-4-1 (>= 4.14), libglib2.0-0")
 endif()
 # CPack falls back to "i386" when dpkg is missing, so map the common
 # architectures by hand.
@@ -217,6 +221,6 @@ set(CPACK_SOURCE_IGNORE_FILES
 )
 set(CPACK_PACKAGE_VENDOR "Michal Babik")
 set(CPACK_PACKAGE_CONTACT "michal.babik@protonmail.com")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Batch file and directory renamer for GTK+3")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Batch file and directory renamer for GTK4")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 include(CPack)

@@ -176,26 +176,18 @@ static void
 rfnames_delete_at_pos (RFnames             *names,
                        const uint_fast32_t  pos)
 {
-    RFitem    **tmp = nullptr;
-    GtkWidget *item_box;
-    GtkBox    *parent_box;
+    RFitem **tmp = nullptr;
 
     if (pos >= names->cnt || names->cnt == 0)
         return;
-
-    /* Get item box and parent list box */
-    item_box = names->items[pos]->box;
-    parent_box = GTK_BOX (gtk_widget_get_parent (item_box));
 
     rfitem_delete (names->items[pos]);
 
     names->cnt -= 1;
 
-    /* Reorder items on the list and on the box widget */
+    /* Close the gap on the list, the box widget keeps its order */
     for (uint_fast32_t i = pos; i < names->cnt; ++i) {
         names->items[i] = names->items[i+1];
-        item_box = names->items[i]->box;
-        gtk_box_reorder_child (parent_box, item_box, (gint) i);
     }
 
     if (names->cnt == 0) {
@@ -262,15 +254,17 @@ void
 rfnames_add_gfile_to_file_box (RFnames *names,
                                GFile   *g_file)
 {
+    /* GTK4 file dialogs can return remote files, RFitem needs a local path */
+    if (g_file_peek_path (g_file) == nullptr) {
+        g_autofree char *name = g_file_get_parse_name (g_file);
+        g_printerr ("Skipping %s: not a local file\n", name);
+        return;
+    }
     /* Create and append file widgets (entry, check button, buttons) to file
      * list, get box widget with them */
     auto widget = rfnames_append_gfile (names, g_file);
-    gtk_widget_show_all (widget);
     /* Add box to the container */
-    gtk_box_pack_start (
-            GTK_BOX (names->file_box),
-            widget,
-            FALSE, FALSE, 0);
+    gtk_box_append (GTK_BOX (names->file_box), widget);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -595,7 +589,7 @@ rfitem_compare_glist (gconstpointer a,
 void
 rfnames_sort (RFnames *names)
 {
-    GtkBox *parent_box;
+    GtkWidget *previous  = nullptr;
     GList  *sorted       = nullptr;
     GList  *node         = nullptr;
     GList  *dirs         = nullptr;
@@ -635,13 +629,13 @@ rfnames_sort (RFnames *names)
     sorted = g_list_concat (sorted, hidden_files);
     sorted = g_list_concat (sorted, files);
 
-    parent_box = GTK_BOX (gtk_widget_get_parent (names->items[0]->box));
-
     node = sorted;
 
     while (node != nullptr) {
         RFitem *item = node->data;
-        gtk_box_reorder_child (parent_box, item->box, j);
+        gtk_box_reorder_child_after (GTK_BOX (names->file_box), item->box,
+                                     previous);
+        previous = item->box;
         names->items[j] = item;
         node = node->next;
         ++j;

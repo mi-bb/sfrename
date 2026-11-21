@@ -22,127 +22,188 @@
  * @author Michal Babik <michal.babik@protonmail.com>
  */
 #include "defs.h"
+#include "images.h"
 #include "dialogs.h"
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Select folder dialog.
+ * @brief  State of a running file dialog.
  */
-char *
-add_files_folder_dialog (GtkWindow *parent,
-                         int       *options)
+typedef struct {
+    GCancellable     *cancellable; /**< Cancelled when parent is destroyed */
+    DialogFilesFunc   files_func;  /**< Callback of select files dialog */
+    DialogFolderFunc  folder_func; /**< Callback of select folder dialog */
+    gpointer          user_data;   /**< Data for callback */
+} DialogRun;
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Parent window destroyed, cancel its running dialog.
+ *
+ * @param[in]     widget      The window which received the signal
+ * @param[in,out] cancellable Cancellable of the dialog
+ * @return        none
+ */
+static void
+event_parent_destroy ([[maybe_unused]] GtkWidget *widget,
+                      GCancellable *cancellable)
 {
-    GtkWidget *dialog;            /* Directory choose dialog */
-    char      *folder  = nullptr; /* Selected folder name */
-    int        result  = 0;       /* Dialog run response */
-
-    dialog = gtk_file_chooser_dialog_new ("Select Folder",
-                                          parent,
-                                          GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                          "_Cancel",
-                                          GTK_RESPONSE_CANCEL,
-                                          "_Open",
-                                          GTK_RESPONSE_ACCEPT,
-                                          nullptr);
-
-    GtkWidget *box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
-    GtkWidget *chk_files = gtk_check_button_new_with_label (
-            "Select files");
-    GtkWidget *chk_dirs = gtk_check_button_new_with_label (
-            "Select directories");
-    GtkWidget *chk_links = gtk_check_button_new_with_label (
-            "Select symlinks");
-    GtkWidget *chk_hidden = gtk_check_button_new_with_label (
-            "Select hidden files / directories");
-    GtkWidget *chk_rec = gtk_check_button_new_with_label (
-            "Scan folders recursively");
-
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk_files), 
-                                  *options & FOLDER_SELECT_FILES);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk_dirs),
-                                  *options & FOLDER_SELECT_FOLDERS);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk_links),
-                                  *options & FOLDER_SELECT_SYMLINKS);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk_hidden),
-                                  *options & FOLDER_SELECT_HIDDEN);
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (chk_rec),
-                                  *options & FOLDER_SCAN_RECURSIVELY);
-
-    gtk_box_pack_start (GTK_BOX (box), chk_files,  FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), chk_dirs,   FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), chk_links,  FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), chk_hidden, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (box), chk_rec,    FALSE, FALSE, 0);
-    gtk_widget_show_all (box);
-    gtk_file_chooser_set_extra_widget (GTK_FILE_CHOOSER (dialog), box);
-
-    result = gtk_dialog_run (GTK_DIALOG (dialog));
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        *options = 0;
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chk_files))) {
-            *options |= FOLDER_SELECT_FILES;
-        }
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chk_dirs))) {
-            *options |= FOLDER_SELECT_FOLDERS;
-        }
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chk_links))) {
-            *options |= FOLDER_SELECT_SYMLINKS;
-        }
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chk_hidden))) {
-            *options |= FOLDER_SELECT_HIDDEN;
-        }
-        if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (chk_rec))) {
-            *options |= FOLDER_SCAN_RECURSIVELY;
-        }
-        folder = gtk_file_chooser_get_filename (
-                GTK_FILE_CHOOSER (dialog));
-    }
-    gtk_widget_destroy (dialog);
-    return folder;
+    g_cancellable_cancel (cancellable);
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Select images dialog.
+ * @brief  Create state of a dialog tied to the lifetime of its parent.
+ *
+ * @param[in] parent Dialog parent window
+ * @return    New DialogRun, freed with dialog_run_free()
  */
-GSList *
-add_files_dialog (GtkWindow *parent)
+static DialogRun *
+dialog_run_new (GtkWindow *parent)
 {
-    GtkFileFilter *filter;              /* File filter for dialog */
-    GtkWidget     *dialog;              /* Dialog widget */
-    GSList        *gsl_files = nullptr; /* Result file list */
-    int            result    = 0;       /* Dialog run response */
+    DialogRun *run = g_new0 (DialogRun, 1);
 
-    dialog = gtk_file_chooser_dialog_new ("Select Files",
-                                             parent,
-                                             GTK_FILE_CHOOSER_ACTION_OPEN,
-                                             "_Cancel",
-                                             GTK_RESPONSE_CANCEL,
-                                             "_Open",
-                                             GTK_RESPONSE_ACCEPT,
-                                             nullptr);
-    filter = gtk_file_filter_new ();
-    gtk_file_filter_set_name (filter, "All files");
-    gtk_file_filter_add_pattern (filter, "*");
-    gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (dialog), filter);
-    gtk_file_chooser_set_select_multiple (GTK_FILE_CHOOSER (dialog), TRUE);
-
-    result = gtk_dialog_run (GTK_DIALOG (dialog));
-
-    if (result == GTK_RESPONSE_ACCEPT) {
-        gsl_files = gtk_file_chooser_get_filenames (
-                GTK_FILE_CHOOSER (dialog));
+    run->cancellable = g_cancellable_new ();
+    g_signal_connect_object (parent, "destroy",
+                             G_CALLBACK (event_parent_destroy),
+                             run->cancellable, 0);
+    return run;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Free state of a dialog.
+ *
+ * @param[in,out] run DialogRun to free
+ * @return        none
+ */
+static void
+dialog_run_free (DialogRun *run)
+{
+    g_object_unref (run->cancellable);
+    g_free (run);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Print a dialog error, unless the dialog was just closed.
+ *
+ * @param[in,out] error Error to report and free
+ * @return        none
+ */
+static void
+dialog_report_error (GError *error)
+{
+    if (!g_error_matches (error, GTK_DIALOG_ERROR, GTK_DIALOG_ERROR_DISMISSED) &&
+        !g_error_matches (error, GTK_DIALOG_ERROR, GTK_DIALOG_ERROR_CANCELLED)) {
+        g_printerr ("File dialog failed: %s\n", error->message);
     }
-    gtk_widget_destroy (dialog);
-    return gsl_files;
+    g_error_free (error);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select folder dialog finished.
+ *
+ * @param[in]     source    GtkFileDialog object
+ * @param[in]     result    Result of the dialog
+ * @param[in,out] user_data DialogRun object
+ * @return        none
+ */
+static void
+folder_dialog_finished (GObject      *source,
+                        GAsyncResult *result,
+                        gpointer      user_data)
+{
+    DialogRun *run   = user_data;
+    GError    *error = nullptr;
+    GFile     *folder;
+
+    folder = gtk_file_dialog_select_folder_finish (GTK_FILE_DIALOG (source),
+                                                   result, &error);
+    if (folder != nullptr) {
+        if (!g_cancellable_is_cancelled (run->cancellable))
+            run->folder_func (folder, run->user_data);
+        g_object_unref (folder);
+    }
+    else {
+        dialog_report_error (error);
+    }
+    dialog_run_free (run);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Select files dialog finished.
+ *
+ * @param[in]     source    GtkFileDialog object
+ * @param[in]     result    Result of the dialog
+ * @param[in,out] user_data DialogRun object
+ * @return        none
+ */
+static void
+files_dialog_finished (GObject      *source,
+                       GAsyncResult *result,
+                       gpointer      user_data)
+{
+    DialogRun  *run   = user_data;
+    GError     *error = nullptr;
+    GListModel *files;
+
+    files = gtk_file_dialog_open_multiple_finish (GTK_FILE_DIALOG (source),
+                                                  result, &error);
+    if (files != nullptr) {
+        if (!g_cancellable_is_cancelled (run->cancellable))
+            run->files_func (files, run->user_data);
+        g_object_unref (files);
+    }
+    else {
+        dialog_report_error (error);
+    }
+    dialog_run_free (run);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Show select folder dialog.
+ */
+void
+add_files_folder_dialog (GtkWindow        *parent,
+                         DialogFolderFunc  callback,
+                         gpointer          user_data)
+{
+    GtkFileDialog *dialog = gtk_file_dialog_new ();
+    DialogRun     *run    = dialog_run_new (parent);
+
+    run->folder_func = callback;
+    run->user_data   = user_data;
+
+    gtk_file_dialog_set_title (dialog, "Select Folder");
+    gtk_file_dialog_select_folder (dialog, parent, run->cancellable,
+                                   folder_dialog_finished, run);
+    g_object_unref (dialog);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Show select files dialog.
+ */
+void
+add_files_dialog (GtkWindow       *parent,
+                  DialogFilesFunc  callback,
+                  gpointer         user_data)
+{
+    GtkFileDialog *dialog = gtk_file_dialog_new ();
+    DialogRun     *run    = dialog_run_new (parent);
+
+    run->files_func = callback;
+    run->user_data  = user_data;
+
+    gtk_file_dialog_set_title (dialog, "Select Files");
+    gtk_file_dialog_open_multiple (dialog, parent, run->cancellable,
+                                   files_dialog_finished, run);
+    g_object_unref (dialog);
 }
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Dialog with information about application.
  */
 void
-about_app_dialog ([[maybe_unused]] gpointer data)
+about_app_dialog (GtkWindow *parent)
 {
-    GtkWidget *dialog;
+    GtkWidget  *dialog;
+    GdkTexture *logo;
     const char *authors[] = {"Michal Babik <michal.babik@protonmail.com> "
                                "http://init6.pomorze.pl", nullptr};
 
@@ -150,7 +211,7 @@ about_app_dialog ([[maybe_unused]] gpointer data)
 
     gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (dialog), APP_VER);
 
-    gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (dialog), 
+    gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (dialog),
             "Copyright (C) 2019-2026 Michal Babik");
 
     gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (dialog), APP_DSC);
@@ -160,8 +221,17 @@ about_app_dialog ([[maybe_unused]] gpointer data)
     gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (dialog), APP_WEB);
 
     gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG (dialog), authors);
-    gtk_dialog_run (GTK_DIALOG (dialog));
-    gtk_widget_destroy (dialog);
+
+    if ((logo = get_image (W_ICON_ABOUT)) != nullptr) {
+        gtk_about_dialog_set_logo (GTK_ABOUT_DIALOG (dialog),
+                                   GDK_PAINTABLE (logo));
+        g_object_unref (logo);
+    }
+    gtk_window_set_transient_for (GTK_WINDOW (dialog), parent);
+    gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+    /* A new dialog is made each time, closing must destroy this one */
+    gtk_window_set_hide_on_close (GTK_WINDOW (dialog), FALSE);
+    gtk_window_present (GTK_WINDOW (dialog));
 }
 /*----------------------------------------------------------------------------*/
 
