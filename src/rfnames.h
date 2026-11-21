@@ -35,16 +35,24 @@
  * @var   RFnames::cnt
  * @brief Count of file names
  *
- * @var   RFnames::file_box
- * @brief Box with file items
+ * @var   RFnames::store
+ * @brief List model shown by the view, in the same order as items
+ *
+ * @var   RFnames::view
+ * @brief List view with rows for visible items
+ *
+ * @var   RFnames::focus_first
+ * @brief Give focus to the first entry as soon as it has a row
  *
  * @var   RFnames::items
- * @brief Items with file name, entry, buttons
+ * @brief Items with file names and state
  */
 typedef struct
 RFnames {
     uint_fast32_t  cnt;
-    GtkWidget     *file_box;
+    GListStore    *store;
+    GtkWidget     *view;
+    bool           focus_first;
     RFitem        **items;
 } RFnames;
 /*----------------------------------------------------------------------------*/
@@ -69,42 +77,37 @@ RFnames {
 void      rfnames_free (RFnames *names);
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Append file to RFnames.
+ * @brief  Create the list view showing the items.
  *
- * @param[out] names     Pointer to RFnames object
- * @param[in]  g_file    GFile object for file to add
- * @return     Box widget with item widgets
+ * Rows are recycled while scrolling, so only visible items have widgets.
+ *
+ * @param[in,out] names Pointer to RFnames object
+ * @return        List view widget
  */
-[[nodiscard]] GtkWidget * rfnames_append_gfile (RFnames *names,
-                                                GFile   *g_file);
+[[nodiscard]] GtkWidget * rfnames_create_view (RFnames *names)
+              __attribute__ ((nonnull (1), returns_nonnull));
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  void rfnames_add_gfile_to_file_box (RFnames *names,
- *                                          GFile   *g_file)
+ * @brief  Give focus to the entry of the first item.
  *
+ * If the item has no row yet, focus is given when it gets one.
+ *
+ * @param[in,out] names Pointer to RFnames object
+ * @return        none
+ */
+void rfnames_focus_first (RFnames *names)
+     __attribute__ ((nonnull (1)));
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Create new RFitem object using data from gfile item and add it
- *         to RFnames item.
+ *         to RFnames item. Files without a local path are skipped.
  *
  * @param[out] names     Pointer to RFnames object
  * @param[in]  g_file    GFile object
  * @return     none
- *
- * @fn  void rfnames_add_file_path_to_file_box (RFnames    *names,
- *                                              const char *file_path)
- *
- * @brief  Create new RFitem object using data from file_path string and add it
- *         to RFnames item.
- *
- * @param[out] names     Pointer to RFnames object
- * @param[in]  file_path String with file path
- * @return     none
  */
-/*----------------------------------------------------------------------------*/
-void rfnames_add_gfile_to_file_box (RFnames    *names,
-                                    GFile      *g_file);
-/*----------------------------------------------------------------------------*/
-void rfnames_add_file_path_to_file_box (RFnames    *names,
-                                        const char *file_path);
+void rfnames_add_gfile (RFnames *names,
+                        GFile   *g_file);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get length of items list

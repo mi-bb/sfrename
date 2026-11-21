@@ -133,6 +133,15 @@ if(BUILD_TESTING)
     target_include_directories(test_rrename PRIVATE src)
     target_link_libraries(test_rrename PRIVATE PkgConfig::GTK)
     add_test(NAME rrename COMMAND test_rrename)
+
+    add_executable(test_rfnames
+        tests/test_rfnames.c
+        src/rfnames.c
+        src/rfitem.c
+    )
+    target_include_directories(test_rfnames PRIVATE src)
+    target_link_libraries(test_rfnames PRIVATE PkgConfig::GTK)
+    add_test(NAME rfnames COMMAND test_rfnames)
 endif()
 
 # Packaging with CPack, run from the build directory:

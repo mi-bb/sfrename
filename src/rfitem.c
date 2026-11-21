@@ -46,6 +46,11 @@
  * @param[out] item Pointer to RFitem object
  * @return     none
  *
+ * @fn         static void rfitem_entry_set_tooltip (RFitem *item)
+ * @brief      Show the file's current full path as the entry tooltip.
+ * @param[in]  item Pointer to RFitem object with an entry
+ * @return     none
+ *
  * @fn         static void rfitem_init (RFitem *item)
  * @brief      RFitem initialization.
  * @param[out] item Pointer to RFitem object
@@ -86,6 +91,8 @@ static int          str_compare             (const char *a,
                                              const char *b);
 
 static void         rfitem_label_set_markup (RFitem     *item);
+
+static void         rfitem_entry_set_tooltip (RFitem    *item);
 
 static void         rfitem_init             (RFitem     *item);
 
@@ -181,6 +188,17 @@ rfitem_label_set_markup (RFitem *item)
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Show the file's current full path as the entry tooltip.
+ */
+static void
+rfitem_entry_set_tooltip (RFitem *item)
+{
+    g_autofree char *full = g_strconcat (item->path, item->org_name, nullptr);
+
+    gtk_widget_set_tooltip_text (item->entry, full);
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  RFitem initialization.
  *
  * Zeroes every field: the name/path strings, the widget pointers, the file
@@ -210,16 +228,18 @@ rfitem_new_from_gfile (GFile *g_file)
 
     rfitem_init (item);
 
+    f_path = g_file_peek_path (g_file);
+    f_name = get_name_dir_len (f_path, &len);
+
     item->org_name = malloc ((FN_LEN + 1) * sizeof (char));
     item->new_name = malloc ((FN_U8_LEN + 1) * sizeof (char));
-    item->path = malloc ((FN_LEN + 1) * sizeof (char));
+    /* A directory path can be longer than a file name */
+    item->path = malloc ((len + 1) * sizeof (char));
     if (item->org_name == nullptr || item->new_name == nullptr ||
         item->path == nullptr) {
         free (item);
         err (EXIT_FAILURE, nullptr);
     }
-    f_path = g_file_peek_path (g_file);
-    f_name = get_name_dir_len (f_path, &len);
 
     f_info = g_file_query_info (g_file,
                                 "standard::*",
@@ -238,29 +258,8 @@ rfitem_new_from_gfile (GFile *g_file)
         #endif
         item->file_type = G_FILE_TYPE_UNKNOWN;
     }
-    item->label          = gtk_label_new (nullptr);
-    item->entry          = gtk_entry_new ();
-    item->check_button   = gtk_check_button_new ();
-    item->restore_button = gtk_button_new_with_label ("R");
-    item->delete_button  = gtk_button_new_with_label ("D");
-    item->box            = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
-    /* Set type label markup (file or dir, type color) */
-    rfitem_label_set_markup (item);
-    /* Create entry and set max length to defined file name length */
-    gtk_entry_set_max_length (GTK_ENTRY (item->entry), FN_LEN);
-    /* Set entry file names */
-    gtk_editable_set_text (GTK_EDITABLE (item->entry), f_name);
-    /* Enter in the entry activates the Rename button */
-    gtk_entry_set_activates_default (GTK_ENTRY (item->entry), TRUE);
-    /* Set full path as a tooltip */
-    gtk_widget_set_tooltip_text (item->entry, f_path);
     /* Set item active to apply changes */
     item->checked = true;
-    gtk_check_button_set_active (GTK_CHECK_BUTTON (item->check_button), TRUE);
-
-    gtk_widget_set_tooltip_text (item->restore_button, "Restore original");
-    gtk_widget_set_tooltip_text (item->delete_button, "Remove from list");
-    gtk_widget_set_margin_bottom (item->box, 4);
 
     /* Copy verified file names to original and new file name string */
     item->org_len = strlen (f_name);
@@ -275,13 +274,6 @@ rfitem_new_from_gfile (GFile *g_file)
     /*item->new_name[FN_LEN] = '\0';*/
     /* rfitem_set_new_name_from_org_name (item); */
 
-    gtk_widget_set_hexpand (item->entry, TRUE);
-    gtk_box_append (GTK_BOX (item->box), item->check_button);
-    gtk_box_append (GTK_BOX (item->box), item->label);
-    gtk_box_append (GTK_BOX (item->box), item->entry);
-    gtk_box_append (GTK_BOX (item->box), item->restore_button);
-    gtk_box_append (GTK_BOX (item->box), item->delete_button);
-
     #ifdef DEBUG
     printf ("loaded : %s\n", item->org_name);
     printf ("   dir : %s\n", item->path);
@@ -289,14 +281,91 @@ rfitem_new_from_gfile (GFile *g_file)
     printf ("  type : %d\n", item->file_type);
     #endif
 
-    g_signal_connect (G_OBJECT (item->restore_button), "clicked",
-                      G_CALLBACK (event_click_rev), item);
-    g_signal_connect (G_OBJECT (item->entry), "changed",
-                      G_CALLBACK (event_entry_changed), item);
-    g_signal_connect (G_OBJECT (item->check_button), "toggled",
-                      G_CALLBACK (event_check_toggled), item);
-
     return item;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Create widgets of a list row, not showing any item yet.
+ */
+GtkWidget *
+rfitem_row_new (void)
+{
+    GtkWidget *row     = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkWidget *check   = gtk_check_button_new ();
+    GtkWidget *label   = gtk_label_new (nullptr);
+    GtkWidget *entry   = gtk_entry_new ();
+    GtkWidget *restore = gtk_button_new_with_label ("R");
+    GtkWidget *remove  = gtk_button_new_with_label ("D");
+
+    /* Set max length to defined file name length */
+    gtk_entry_set_max_length (GTK_ENTRY (entry), FN_LEN);
+    /* Enter in the entry activates the Rename button */
+    gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+    gtk_widget_set_hexpand (entry, TRUE);
+
+    gtk_widget_set_tooltip_text (restore, "Restore original");
+    gtk_widget_set_tooltip_text (remove, "Remove from list");
+
+    /* rfitem_row_bind() relies on this order */
+    gtk_box_append (GTK_BOX (row), check);
+    gtk_box_append (GTK_BOX (row), label);
+    gtk_box_append (GTK_BOX (row), entry);
+    gtk_box_append (GTK_BOX (row), restore);
+    gtk_box_append (GTK_BOX (row), remove);
+
+    return row;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Show item in a row and connect the row's widgets to it.
+ */
+void
+rfitem_row_bind (RFitem    *item,
+                 GtkWidget *row)
+{
+    item->box            = row;
+    item->check_button   = gtk_widget_get_first_child (row);
+    item->label          = gtk_widget_get_next_sibling (item->check_button);
+    item->entry          = gtk_widget_get_next_sibling (item->label);
+    item->restore_button = gtk_widget_get_next_sibling (item->entry);
+    item->delete_button  = gtk_widget_get_next_sibling (item->restore_button);
+
+    /* Set type label markup (file or dir, type color) */
+    rfitem_label_set_markup (item);
+    gtk_check_button_set_active (GTK_CHECK_BUTTON (item->check_button),
+                                 item->checked);
+    gtk_editable_set_text (GTK_EDITABLE (item->entry), item->new_name);
+    rfitem_entry_set_tooltip (item);
+
+    /* Connected last, setting the values above must not change the item */
+    g_signal_connect (item->restore_button, "clicked",
+                      G_CALLBACK (event_click_rev), item);
+    g_signal_connect (item->entry, "changed",
+                      G_CALLBACK (event_entry_changed), item);
+    g_signal_connect (item->check_button, "toggled",
+                      G_CALLBACK (event_check_toggled), item);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Disconnect a row's widgets from item.
+ */
+void
+rfitem_row_unbind (RFitem    *item,
+                   GtkWidget *row)
+{
+    GtkWidget *child = gtk_widget_get_first_child (row);
+
+    for (; child != nullptr; child = gtk_widget_get_next_sibling (child))
+        g_signal_handlers_disconnect_by_data (child, item);
+
+    if (item->box == row) {
+        item->box            = nullptr;
+        item->check_button   = nullptr;
+        item->label          = nullptr;
+        item->entry          = nullptr;
+        item->restore_button = nullptr;
+        item->delete_button  = nullptr;
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -320,6 +389,7 @@ rfitem_free_data (RFitem *item)
     free (item->new_name);
     free (item->org_name);
     free (item->path);
+    g_clear_object (&item->object);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -328,26 +398,6 @@ rfitem_free_data (RFitem *item)
 void
 rfitem_free (RFitem *item)
 {
-    rfitem_free_data (item);
-    free (item);
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Free allocated memory and delete widgets.
- */
-void
-rfitem_delete (RFitem *item)
-{
-    GtkWidget *parent = gtk_widget_get_parent (item->box);
-
-    /* The widgets can outlive the item while a click on them is processed */
-    g_signal_handlers_disconnect_by_data (item->entry, item);
-    g_signal_handlers_disconnect_by_data (item->check_button, item);
-    g_signal_handlers_disconnect_by_data (item->restore_button, item);
-
-    if (parent != nullptr)
-        gtk_box_remove (GTK_BOX (parent), item->box);
-
     rfitem_free_data (item);
     free (item);
 }
@@ -495,6 +545,9 @@ rfitem_entry_sync (RFitem *item)
 {
     if (item->entry == nullptr)
         return;
+
+    /* The file could have been renamed */
+    rfitem_entry_set_tooltip (item);
 
     if (strcmp (item->new_name,
                 gtk_editable_get_text (GTK_EDITABLE (item->entry))) != 0) {

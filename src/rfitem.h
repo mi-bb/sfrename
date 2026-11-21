@@ -54,18 +54,23 @@
  * @brief Is file / dir hidden
  * @var   RFitem::checked
  * @brief Is item active for name change; the check button mirrors this value
+ * @var   RFitem::object
+ * @brief Object representing this item in the list model, owned by the item
  * @var   RFitem::label
- * @brief Label showing file type
+ * @brief Label showing file type, null while the item has no visible row
  * @var   RFitem::entry
- * @brief Entry for file name
+ * @brief Entry for file name, null while the item has no visible row
  * @var   RFitem::check_button
- * @brief Checkbutton to set file active for name change
+ * @brief Checkbutton to set file active for name change, null while the item
+ *        has no visible row
  * @var   RFitem::restore_button
- * @brief Button to restore original file name
+ * @brief Button to restore original file name, null while the item has no
+ *        visible row
  * @var   RFitem::delete_button
- * @brief Button to delete file item from list
+ * @brief Button to delete file item from list, null while the item has no
+ *        visible row
  * @var   RFitem::box
- * @brief Box with all file widgets
+ * @brief Row with all file widgets, null while the item has no visible row
  */
 typedef struct
 RFitem {
@@ -80,6 +85,7 @@ RFitem {
     bool       is_symlink;
     bool       is_hidden;
     bool       checked;
+    GObject   *object;
     GtkWidget *label;
     GtkWidget *entry;
     GtkWidget *check_button;
@@ -108,19 +114,45 @@ RFitem {
 /*----------------------------------------------------------------------------*/
 /**
  * @fn            void rfitem_free (RFitem *item)
- * @brief         Free allocated memory.
- * @param[in,out] item Pointer to RFitem object
- * @return        none
- *
- * @fn            void rfitem_delete (RFitem *item)
- * @brief         Free allocated memory and delete widgets.
+ * @brief         Free allocated memory. The item must not be bound to a row.
  * @param[in,out] item Pointer to RFitem object
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-void rfitem_free   (RFitem *item);
+void rfitem_free (RFitem *item);
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn         GtkWidget * rfitem_row_new (void)
+ * @brief      Create widgets of a list row, not showing any item yet.
+ * @return     Row widget
+ *
+ * @fn            void rfitem_row_bind (RFitem *item, GtkWidget *row)
+ * @brief         Show item in a row and connect the row's widgets to it.
+ * @param[in,out] item Pointer to RFitem object
+ * @param[in]     row  Row made by rfitem_row_new()
+ * @return        none
+ *
+ * @fn            void rfitem_row_unbind (RFitem *item, GtkWidget *row)
+ * @brief         Disconnect a row's widgets from item.
+ *
+ * The widget pointers of the item are cleared only if it is still bound to
+ * this row: a list can bind an item to a new row before releasing the old one.
+ *
+ * @param[in,out] item Pointer to RFitem object
+ * @param[in]     row  Row to disconnect
+ * @return        none
+ */
+/*----------------------------------------------------------------------------*/
+[[nodiscard]] GtkWidget * rfitem_row_new (void)
+              __attribute__ ((returns_nonnull));
 
-void rfitem_delete (RFitem *item);
+void rfitem_row_bind   (RFitem    *item,
+                        GtkWidget *row)
+                       __attribute__ ((nonnull (1, 2)));
+
+void rfitem_row_unbind (RFitem    *item,
+                        GtkWidget *row)
+                       __attribute__ ((nonnull (1, 2)));
 /*----------------------------------------------------------------------------*/
 /**
  * @fn         bool rfitem_get_checked (RFitem *item)

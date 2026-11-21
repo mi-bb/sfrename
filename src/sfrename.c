@@ -145,7 +145,7 @@ enumerate_folder (RFnames   *names,
         }
         if (f_type == G_FILE_TYPE_DIRECTORY) {
             if (options & FOLDER_SELECT_FOLDERS) {
-                rfnames_add_gfile_to_file_box (names, file);
+                rfnames_add_gfile (names, file);
             }
             /* Do not enter symlinks, one can lead back to a parent folder */
             if ((options & FOLDER_SCAN_RECURSIVELY) &&
@@ -155,7 +155,7 @@ enumerate_folder (RFnames   *names,
         }
         if (f_type == G_FILE_TYPE_REGULAR &&
             (options & FOLDER_SELECT_FILES)) {
-            rfnames_add_gfile_to_file_box (names, file);
+            rfnames_add_gfile (names, file);
         }
     }
     if (g_err != nullptr) {
@@ -692,8 +692,8 @@ static void
 focus_first_added (RFnames             *names,
                    const uint_fast32_t  prev_count)
 {
-    if (prev_count == 0 && rfnames_get_cnt (names) > 0)
-        gtk_widget_grab_focus (names->items[0]->entry);
+    if (prev_count == 0)
+        rfnames_focus_first (names);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -713,7 +713,7 @@ add_files_finished (GListModel *files,
 
     for (guint i = 0; i < count; ++i) {
         GFile *file = g_list_model_get_item (files, i);
-        rfnames_add_gfile_to_file_box (names, file);
+        rfnames_add_gfile (names, file);
         g_object_unref (file);
     }
     focus_first_added (names, prev_count);
@@ -1536,21 +1536,19 @@ create_file_name_entries (GFile         **files,
                           RenData        *data,
                           GtkWidget     **container)
 {
-    GtkWidget *entry_box; /* Box fo file name Entry fields */
+    GtkWidget *list_view; /* List with a row for each visible file */
 
-    /* Create box for file name entries */
-    entry_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-    data->names->file_box = entry_box;
+    list_view = rfnames_create_view (data->names);
 
     for (uint_fast32_t i = 0; i < file_count; ++i) {
         if (g_file_query_exists (files[i], nullptr)) {
-            rfnames_add_gfile_to_file_box (data->names, files[i]);
+            rfnames_add_gfile (data->names, files[i]);
         }
     }
     /* Make scrollbars */
     *container = gtk_scrolled_window_new ();
     gtk_widget_set_vexpand (*container, TRUE);
-    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (*container), entry_box);
+    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW (*container), list_view);
 }
 /*----------------------------------------------------------------------------*/
 /**
