@@ -37,7 +37,8 @@ be used standalone or with other programs.
 
 * GNU/Linux or FreeBSD
 * A C23-capable compiler: GCC 14 or later, or Clang 18 or later
-* GTK+ 3 (3.22 or later)
+* GTK 4 (4.14 or later)
+* gdk-pixbuf with an SVG loader (librsvg), for the toolbar icons
 * CMake 3.22 or later
 
 ## Installation
@@ -106,7 +107,8 @@ cd build/release && cpack
 To build only one kind of package, pass `-G TGZ`, `-G DEB` or `-G RPM`.
 DEB and RPM packages are only made on GNU/Linux, and RPM packages need
 `rpmbuild`. When `dpkg-shlibdeps` is installed, the `.deb` gets exact library
-dependencies; otherwise it depends on `libgtk-3-0 (>= 3.22)`.
+dependencies; otherwise it depends on `libgtk-4-1 (>= 4.14)`. The packages
+recommend librsvg, which provides the loader for the toolbar icons.
 
 ## Running
 

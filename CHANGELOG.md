@@ -22,8 +22,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** the program now uses GTK 4. Building and running it requires
+  GTK 4.14 or later, and GTK+ 3 is no longer supported.
+- The file list creates widgets only for visible rows. Large lists open
+  several times faster and use much less memory.
+- The options for adding files from a folder moved from the folder dialog to
+  the ADD button's dropdown, which stays open while they are changed. They
+  are remembered as soon as they are changed.
+- Enter runs Rename from a text or number field. On a focused button or
+  checkbox it now activates only that control.
+- Escape closes an open menu first, and the window only when no menu is open.
+- Items in the SEL, RES and DEL menus no longer have icons.
+- The window manager now decides where the window opens.
+
 ### Fixed
 
+- The tooltip of a file name showed the old path after a rename.
 - Rename also renamed files whose checkbox was off, if their entry held a
   different name. Only checked files are renamed now.
 - Starting the program while it was already running added the new files to
@@ -35,6 +51,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directories, so a link back to a parent folder added the same files again
   and crashed the program. Links are still listed, but the scan no longer
   enters them.
+
+### Security
+
+- Adding a file from a directory path longer than 255 bytes overflowed a
+  heap buffer. The path buffer now has the size of the path.
 
 ## [1.3.2] - 2026-11-14
 
