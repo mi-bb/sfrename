@@ -1319,7 +1319,10 @@ create_rename_close_exit_box (GtkWidget **container,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Create flat toolbar button with an icon above its label.
+ * @brief  Create flat toolbar button showing an icon.
+ *
+ * The label is the button's accessible name, and is shown only if the icon
+ * can not be loaded.
  *
  * @param[in] icon    Icon number
  * @param[in] label   Button label
@@ -1332,14 +1335,17 @@ create_tool_button (const IconImg  icon,
                     const char    *tooltip)
 {
     GtkWidget *button = gtk_button_new ();
-    GtkWidget *box    = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
     GtkWidget *image  = create_image_widget (icon);
 
-    if (image != nullptr)
-        gtk_box_append (GTK_BOX (box), image);
-
-    gtk_box_append (GTK_BOX (box), gtk_label_new (label));
-    gtk_button_set_child (GTK_BUTTON (button), box);
+    if (image != nullptr) {
+        gtk_button_set_child (GTK_BUTTON (button), image);
+        gtk_accessible_update_property (GTK_ACCESSIBLE (button),
+                                        GTK_ACCESSIBLE_PROPERTY_LABEL, label,
+                                        -1);
+    }
+    else {
+        gtk_button_set_label (GTK_BUTTON (button), label);
+    }
     gtk_button_set_has_frame (GTK_BUTTON (button), FALSE);
     gtk_widget_set_tooltip_text (button, tooltip);
 
