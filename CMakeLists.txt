@@ -186,8 +186,11 @@ find_program(DPKG_SHLIBDEPS_EXECUTABLE dpkg-shlibdeps)
 if(DPKG_SHLIBDEPS_EXECUTABLE)
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 else()
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-4-1 (>= 4.14), libglib2.0-0")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libgtk-4-1 (>= 4.14), libgdk-pixbuf-2.0-0, libglib2.0-0")
 endif()
+# Loader for the embedded SVG toolbar icons, not a linked library.
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "librsvg2-common")
 # CPack falls back to "i386" when dpkg is missing, so map the common
 # architectures by hand.
 find_program(DPKG_EXECUTABLE dpkg)
@@ -210,6 +213,8 @@ set(CPACK_RPM_PACKAGE_RELEASE_DIST ON)
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/File")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION}")
+# Loader for the embedded SVG toolbar icons, not a linked library.
+set(CPACK_RPM_PACKAGE_SUGGESTS "librsvg2")
 # Directories owned by the system "filesystem" package, not by sfrename.
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
     /usr/share/applications
