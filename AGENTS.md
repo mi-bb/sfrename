@@ -49,7 +49,7 @@ Run the built binary directly:
 GTest (GLib Testing, `glib.h`) — no extra dependency, GLib comes via GTK.
 
 ```sh
-ctest --test-dir build                                  # all four suites
+ctest --test-dir build                                  # all five suites
 ctest --test-dir build -R rconfig                       # single suite
 ./build/test_string_functions -p /string_functions/get_valid_length/ascii     # single GTest case
 ```
@@ -58,9 +58,10 @@ CTest names drop the `test_` prefix of the source files. The test binaries
 are built by the normal `cmake --build build`.
 
 - Tests cover only the GTK-independent logic layer: `string_functions.c`, `namefn.c`,
-  `rconfig.c`, and the `rdelete`/`rinsovr`/`rreplace`/`rnumber` settings
-  structs. GTK-facing code (`sfrename.c`, `rfnames.c`, `rfitem.c`, `dialogs.c`)
-  has no automated coverage and relies on manual/UI verification.
+  `rconfig.c`, `rrename.c`, the widget-free state of `RFitem`, and the
+  `rdelete`/`rinsovr`/`rreplace`/`rnumber` settings structs. GTK-facing code
+  (`sfrename.c`, `rfnames.c`, the widget parts of `rfitem.c`, `dialogs.c`) has
+  no automated coverage and relies on manual/UI verification.
 - In tests, build `RenData`/`RFnames`/`RFitem` by hand — the constructors
   `rendata_new()` / `rfitem_new_from_gfile()` create real GTK widgets and
   need a display; the functions under test never touch the widget fields.
@@ -84,8 +85,9 @@ lightweight objects with private state.
 - `sfrename.c` — `main()` creates one `RenData`, then a `GtkApplication`
   wired to `activate`/`open`/`shutdown` with `G_APPLICATION_HANDLES_OPEN`, so
   argv files arrive via the `open` signal, not `activate`. Both build the
-  same main window. On rename, callbacks iterate `RFnames`, run each active
-  `RFitem` through the `namefn_*` pipeline, then rename via GIO.
+  same main window. `G_APPLICATION_NON_UNIQUE` keeps one window and one
+  `RenData` per process. Settings changes run each checked `RFitem` through
+  the `namefn_*` pipeline; the Rename button calls `rrename_item()` on each.
 - `rendata.c/h` — top-level state, passed as GTK callback user data: the
   `RFnames` file list, one settings sub-struct per operation (`RDelete`,
   `RInsOvr`, `RReplace`, `RNumber`), and global options (case conversion,
@@ -104,8 +106,11 @@ lightweight objects with private state.
   variants.
 - `rfitem.c/h` — one entry: original name (`org_name`), pending new name
   (`new_name`), path, byte/unicode lengths for both, file type metadata
-  (symlink/hidden/`GFileType`), and the row's widgets (entry, checkbutton,
-  restore/delete buttons).
+  (symlink/hidden/`GFileType`), checked state, and the row's widgets (entry,
+  checkbutton, restore/delete buttons). `new_name` and `checked` are the
+  source of truth; the widgets mirror them, so logic must not read widgets.
+- `rrename.c/h` — renames on disk: `rrename_file()` for one path,
+  `rrename_item()` for a checked `RFitem`, updating its names from the result.
 - Per-operation settings structs, each mirroring one dialog section:
   `RDelete` (delete N chars at a position), `RInsOvr` (insert/overwrite a
   string at a position), `RReplace` (find/replace substring), `RNumber`
