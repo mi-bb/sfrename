@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  RDelete struncture and functions.
+ * @brief  RDelete structure and functions.
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
