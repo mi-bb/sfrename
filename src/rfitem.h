@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  RFitem struncture and functions.
+ * @brief  RFitem structure and functions.
  * 
  * @author Michal Babik <michal.babik@protonmail.com>
  */
@@ -32,7 +32,8 @@
  * @brief  Single file name item with name strings and widgets
  *
  * @var   RFitem::new_name
- * @brief New (after change) file name string
+ * @brief Pending file name, holds up to FN_U8_LEN bytes. This is the name a
+ *        rename uses; the entry only displays and edits it
  * @var   RFitem::org_name
  * @brief Original file name string
  * @var   RFitem::path
@@ -51,18 +52,25 @@
  * @brief Is file / dir a symbolic link
  * @var   RFitem::is_hidden
  * @brief Is file / dir hidden
+ * @var   RFitem::checked
+ * @brief Is item active for name change; the check button mirrors this value
+ * @var   RFitem::object
+ * @brief Object representing this item in the list model, owned by the item
  * @var   RFitem::label
- * @brief Label showing file type
+ * @brief Label showing file type, null while the item has no visible row
  * @var   RFitem::entry
- * @brief Entry for file name
+ * @brief Entry for file name, null while the item has no visible row
  * @var   RFitem::check_button
- * @brief Checkbutton to set file active for name change
+ * @brief Checkbutton to set file active for name change, null while the item
+ *        has no visible row
  * @var   RFitem::restore_button
- * @brief Button to restore original file name
+ * @brief Button to restore original file name, null while the item has no
+ *        visible row
  * @var   RFitem::delete_button
- * @brief Button to delete file item from list
+ * @brief Button to delete file item from list, null while the item has no
+ *        visible row
  * @var   RFitem::box
- * @brief Box with all file widgets
+ * @brief Row with all file widgets, null while the item has no visible row
  */
 typedef struct
 RFitem {
@@ -76,6 +84,8 @@ RFitem {
     GFileType  file_type;
     bool       is_symlink;
     bool       is_hidden;
+    bool       checked;
+    GObject   *object;
     GtkWidget *label;
     GtkWidget *entry;
     GtkWidget *check_button;
@@ -104,29 +114,55 @@ RFitem {
 /*----------------------------------------------------------------------------*/
 /**
  * @fn            void rfitem_free (RFitem *item)
- * @brief         Free allocated memory.
- * @param[in,out] item Pointer to RFitem object
- * @return        none
- *
- * @fn            void rfitem_delete (RFitem *item)
- * @brief         Free allocated memory and delete widgets.
+ * @brief         Free allocated memory. The item must not be bound to a row.
  * @param[in,out] item Pointer to RFitem object
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-void rfitem_free   (RFitem *item);
+void rfitem_free (RFitem *item);
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn         GtkWidget * rfitem_row_new (void)
+ * @brief      Create widgets of a list row, not showing any item yet.
+ * @return     Row widget
+ *
+ * @fn            void rfitem_row_bind (RFitem *item, GtkWidget *row)
+ * @brief         Show item in a row and connect the row's widgets to it.
+ * @param[in,out] item Pointer to RFitem object
+ * @param[in]     row  Row made by rfitem_row_new()
+ * @return        none
+ *
+ * @fn            void rfitem_row_unbind (RFitem *item, GtkWidget *row)
+ * @brief         Disconnect a row's widgets from item.
+ *
+ * The widget pointers of the item are cleared only if it is still bound to
+ * this row: a list can bind an item to a new row before releasing the old one.
+ *
+ * @param[in,out] item Pointer to RFitem object
+ * @param[in]     row  Row to disconnect
+ * @return        none
+ */
+/*----------------------------------------------------------------------------*/
+[[nodiscard]] GtkWidget * rfitem_row_new (void)
+              __attribute__ ((returns_nonnull));
 
-void rfitem_delete (RFitem *item);
+void rfitem_row_bind   (RFitem    *item,
+                        GtkWidget *row)
+                       __attribute__ ((nonnull (1, 2)));
+
+void rfitem_row_unbind (RFitem    *item,
+                        GtkWidget *row)
+                       __attribute__ ((nonnull (1, 2)));
 /*----------------------------------------------------------------------------*/
 /**
  * @fn         bool rfitem_get_checked (RFitem *item)
- * @brief      Get check button checked value.
+ * @brief      Get item checked value.
  * @param[in]  item Pointer to RFitem object
  * @return     Checked value
  *
  * @fn         void rfitem_set_checked (RFitem     *item,
  *                                      const bool  val)
- * @brief      Set check button checked value.
+ * @brief      Set item checked value and update check button, if there is one.
  * @param[out] item  Pointer to RFitem object
  * @param[in]  val   Check value
  * @return     none
@@ -138,13 +174,11 @@ void rfitem_delete (RFitem *item);
  */
 /*----------------------------------------------------------------------------*/
 static inline bool rfitem_get_checked     (const RFitem   *item) {
-    return gtk_toggle_button_get_active (
-                GTK_TOGGLE_BUTTON (item->check_button));
+    return item->checked;
 }
-static inline void rfitem_set_checked     (RFitem         *item,
-                                           const bool      val) {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button), val);
-}
+void     rfitem_set_checked    (RFitem         *item,
+                                const bool      val);
+
 void     rfitem_invert_checked (RFitem         *item);
 /*----------------------------------------------------------------------------*/
 /**
@@ -159,7 +193,19 @@ void     rfitem_invert_checked (RFitem         *item);
  *
  * @brief  Copy new_name string and length values to org_name.
  *
+ * The value is truncated to FN_LEN bytes.
+ *
  * @param[in]  item  RFitem object
+ * @return     none
+ *
+ * @fn  void rfitem_set_new_name (RFitem *item, const char *val)
+ *
+ * @brief  Set new_name string and length values.
+ *
+ * The value is truncated to FN_U8_LEN bytes, on a UTF-8 character boundary.
+ *
+ * @param[out] item  RFitem object
+ * @param[in]  val   New new_name value
  * @return     none
  *
  * @fn  void rfitem_set_org_name (RFitem *item, const char *val)
@@ -178,7 +224,11 @@ void     rfitem_set_new_name_from_org_name (RFitem *item);
 
 void     rfitem_set_org_name_from_new_name (RFitem *item);
 
-void     rfitem_set_org_name               (RFitem     *item,
+void     rfitem_set_new_name               (RFitem     *item,
+                                            const char *val)
+                                           __attribute__ ((nonnull (1, 2)));
+
+void     rfitem_set_org_name             (RFitem     *item,
                                             const char *val)
                                            __attribute__ ((nonnull (1, 2)));
 /*----------------------------------------------------------------------------*/
@@ -210,33 +260,21 @@ static inline const char * rfitem_get_path (const RFitem *item) {
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn        const char * rfitem_entry_get_text (RFitem *item)
- * @brief     Get text from entry.
- * @param[in] item RFitem with entry
- * @return    String with entry text
- *
  * @fn            void rfitem_entry_restore (RFitem *item)
- * @brief         Restore original file name to entry
+ * @brief         Set new_name back to the original name and show it in entry.
  * @param[in,out] item Pointer to RFitem object
  * @return        none
  *
- * @fn            void rfitem_entry_check_and_update (RFitem     *item,
-                                                      const char *new_str)
- * @brief         Checks if the new entry text is equal to the previous value
- *                and changes it to a new value if it is not.
+ * @fn            void rfitem_entry_sync (RFitem *item)
+ * @brief         Show new_name in the entry, if there is one and its text
+ *                differs.
  * @param[in,out] item RFitem with entry
- * @param[in]     new_str New entry value
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-static inline const char * rfitem_entry_get_text (const RFitem *item) {
-    return gtk_entry_get_text (GTK_ENTRY (item->entry));
-}
-static inline void         rfitem_entry_restore  (RFitem       *item) {
-    gtk_entry_set_text (GTK_ENTRY (item->entry), item->org_name);
-}
-void rfitem_entry_check_and_update (RFitem       *item,
-                                    const char   *new_str);
+void rfitem_entry_restore (RFitem *item);
+
+void rfitem_entry_sync    (RFitem *item);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Compare 2 RFitem objects.

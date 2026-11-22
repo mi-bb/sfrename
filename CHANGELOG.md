@@ -20,6 +20,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** the program now uses GTK 4. Building and running it requires
+  GTK 4.14 or later, and GTK+ 3 is no longer supported.
+- The file list creates widgets only for visible rows. Large lists open
+  several times faster and use much less memory.
+- The options for adding files from a folder moved from the folder dialog to
+  the ADD button's dropdown, which stays open while they are changed. They
+  are remembered as soon as they are changed.
+- Enter runs Rename from a text or number field. On a focused button or
+  checkbox it now activates only that control.
+- Escape closes an open menu first, and the window only when no menu is open.
+- Items in the SEL, RES and DEL menus no longer have icons.
+- The window manager now decides where the window opens.
+
+### Fixed
+
+- The tooltip of a file name showed the old path after a rename.
+- Rename also renamed files whose checkbox was off, if their entry held a
+  different name. Only checked files are renamed now.
+- Starting the program while it was already running added the new files to
+  the running process, where both windows shared one file list and Rename
+  could act on files from the other window. Every run is now independent.
+- Adding a folder containing an unreadable subfolder could crash the
+  program. Such a folder is now skipped with a message on standard error.
+- A recursive folder scan with symlinks selected followed links to
+  directories, so a link back to a parent folder added the same files again
+  and crashed the program. Links are still listed, but the scan no longer
+  enters them.
+
+### Security
+
+- Adding a file from a directory path longer than 255 bytes overflowed a
+  heap buffer. The path buffer now has the size of the path.
+
 ## [1.3.2] - 2026-11-14
 
 ### Fixed
@@ -559,7 +596,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 The project's history predates this changelog's version tracking; the
 first commit (`sfrename.c`, 2019-01-25) was the initial release.
 
-[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/mi-bb/sfrename/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/mi-bb/sfrename/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/mi-bb/sfrename/compare/v1.2.10...v1.3.0
 [1.2.10]: https://github.com/mi-bb/sfrename/releases/tag/v1.2.10

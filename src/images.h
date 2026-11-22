@@ -25,7 +25,7 @@
 #define IMAGES_H
 
 #include <stdint.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gdk/gdk.h>
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  enum for icons and images
@@ -49,8 +49,8 @@ typedef enum IconImg : uint_fast8_t {
  * @brief  Get image from stored data.
  *
  * @param[in]  image_no  Image number
- * @return     Pixbuf with image
+ * @return     Texture with image, or nullptr if it could not be loaded
  */
-GdkPixbuf *get_image (const IconImg image_no);
+GdkTexture *get_image (const IconImg image_no);
 /*----------------------------------------------------------------------------*/
 #endif

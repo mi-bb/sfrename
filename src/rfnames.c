@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Small File Renamer.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @brief  RFnames struncture and functions.
+ * @brief  RFnames structure and functions.
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
@@ -25,6 +25,32 @@
 #include <err.h>
 #include "defs.h"
 #include "rfnames.h"
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Object holding one RFitem in the list model.
+ *
+ * The pointer is cleared before the item is freed, because the view can
+ * release its row after that.
+ */
+#define RF_TYPE_ROW_ITEM (rf_row_item_get_type ())
+G_DECLARE_FINAL_TYPE (RFRowItem, rf_row_item, RF, ROW_ITEM, GObject)
+
+struct _RFRowItem {
+    GObject  parent_instance;
+    RFitem  *item;
+};
+
+G_DEFINE_FINAL_TYPE (RFRowItem, rf_row_item, G_TYPE_OBJECT)
+
+static void
+rf_row_item_class_init ([[maybe_unused]] RFRowItemClass *klass)
+{
+}
+
+static void
+rf_row_item_init ([[maybe_unused]] RFRowItem *self)
+{
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  RFnames initialization.
@@ -123,8 +149,24 @@ rfnames_new (void)
         err (EXIT_FAILURE, nullptr);
 
     rfnames_init (names);
+    names->store = g_list_store_new (RF_TYPE_ROW_ITEM);
 
     return names;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Disconnect item from its row and from the list model object.
+ *
+ * @param[in,out] item RFitem object about to be freed
+ * @return        none
+ */
+static void
+rfnames_detach_item (RFitem *item)
+{
+    if (item->box != nullptr)
+        rfitem_row_unbind (item, item->box);
+
+    RF_ROW_ITEM (item->object)->item = nullptr;
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -134,9 +176,11 @@ void
 rfnames_free (RFnames *names)
 {
     while (names->cnt--) {
+        rfnames_detach_item (names->items[names->cnt]);
         rfitem_free (names->items[names->cnt]);
     }
     free (names->items);
+    g_clear_object (&names->store);
     free (names);
 }
 /*----------------------------------------------------------------------------*/
@@ -167,6 +211,11 @@ rfnames_append (RFnames *names,
         }
     }
     names->items[names->cnt++] = item;
+
+    RFRowItem *row_item = g_object_new (RF_TYPE_ROW_ITEM, nullptr);
+    row_item->item = item;
+    item->object = G_OBJECT (row_item);
+    g_list_store_append (names->store, row_item);
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -176,26 +225,20 @@ static void
 rfnames_delete_at_pos (RFnames             *names,
                        const uint_fast32_t  pos)
 {
-    RFitem    **tmp = nullptr;
-    GtkWidget *item_box;
-    GtkBox    *parent_box;
+    RFitem **tmp = nullptr;
 
     if (pos >= names->cnt || names->cnt == 0)
         return;
 
-    /* Get item box and parent list box */
-    item_box = names->items[pos]->box;
-    parent_box = GTK_BOX (gtk_widget_get_parent (item_box));
-
-    rfitem_delete (names->items[pos]);
+    rfnames_detach_item (names->items[pos]);
+    g_list_store_remove (names->store, (guint) pos);
+    rfitem_free (names->items[pos]);
 
     names->cnt -= 1;
 
-    /* Reorder items on the list and on the box widget */
+    /* Close the gap on the list, the model already did */
     for (uint_fast32_t i = pos; i < names->cnt; ++i) {
         names->items[i] = names->items[i+1];
-        item_box = names->items[i]->box;
-        gtk_box_reorder_child (parent_box, item_box, (gint) i);
     }
 
     if (names->cnt == 0) {
@@ -207,7 +250,7 @@ rfnames_delete_at_pos (RFnames             *names,
     tmp = realloc (names->items, (names->cnt) * sizeof (RFitem*));
     if (tmp == nullptr) {
         /* The item at index names->cnt is stale: either already freed
-         * by rfitem_delete() above, or a duplicate of index cnt-1 left
+         * by rfitem_free() above, or a duplicate of index cnt-1 left
          * behind by the reorder loop. Only the cnt live entries need
          * freeing here. */
         for (uint_fast32_t i = 0; i < names->cnt; ++i) {
@@ -237,21 +280,143 @@ event_click_del (GtkWidget *widget,
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Append file to RFnames.
+ * @brief  Give focus to an entry from the main loop.
+ *
+ * Rows are bound during layout, when focus can not be changed.
+ *
+ * @param[in] data Entry widget
+ * @return    G_SOURCE_REMOVE
+ */
+static gboolean
+focus_entry_idle (gpointer data)
+{
+    gtk_widget_grab_focus (GTK_WIDGET (data));
+    return G_SOURCE_REMOVE;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  New row widget needed by the list view.
+ *
+ * @param[in] factory Unused list item factory
+ * @param[in] object  GtkListItem to fill
+ * @param[in] names   RFnames object passed to the row's delete button
+ * @return    none
+ */
+static void
+event_row_setup ([[maybe_unused]] GtkSignalListItemFactory *factory,
+                 GObject *object,
+                 RFnames *names)
+{
+    GtkListItem *list_item = GTK_LIST_ITEM (object);
+    GtkWidget   *row       = rfitem_row_new ();
+
+    /* Rows are not selected or activated, only the widgets in them are used */
+    gtk_list_item_set_selectable (list_item, FALSE);
+    gtk_list_item_set_activatable (list_item, FALSE);
+    gtk_list_item_set_focusable (list_item, FALSE);
+    gtk_list_item_set_child (list_item, row);
+
+    g_signal_connect (gtk_widget_get_last_child (row), "clicked",
+                      G_CALLBACK (event_click_del), names);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Row starts showing an item.
+ *
+ * @param[in]     factory Unused list item factory
+ * @param[in]     object  GtkListItem with the row
+ * @param[in,out] names   RFnames object
+ * @return        none
+ */
+static void
+event_row_bind ([[maybe_unused]] GtkSignalListItemFactory *factory,
+                GObject *object,
+                RFnames *names)
+{
+    GtkListItem *list_item = GTK_LIST_ITEM (object);
+    RFRowItem   *row_item  = gtk_list_item_get_item (list_item);
+
+    if (row_item->item == nullptr)
+        return;
+
+    rfitem_row_bind (row_item->item, gtk_list_item_get_child (list_item));
+
+    if (names->focus_first && names->cnt > 0 &&
+        names->items[0] == row_item->item) {
+        names->focus_first = false;
+        g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, focus_entry_idle,
+                         g_object_ref (row_item->item->entry), g_object_unref);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Row stops showing an item.
+ *
+ * @param[in] factory Unused list item factory
+ * @param[in] object  GtkListItem with the row
+ * @param[in] names   Unused RFnames object
+ * @return    none
+ */
+static void
+event_row_unbind ([[maybe_unused]] GtkSignalListItemFactory *factory,
+                  GObject *object,
+                  [[maybe_unused]] RFnames *names)
+{
+    GtkListItem *list_item = GTK_LIST_ITEM (object);
+    RFRowItem   *row_item  = gtk_list_item_get_item (list_item);
+
+    if (row_item != nullptr && row_item->item != nullptr) {
+        rfitem_row_unbind (row_item->item,
+                           gtk_list_item_get_child (list_item));
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Create the list view showing the items.
  */
 GtkWidget *
-rfnames_append_gfile (RFnames *names,
-                      GFile   *g_file)
+rfnames_create_view (RFnames *names)
 {
-    RFitem *item;
-   
-    item = rfitem_new_from_gfile (g_file);
-    rfnames_append (names, item);
+    GtkListItemFactory *factory = gtk_signal_list_item_factory_new ();
+    GtkCssProvider     *css     = gtk_css_provider_new ();
+    GtkNoSelection     *model;
 
-    g_signal_connect (G_OBJECT (item->delete_button), "clicked",
-                      G_CALLBACK (event_click_del), names);
+    g_signal_connect (factory, "setup", G_CALLBACK (event_row_setup), names);
+    g_signal_connect (factory, "bind", G_CALLBACK (event_row_bind), names);
+    g_signal_connect (factory, "unbind", G_CALLBACK (event_row_unbind), names);
 
-    return item->box;
+    model = gtk_no_selection_new (G_LIST_MODEL (g_object_ref (names->store)));
+    /* The view takes ownership of the model and factory */
+    names->view = gtk_list_view_new (GTK_SELECTION_MODEL (model), factory);
+    /* Rows are plain widgets on the window background, not a data view */
+    gtk_widget_add_css_class (names->view, "file-list");
+    gtk_css_provider_load_from_string (css,
+            "listview.file-list, listview.file-list > row "
+            "{ background: none; }");
+    gtk_style_context_add_provider_for_display (
+            gtk_widget_get_display (names->view),
+            GTK_STYLE_PROVIDER (css),
+            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref (css);
+
+    return names->view;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Give focus to the entry of the first item.
+ */
+void
+rfnames_focus_first (RFnames *names)
+{
+    if (names->cnt == 0)
+        return;
+
+    if (names->items[0]->entry != nullptr) {
+        gtk_widget_grab_focus (names->items[0]->entry);
+    }
+    else {
+        names->focus_first = true;
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -259,31 +424,16 @@ rfnames_append_gfile (RFnames *names,
  *         to RFnames item.
  */
 void
-rfnames_add_gfile_to_file_box (RFnames *names,
-                               GFile   *g_file)
+rfnames_add_gfile (RFnames *names,
+                   GFile   *g_file)
 {
-    /* Create and append file widgets (entry, check button, buttons) to file
-     * list, get box widget with them */
-    auto widget = rfnames_append_gfile (names, g_file);
-    gtk_widget_show_all (widget);
-    /* Add box to the container */
-    gtk_box_pack_start (
-            GTK_BOX (names->file_box),
-            widget,
-            FALSE, FALSE, 0);
-}
-/*----------------------------------------------------------------------------*/
-/**
- * @brief  Create new RFitem object using data from file_path string and add it
- *         to RFnames item.
- */
-void
-rfnames_add_file_path_to_file_box (RFnames    *names,
-                                   const char *file_path)
-{
-    auto g_file = g_file_new_for_path (file_path);
-    rfnames_add_gfile_to_file_box (names, g_file);
-    g_object_unref (g_file);
+    /* GTK4 file dialogs can return remote files, RFitem needs a local path */
+    if (g_file_peek_path (g_file) == nullptr) {
+        g_autofree char *name = g_file_get_parse_name (g_file);
+        g_printerr ("Skipping %s: not a local file\n", name);
+        return;
+    }
+    rfnames_append (names, rfitem_new_from_gfile (g_file));
 }
 /*----------------------------------------------------------------------------*/
 /**
@@ -595,7 +745,7 @@ rfitem_compare_glist (gconstpointer a,
 void
 rfnames_sort (RFnames *names)
 {
-    GtkBox *parent_box;
+    GObject **objects;
     GList  *sorted       = nullptr;
     GList  *node         = nullptr;
     GList  *dirs         = nullptr;
@@ -635,18 +785,22 @@ rfnames_sort (RFnames *names)
     sorted = g_list_concat (sorted, hidden_files);
     sorted = g_list_concat (sorted, files);
 
-    parent_box = GTK_BOX (gtk_widget_get_parent (names->items[0]->box));
-
     node = sorted;
+    objects = g_new (GObject *, names->cnt);
 
     while (node != nullptr) {
         RFitem *item = node->data;
-        gtk_box_reorder_child (parent_box, item->box, j);
         names->items[j] = item;
+        objects[j] = item->object;
         node = node->next;
         ++j;
     }
     g_list_free (sorted);
+
+    /* Put the same objects back in the new order */
+    g_list_store_splice (names->store, 0, (guint) names->cnt,
+                         (gpointer *) objects, (guint) names->cnt);
+    g_free (objects);
 }
 /*----------------------------------------------------------------------------*/
 

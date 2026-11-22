@@ -35,7 +35,7 @@ if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS
 endif()
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0>=3.22)
+pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk4>=4.14 gdk-pixbuf-2.0)
 
 add_executable(sfrename
     src/sfrename.c
@@ -47,6 +47,7 @@ add_executable(sfrename
     src/rconfig.c
     src/rfnames.c
     src/rfitem.c
+    src/rrename.c
     src/namefn.c
     src/string_functions.c
     src/dialogs.c
@@ -54,7 +55,11 @@ add_executable(sfrename
 )
 
 target_link_libraries(sfrename PRIVATE PkgConfig::GTK)
-target_compile_definitions(sfrename PRIVATE G_DISABLE_DEPRECATED)
+# Warn about GTK API that is deprecated in, or newer than, the minimum version.
+target_compile_definitions(sfrename PRIVATE
+    G_DISABLE_DEPRECATED
+    GDK_VERSION_MIN_REQUIRED=GDK_VERSION_4_14
+    GDK_VERSION_MAX_ALLOWED=GDK_VERSION_4_14)
 
 include(GNUInstallDirs)
 install(TARGETS sfrename RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -119,6 +124,24 @@ if(BUILD_TESTING)
     target_include_directories(test_rconfig PRIVATE src)
     target_link_libraries(test_rconfig PRIVATE PkgConfig::GTK)
     add_test(NAME rconfig COMMAND test_rconfig)
+
+    add_executable(test_rrename
+        tests/test_rrename.c
+        src/rrename.c
+        src/rfitem.c
+    )
+    target_include_directories(test_rrename PRIVATE src)
+    target_link_libraries(test_rrename PRIVATE PkgConfig::GTK)
+    add_test(NAME rrename COMMAND test_rrename)
+
+    add_executable(test_rfnames
+        tests/test_rfnames.c
+        src/rfnames.c
+        src/rfitem.c
+    )
+    target_include_directories(test_rfnames PRIVATE src)
+    target_link_libraries(test_rfnames PRIVATE PkgConfig::GTK)
+    add_test(NAME rfnames COMMAND test_rfnames)
 endif()
 
 # Packaging with CPack, run from the build directory:
@@ -142,7 +165,7 @@ endif()
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.nongnu.org/small-file-renamer/")
 set(CPACK_PACKAGE_DESCRIPTION
-"Small File Renamer is a GTK+3 application for renaming files and
+"Small File Renamer is a GTK4 application for renaming files and
 directories in batch: deleting, inserting, overwriting and replacing text,
 numbering, changing case and converting spaces to underscores. It works
 standalone, with files passed on the command line, or from Midnight
@@ -163,8 +186,11 @@ find_program(DPKG_SHLIBDEPS_EXECUTABLE dpkg-shlibdeps)
 if(DPKG_SHLIBDEPS_EXECUTABLE)
     set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 else()
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libgtk-3-0 (>= 3.22), libglib2.0-0")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libgtk-4-1 (>= 4.14), libgdk-pixbuf-2.0-0, libglib2.0-0")
 endif()
+# Loader for the embedded SVG toolbar icons, not a linked library.
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "librsvg2-common")
 # CPack falls back to "i386" when dpkg is missing, so map the common
 # architectures by hand.
 find_program(DPKG_EXECUTABLE dpkg)
@@ -187,6 +213,8 @@ set(CPACK_RPM_PACKAGE_RELEASE_DIST ON)
 set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/File")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION}")
+# Loader for the embedded SVG toolbar icons, not a linked library.
+set(CPACK_RPM_PACKAGE_SUGGESTS "librsvg2")
 # Directories owned by the system "filesystem" package, not by sfrename.
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
     /usr/share/applications
@@ -207,6 +235,6 @@ set(CPACK_SOURCE_IGNORE_FILES
 )
 set(CPACK_PACKAGE_VENDOR "Michal Babik")
 set(CPACK_PACKAGE_CONTACT "michal.babik@protonmail.com")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Batch file and directory renamer for GTK+3")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Batch file and directory renamer for GTK4")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 include(CPack)

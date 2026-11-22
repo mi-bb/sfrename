@@ -20,11 +20,9 @@
  * @brief  Unit tests for namefn.c
  *
  * These tests build RenData/RFnames/RFitem and settings structs by hand,
- * without going through rendata_new()/rfitem_new_from_gfile(). Those
- * constructors create real GTK widgets and need a display; namefn.c never
- * touches the widget fields (it only reads/writes the plain new_name buffer
- * and the settings getters), so a zero-initialized fixture is sufficient
- * and keeps these tests headless.
+ * so they need no real files. namefn.c never touches the widget fields (it
+ * only reads/writes the plain new_name buffer and the settings getters), so
+ * a zero-initialized fixture is sufficient and keeps these tests headless.
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */

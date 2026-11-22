@@ -25,33 +25,63 @@
 #define DIALOGS_H
 /*----------------------------------------------------------------------------*/
 #include <gtk/gtk.h>
-#include "defs.h"   /* FOLDER_SELECT_* flags */
 /*----------------------------------------------------------------------------*/
 /**
- * @fn  char * add_files_folder_dialog (GtkWindow *parent, int *options)
- * @brief         Select folder dialog.
- * @param[in]     parent  Dialog parent widget
- * @param[in,out] options Pointer to int value with options for selecting
- *                        files/dirs
- * @return        Foler path or nullptr.
+ * @brief  Called with the files chosen in the select files dialog.
  *
- * @fn  GSList * add_files_dialog (GtkWindow *parent)
- * @brief     Select files dialog.
- * @param[in] parent  Dialog parent widget
- * @return    List with files.
+ * Not called if the dialog was dismissed or its parent window was destroyed.
  *
- * @fn  void about_app_dialog (void);
- * @brief     Dialog with information about application.
- * @param[in] data  Unused pointer for event call
+ * @param[in]     files     List model of GFile objects, owned by the caller
+ * @param[in,out] user_data User data passed to add_files_dialog()
+ */
+typedef void (*DialogFilesFunc)  (GListModel *files,
+                                  gpointer    user_data);
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Called with the folder chosen in the select folder dialog.
+ *
+ * Not called if the dialog was dismissed or its parent window was destroyed.
+ *
+ * @param[in]     folder    Chosen folder, owned by the caller
+ * @param[in,out] user_data User data passed to add_files_folder_dialog()
+ */
+typedef void (*DialogFolderFunc) (GFile    *folder,
+                                  gpointer  user_data);
+/*----------------------------------------------------------------------------*/
+/**
+ * @fn  void add_files_folder_dialog (GtkWindow        *parent,
+ *                                    DialogFolderFunc  callback,
+ *                                    gpointer          user_data)
+ * @brief         Show select folder dialog, returns before it is closed.
+ * @param[in]     parent    Dialog parent window
+ * @param[in]     callback  Function to call with the chosen folder
+ * @param[in,out] user_data Data for callback
+ * @return        none
+ *
+ * @fn  void add_files_dialog (GtkWindow       *parent,
+ *                             DialogFilesFunc  callback,
+ *                             gpointer         user_data)
+ * @brief         Show select files dialog, returns before it is closed.
+ * @param[in]     parent    Dialog parent window
+ * @param[in]     callback  Function to call with the chosen files
+ * @param[in,out] user_data Data for callback
+ * @return        none
+ *
+ * @fn  void about_app_dialog (GtkWindow *parent)
+ * @brief     Show dialog with information about application.
+ * @param[in] parent  Dialog parent window
  * @return    none
  */
 /*----------------------------------------------------------------------------*/
-char   * add_files_folder_dialog (GtkWindow  *parent,
-                                  int        *options);
+void add_files_folder_dialog (GtkWindow        *parent,
+                              DialogFolderFunc  callback,
+                              gpointer          user_data);
 
-GSList * add_files_dialog        (GtkWindow  *parent);
+void add_files_dialog        (GtkWindow        *parent,
+                              DialogFilesFunc   callback,
+                              gpointer          user_data);
 
-void     about_app_dialog        (gpointer    data);
+void about_app_dialog        (GtkWindow        *parent);
 /*----------------------------------------------------------------------------*/
 #endif
 

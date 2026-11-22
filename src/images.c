@@ -21,6 +21,7 @@
  *
  * @author Michal Babik <michal.babik@protonmail.com>
  */
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include "images.h"
 /*----------------------------------------------------------------------------*/
 /**
@@ -716,12 +717,40 @@ pbuf_from_data (const unsigned char *data,
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Make texture from pixbuf and release the pixbuf.
+ *
+ * @param[in]  pixbuf  Pixbuf to convert, can be nullptr
+ * @return     Texture with image or nullptr
+ */
+static GdkTexture *
+texture_from_pixbuf (GdkPixbuf *pixbuf)
+{
+    GdkTexture *texture;
+    GBytes     *bytes;
+
+    if (pixbuf == nullptr)
+        return nullptr;
+
+    bytes = gdk_pixbuf_read_pixel_bytes (pixbuf);
+    texture = gdk_memory_texture_new (gdk_pixbuf_get_width (pixbuf),
+                                      gdk_pixbuf_get_height (pixbuf),
+                                      gdk_pixbuf_get_has_alpha (pixbuf) ?
+                                      GDK_MEMORY_R8G8B8A8 : GDK_MEMORY_R8G8B8,
+                                      bytes,
+                                      (gsize) gdk_pixbuf_get_rowstride (pixbuf));
+    g_bytes_unref (bytes);
+    g_object_unref (pixbuf);
+
+    return texture;
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Get image from stored data.
  */
-GdkPixbuf *
+GdkTexture *
 get_image (const IconImg image_no)
 {
-    GdkPixbuf *pixbuf = nullptr; /* Return pixbuf */
+    GdkPixbuf *pixbuf = nullptr; /* Decoded image */
 
     switch (image_no) {
 
@@ -793,7 +822,7 @@ get_image (const IconImg image_no)
         default:
             break;
     }
-    return pixbuf;
+    return texture_from_pixbuf (pixbuf);
 }
 /*----------------------------------------------------------------------------*/
 
