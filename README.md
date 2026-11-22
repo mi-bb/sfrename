@@ -14,11 +14,7 @@
 * [Installation](#installation)
   * [Basic installation](#basic-installation)
   * [Installing for the current user](#installing-for-the-current-user)
-  * [Compilers and options](#compilers-and-options)
-  * [Running the tests](#running-the-tests)
   * [Uninstalling](#uninstalling)
-  * [Making binary packages](#making-binary-packages)
-  * [Making a source package](#making-a-source-package)
 * [Running](#running)
 * [License](#license)
 
