@@ -56,8 +56,6 @@ sudo cmake --install build/release
 
 `release` builds optimized with the prefix set to `/usr`
 
-* `-march=native` enables all instruction subsets supported by the local
-  machine.
 * `-O2` sets the code optimization level to O2.
 * `-pipe` uses pipes rather than temporary files for communication between
   the various stages of compilation.
