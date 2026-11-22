@@ -32,7 +32,8 @@
  * @brief  Single file name item with name strings and widgets
  *
  * @var   RFitem::new_name
- * @brief New (after change) file name string
+ * @brief Pending file name, holds up to FN_U8_LEN bytes. This is the name a
+ *        rename uses; the entry only displays and edits it
  * @var   RFitem::org_name
  * @brief Original file name string
  * @var   RFitem::path
@@ -51,6 +52,8 @@
  * @brief Is file / dir a symbolic link
  * @var   RFitem::is_hidden
  * @brief Is file / dir hidden
+ * @var   RFitem::checked
+ * @brief Is item active for name change; the check button mirrors this value
  * @var   RFitem::label
  * @brief Label showing file type
  * @var   RFitem::entry
@@ -76,6 +79,7 @@ RFitem {
     GFileType  file_type;
     bool       is_symlink;
     bool       is_hidden;
+    bool       checked;
     GtkWidget *label;
     GtkWidget *entry;
     GtkWidget *check_button;
@@ -120,13 +124,13 @@ void rfitem_delete (RFitem *item);
 /*----------------------------------------------------------------------------*/
 /**
  * @fn         bool rfitem_get_checked (RFitem *item)
- * @brief      Get check button checked value.
+ * @brief      Get item checked value.
  * @param[in]  item Pointer to RFitem object
  * @return     Checked value
  *
  * @fn         void rfitem_set_checked (RFitem     *item,
  *                                      const bool  val)
- * @brief      Set check button checked value.
+ * @brief      Set item checked value and update check button, if there is one.
  * @param[out] item  Pointer to RFitem object
  * @param[in]  val   Check value
  * @return     none
@@ -138,13 +142,11 @@ void rfitem_delete (RFitem *item);
  */
 /*----------------------------------------------------------------------------*/
 static inline bool rfitem_get_checked     (const RFitem   *item) {
-    return gtk_toggle_button_get_active (
-                GTK_TOGGLE_BUTTON (item->check_button));
+    return item->checked;
 }
-static inline void rfitem_set_checked     (RFitem         *item,
-                                           const bool      val) {
-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button), val);
-}
+void     rfitem_set_checked    (RFitem         *item,
+                                const bool      val);
+
 void     rfitem_invert_checked (RFitem         *item);
 /*----------------------------------------------------------------------------*/
 /**
@@ -159,7 +161,19 @@ void     rfitem_invert_checked (RFitem         *item);
  *
  * @brief  Copy new_name string and length values to org_name.
  *
+ * The value is truncated to FN_LEN bytes.
+ *
  * @param[in]  item  RFitem object
+ * @return     none
+ *
+ * @fn  void rfitem_set_new_name (RFitem *item, const char *val)
+ *
+ * @brief  Set new_name string and length values.
+ *
+ * The value is truncated to FN_U8_LEN bytes, on a UTF-8 character boundary.
+ *
+ * @param[out] item  RFitem object
+ * @param[in]  val   New new_name value
  * @return     none
  *
  * @fn  void rfitem_set_org_name (RFitem *item, const char *val)
@@ -178,7 +192,11 @@ void     rfitem_set_new_name_from_org_name (RFitem *item);
 
 void     rfitem_set_org_name_from_new_name (RFitem *item);
 
-void     rfitem_set_org_name               (RFitem     *item,
+void     rfitem_set_new_name               (RFitem     *item,
+                                            const char *val)
+                                           __attribute__ ((nonnull (1, 2)));
+
+void     rfitem_set_org_name             (RFitem     *item,
                                             const char *val)
                                            __attribute__ ((nonnull (1, 2)));
 /*----------------------------------------------------------------------------*/
@@ -210,33 +228,21 @@ static inline const char * rfitem_get_path (const RFitem *item) {
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @fn        const char * rfitem_entry_get_text (RFitem *item)
- * @brief     Get text from entry.
- * @param[in] item RFitem with entry
- * @return    String with entry text
- *
  * @fn            void rfitem_entry_restore (RFitem *item)
- * @brief         Restore original file name to entry
+ * @brief         Set new_name back to the original name and show it in entry.
  * @param[in,out] item Pointer to RFitem object
  * @return        none
  *
- * @fn            void rfitem_entry_check_and_update (RFitem     *item,
-                                                      const char *new_str)
- * @brief         Checks if the new entry text is equal to the previous value
- *                and changes it to a new value if it is not.
+ * @fn            void rfitem_entry_sync (RFitem *item)
+ * @brief         Show new_name in the entry, if there is one and its text
+ *                differs.
  * @param[in,out] item RFitem with entry
- * @param[in]     new_str New entry value
  * @return        none
  */
 /*----------------------------------------------------------------------------*/
-static inline const char * rfitem_entry_get_text (const RFitem *item) {
-    return gtk_entry_get_text (GTK_ENTRY (item->entry));
-}
-static inline void         rfitem_entry_restore  (RFitem       *item) {
-    gtk_entry_set_text (GTK_ENTRY (item->entry), item->org_name);
-}
-void rfitem_entry_check_and_update (RFitem       *item,
-                                    const char   *new_str);
+void rfitem_entry_restore (RFitem *item);
+
+void rfitem_entry_sync    (RFitem *item);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Compare 2 RFitem objects.

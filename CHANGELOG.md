@@ -20,6 +20,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2026-11-22
+
+### Fixed
+
+- Rename also renamed files whose checkbox was off, if their entry held a
+  different name. Only checked files are renamed now.
+- Starting the program while it was already running added the new files to
+  the running process, where both windows shared one file list and Rename
+  could act on files from the other window. Every run is now independent.
+- Adding a folder containing an unreadable subfolder could crash the
+  program. Such a folder is now skipped with a message on standard error.
+- A recursive folder scan with symlinks selected followed links to
+  directories, so a link back to a parent folder added the same files again
+  and crashed the program. Links are still listed, but the scan no longer
+  enters them.
+
+### Security
+
+- Adding a file from a directory path longer than 255 bytes overflowed a
+  heap buffer. The path buffer now has the size of the path.
+
 ## [1.3.2] - 2026-11-14
 
 ### Fixed
@@ -559,7 +580,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 The project's history predates this changelog's version tracking; the
 first commit (`sfrename.c`, 2019-01-25) was the initial release.
 
-[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/mi-bb/sfrename/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/mi-bb/sfrename/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/mi-bb/sfrename/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/mi-bb/sfrename/compare/v1.2.10...v1.3.0
 [1.2.10]: https://github.com/mi-bb/sfrename/releases/tag/v1.2.10

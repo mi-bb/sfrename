@@ -39,7 +39,7 @@
  * Kept as a macro for the same reason as @c APP_NAME.
  */
 #define APP_NAME   "Small File Renamer"
-#define APP_VER    "1.3.2"
+#define APP_VER    "1.3.3"
 /*----------------------------------------------------------------------------*/
 /**
  * @var   FN_LEN
@@ -48,6 +48,13 @@
  * Deliberately @c int rather than @c size_t: it is compared against signed
  * values (see the range checks in rconfig.c), and an unsigned type would
  * silently turn those into unsigned comparisons.
+ *
+ * @var   FN_U8_LEN
+ * @brief Maximum bytes in a pending file name
+ *
+ * Entries limit text to @c FN_LEN characters, and a UTF-8 character takes up
+ * to 4 bytes. A name this long is kept so the rename can fail on it, instead
+ * of being cut down to a different name.
  *
  * @var   WIN_WIDTH
  * @brief Application window width
@@ -75,6 +82,7 @@
  * @brief Name of the JSON config file holding remembered options
  */
 constexpr int    FN_LEN          = 255;
+constexpr int    FN_U8_LEN       = FN_LEN * 4;
 constexpr int    WIN_WIDTH       = 600;
 constexpr int    WIN_HEIGHT      = 800;
 constexpr int8_t DEF_UPLO        = 2;
@@ -122,7 +130,8 @@ typedef enum RenResult : int_fast8_t {
     REN_OK,       /**< File renamed */
     REN_NOT_REN,  /**< Could not rename */
     REN_EXISTS,   /**< File already exists */
-    REN_NC        /**< No change */
+    REN_NC,       /**< No change */
+    REN_SKIP      /**< Item not checked, nothing was attempted */
 } RenResult;
 /*----------------------------------------------------------------------------*/
 #endif

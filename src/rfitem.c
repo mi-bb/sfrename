@@ -62,6 +62,20 @@
  * @param[in]  widget  The object which received the signal
  * @param[out] item    Pointer to RFitem object
  * @return     none
+ *
+ * @fn         static void event_entry_changed (GtkEntry *entry,
+                                                RFitem   *item)
+ * @brief      Entry text changed by the user, store it as the pending name.
+ * @param[in]  entry   The entry which received the signal
+ * @param[out] item    Pointer to RFitem object
+ * @return     none
+ *
+ * @fn         static void event_check_toggled (GtkToggleButton *button,
+                                                RFitem          *item)
+ * @brief      Check button toggled, store its state.
+ * @param[in]  button  The button which received the signal
+ * @param[out] item    Pointer to RFitem object
+ * @return     none
  */
 /*----------------------------------------------------------------------------*/
 static const char * get_name_dir_len        (const char *path,
@@ -79,6 +93,12 @@ static void         rfitem_free_data        (RFitem     *item);
 
 static void         event_click_rev         (GtkWidget  *widget,
                                              RFitem     *item);
+
+static void         event_entry_changed     (GtkEntry   *entry,
+                                             RFitem     *item);
+
+static void         event_check_toggled     (GtkToggleButton *button,
+                                             RFitem          *item);
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Get file name pointer and length of directory string in given
@@ -190,16 +210,18 @@ rfitem_new_from_gfile (GFile *g_file)
 
     rfitem_init (item);
 
+    f_path = g_file_peek_path (g_file);
+    f_name = get_name_dir_len (f_path, &len);
+
     item->org_name = malloc ((FN_LEN + 1) * sizeof (char));
-    item->new_name = malloc ((FN_LEN + 1) * sizeof (char));
-    item->path = malloc ((FN_LEN + 1) * sizeof (char));
+    item->new_name = malloc ((FN_U8_LEN + 1) * sizeof (char));
+    /* A directory path can be longer than a file name */
+    item->path = malloc ((len + 1) * sizeof (char));
     if (item->org_name == nullptr || item->new_name == nullptr ||
         item->path == nullptr) {
         free (item);
         err (EXIT_FAILURE, nullptr);
     }
-    f_path = g_file_peek_path (g_file);
-    f_name = get_name_dir_len (f_path, &len);
 
     f_info = g_file_query_info (g_file,
                                 "standard::*",
@@ -233,6 +255,7 @@ rfitem_new_from_gfile (GFile *g_file)
     /* Set full path as a tooltip */
     gtk_widget_set_tooltip_text (item->entry, f_path);
     /* Set item active to apply changes */
+    item->checked = true;
     gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button),
                                   TRUE);
 
@@ -273,6 +296,10 @@ rfitem_new_from_gfile (GFile *g_file)
 
     g_signal_connect (G_OBJECT (item->restore_button), "clicked",
                       G_CALLBACK (event_click_rev), item);
+    g_signal_connect (G_OBJECT (item->entry), "changed",
+                      G_CALLBACK (event_entry_changed), item);
+    g_signal_connect (G_OBJECT (item->check_button), "toggled",
+                      G_CALLBACK (event_check_toggled), item);
 
     return item;
 }
@@ -316,8 +343,9 @@ rfitem_free (RFitem *item)
 void
 rfitem_delete (RFitem *item)
 {
-    rfitem_free_data (item);
+    /* Widgets first, their signal handlers use the item data */
     gtk_widget_destroy (item->box);
+    rfitem_free_data (item);
     free (item);
 }
 /*----------------------------------------------------------------------------*/
@@ -338,22 +366,29 @@ rfitem_set_new_name_from_org_name (RFitem *item)
 void
 rfitem_set_org_name_from_new_name (RFitem *item)
 {
-    item->org_len = item->new_len;
-    item->org_u8len = item->new_u8len;
-    memcpy (item->org_name, item->new_name, item->new_len + 1);
+    rfitem_set_org_name (item, item->new_name);
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Set new_name value.
-static void
-rfitem_set_new_name (RFitem     *item,
-                 const char *val)
-{
-    item->new_len = strlen (val);
-    memcpy (item->new_name, val, item->new_len+1);
-    item->new_u8len = (size_t) g_utf8_strlen (val, -1);
-}
+ * @brief  Set new_name string and length values.
  */
+void
+rfitem_set_new_name (RFitem     *item,
+                     const char *val)
+{
+    size_t len = strlen (val);
+
+    if (len > FN_U8_LEN) {
+        len = FN_U8_LEN;
+        /* Do not leave a part of a UTF-8 character at the end */
+        while (len > 0 && ((unsigned char) val[len] & 0xC0) == 0x80)
+            --len;
+    }
+    memmove (item->new_name, val, len);
+    item->new_name[len] = '\0';
+    item->new_len = len;
+    item->new_u8len = (size_t) g_utf8_strlen (item->new_name, -1);
+}
 /*----------------------------------------------------------------------------*/
 /**
  * @brief  Set org_name string and length values.
@@ -394,6 +429,40 @@ event_click_rev ([[maybe_unused]] GtkWidget *widget,
 }
 /*----------------------------------------------------------------------------*/
 /**
+ * @brief  Entry text changed by the user, store it as the pending name.
+ */
+static void
+event_entry_changed (GtkEntry *entry,
+                     RFitem   *item)
+{
+    rfitem_set_new_name (item, gtk_entry_get_text (entry));
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Check button toggled, store its state.
+ */
+static void
+event_check_toggled (GtkToggleButton *button,
+                     RFitem          *item)
+{
+    item->checked = gtk_toggle_button_get_active (button);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Set item checked value and update check button, if there is one.
+ */
+void
+rfitem_set_checked (RFitem     *item,
+                    const bool  val)
+{
+    item->checked = val;
+    if (item->check_button != nullptr) {
+        gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (item->check_button),
+                                      val);
+    }
+}
+/*----------------------------------------------------------------------------*/
+/**
  * @brief  Invert check item check value
  */
 void
@@ -403,15 +472,37 @@ rfitem_invert_checked (RFitem *item)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Checks if the new entry text is equal to the previous value
- *         and changes it to a new value if it is not.
+ * @brief  Set new_name back to the original name and show it in entry.
  */
 void
-rfitem_entry_check_and_update (RFitem     *item,
-                               const char *new_str)
+rfitem_entry_restore (RFitem *item)
 {
-    if (strcmp (new_str, rfitem_entry_get_text (item)) != 0)
-        gtk_entry_set_text (GTK_ENTRY (item->entry), new_str);
+    rfitem_set_new_name_from_org_name (item);
+    rfitem_entry_sync (item);
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Show new_name in the entry, if there is one and its text differs.
+ *
+ * The change handler is blocked: it would write to new_name while the entry
+ * is still reading from it.
+ */
+void
+rfitem_entry_sync (RFitem *item)
+{
+    if (item->entry == nullptr)
+        return;
+
+    if (strcmp (item->new_name,
+                gtk_entry_get_text (GTK_ENTRY (item->entry))) != 0) {
+        g_signal_handlers_block_by_func (item->entry,
+                                         G_CALLBACK (event_entry_changed),
+                                         item);
+        gtk_entry_set_text (GTK_ENTRY (item->entry), item->new_name);
+        g_signal_handlers_unblock_by_func (item->entry,
+                                           G_CALLBACK (event_entry_changed),
+                                           item);
+    }
 }
 /*----------------------------------------------------------------------------*/
 /**

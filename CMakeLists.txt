@@ -18,7 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Keep VERSION in sync with APP_VER in src/defs.h; it also names the source
 # tarball produced by CPack.
-project(sfrename VERSION 1.3.2
+project(sfrename VERSION 1.3.3
     DESCRIPTION "Small File Renamer is an application for renaming files and directories."
     HOMEPAGE_URL "https://www.nongnu.org/small-file-renamer/"
     LANGUAGES C)
@@ -47,6 +47,7 @@ add_executable(sfrename
     src/rconfig.c
     src/rfnames.c
     src/rfitem.c
+    src/rrename.c
     src/namefn.c
     src/string_functions.c
     src/dialogs.c
@@ -119,6 +120,15 @@ if(BUILD_TESTING)
     target_include_directories(test_rconfig PRIVATE src)
     target_link_libraries(test_rconfig PRIVATE PkgConfig::GTK)
     add_test(NAME rconfig COMMAND test_rconfig)
+
+    add_executable(test_rrename
+        tests/test_rrename.c
+        src/rrename.c
+        src/rfitem.c
+    )
+    target_include_directories(test_rrename PRIVATE src)
+    target_link_libraries(test_rrename PRIVATE PkgConfig::GTK)
+    add_test(NAME rrename COMMAND test_rrename)
 endif()
 
 # Packaging with CPack, run from the build directory:
