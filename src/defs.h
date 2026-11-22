@@ -83,7 +83,7 @@
  */
 constexpr int    FN_LEN          = 255;
 constexpr int    FN_U8_LEN       = FN_LEN * 4;
-constexpr int    WIN_WIDTH       = 600;
+constexpr int    WIN_WIDTH       = 800;
 constexpr int    WIN_HEIGHT      = 800;
 constexpr int8_t DEF_UPLO        = 2;
 constexpr int8_t DEF_SPACES      = 2;

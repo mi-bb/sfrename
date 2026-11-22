@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Each file row now shows the original name, read-only, next to an editable
+  field with the new name, under "Original name" and "New name" column
+  headings. The window opens wider to fit both.
+
 ### Changed
 
 - **Breaking:** the program now uses GTK 4. Building and running it requires

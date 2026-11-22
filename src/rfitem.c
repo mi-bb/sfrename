@@ -46,9 +46,10 @@
  * @param[out] item Pointer to RFitem object
  * @return     none
  *
- * @fn         static void rfitem_entry_set_tooltip (RFitem *item)
- * @brief      Show the file's current full path as the entry tooltip.
- * @param[in]  item Pointer to RFitem object with an entry
+ * @fn         static void rfitem_row_show_org_name (RFitem *item)
+ * @brief      Show the original name in the label and the file's current full
+ *             path as the label and entry tooltip.
+ * @param[in]  item Pointer to RFitem object with a visible row
  * @return     none
  *
  * @fn         static void rfitem_init (RFitem *item)
@@ -92,7 +93,7 @@ static int          str_compare             (const char *a,
 
 static void         rfitem_label_set_markup (RFitem     *item);
 
-static void         rfitem_entry_set_tooltip (RFitem    *item);
+static void         rfitem_row_show_org_name (RFitem    *item);
 
 static void         rfitem_init             (RFitem     *item);
 
@@ -188,13 +189,17 @@ rfitem_label_set_markup (RFitem *item)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Show the file's current full path as the entry tooltip.
+ * @brief  Show the original name in the label and the file's current full
+ *         path as the label and entry tooltip.
  */
 static void
-rfitem_entry_set_tooltip (RFitem *item)
+rfitem_row_show_org_name (RFitem *item)
 {
     g_autofree char *full = g_strconcat (item->path, item->org_name, nullptr);
 
+    /* Plain text, a file name can contain markup characters */
+    gtk_label_set_text (GTK_LABEL (item->org_label), item->org_name);
+    gtk_widget_set_tooltip_text (item->org_label, full);
     gtk_widget_set_tooltip_text (item->entry, full);
 }
 /*----------------------------------------------------------------------------*/
@@ -293,6 +298,8 @@ rfitem_row_new (void)
     GtkWidget *row     = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
     GtkWidget *check   = gtk_check_button_new ();
     GtkWidget *label   = gtk_label_new (nullptr);
+    GtkWidget *names   = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 4);
+    GtkWidget *org     = gtk_label_new (nullptr);
     GtkWidget *entry   = gtk_entry_new ();
     GtkWidget *restore = gtk_button_new_with_label ("R");
     GtkWidget *remove  = gtk_button_new_with_label ("D");
@@ -303,16 +310,76 @@ rfitem_row_new (void)
     gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
     gtk_widget_set_hexpand (entry, TRUE);
 
+    /* Keep the extension of a long name visible */
+    gtk_label_set_ellipsize (GTK_LABEL (org), PANGO_ELLIPSIZE_MIDDLE);
+    gtk_label_set_xalign (GTK_LABEL (org), 0.0f);
+    gtk_widget_set_hexpand (org, TRUE);
+
+    /* Same column widths on every row, whatever the name length */
+    gtk_box_set_homogeneous (GTK_BOX (names), TRUE);
+    gtk_widget_set_hexpand (names, TRUE);
+    gtk_box_append (GTK_BOX (names), org);
+    gtk_box_append (GTK_BOX (names), entry);
+
     gtk_widget_set_tooltip_text (restore, "Restore original");
     gtk_widget_set_tooltip_text (remove, "Remove from list");
 
-    /* rfitem_row_bind() relies on this order */
+    /* Spacing is set here, not by the theme, so the headings match it */
+    gtk_widget_set_margin_start (row, 2);
+    gtk_widget_set_margin_end (row, 2);
+    gtk_widget_set_margin_top (row, 2);
+    gtk_widget_set_margin_bottom (row, 2);
+
+    /* rfitem_row_bind(), rfitem_row_unbind() and rfitem_header_new() rely on
+     * this order */
     gtk_box_append (GTK_BOX (row), check);
     gtk_box_append (GTK_BOX (row), label);
-    gtk_box_append (GTK_BOX (row), entry);
+    gtk_box_append (GTK_BOX (row), names);
     gtk_box_append (GTK_BOX (row), restore);
     gtk_box_append (GTK_BOX (row), remove);
 
+    return row;
+}
+/*----------------------------------------------------------------------------*/
+/**
+ * @brief  Create the column headings of the file list.
+ */
+GtkWidget *
+rfitem_header_new (void)
+{
+    GtkWidget *row       = rfitem_row_new ();
+    GtkWidget *first     = gtk_widget_get_first_child (row);
+    GtkWidget *type      = gtk_widget_get_next_sibling (first);
+    GtkWidget *names     = gtk_widget_get_next_sibling (type);
+    GtkWidget *org       = gtk_widget_get_first_child (names);
+    GtkWidget *entry     = gtk_widget_get_next_sibling (org);
+    GtkWidget *new_label = gtk_label_new ("New name");
+
+    /* Height of the spacers is reduced by the file list style */
+    gtk_widget_add_css_class (row, "file-list-header");
+
+    /* Same width as the type letter of a list row */
+    gtk_label_set_markup (GTK_LABEL (type),
+                          "<span font_family=\"monospace\">F</span>");
+    gtk_label_set_text (GTK_LABEL (org), "Original name");
+
+    gtk_box_remove (GTK_BOX (names), entry);
+    gtk_label_set_ellipsize (GTK_LABEL (new_label), PANGO_ELLIPSIZE_END);
+    gtk_label_set_xalign (GTK_LABEL (new_label), 0.0f);
+    gtk_widget_set_hexpand (new_label, TRUE);
+    gtk_box_append (GTK_BOX (names), new_label);
+
+    for (GtkWidget *child = first; child != nullptr;
+         child = gtk_widget_get_next_sibling (child)) {
+        if (child == names)
+            continue;
+        gtk_widget_set_opacity (child, 0.0);
+        gtk_widget_set_can_target (child, FALSE);
+        gtk_widget_set_focusable (child, FALSE);
+        gtk_widget_set_tooltip_text (child, nullptr);
+        gtk_accessible_update_state (GTK_ACCESSIBLE (child),
+                                     GTK_ACCESSIBLE_STATE_HIDDEN, TRUE, -1);
+    }
     return row;
 }
 /*----------------------------------------------------------------------------*/
@@ -323,11 +390,15 @@ void
 rfitem_row_bind (RFitem    *item,
                  GtkWidget *row)
 {
+    GtkWidget *names;
+
     item->box            = row;
     item->check_button   = gtk_widget_get_first_child (row);
     item->label          = gtk_widget_get_next_sibling (item->check_button);
-    item->entry          = gtk_widget_get_next_sibling (item->label);
-    item->restore_button = gtk_widget_get_next_sibling (item->entry);
+    names                = gtk_widget_get_next_sibling (item->label);
+    item->org_label      = gtk_widget_get_first_child (names);
+    item->entry          = gtk_widget_get_next_sibling (item->org_label);
+    item->restore_button = gtk_widget_get_next_sibling (names);
     item->delete_button  = gtk_widget_get_next_sibling (item->restore_button);
 
     /* Set type label markup (file or dir, type color) */
@@ -335,7 +406,7 @@ rfitem_row_bind (RFitem    *item,
     gtk_check_button_set_active (GTK_CHECK_BUTTON (item->check_button),
                                  item->checked);
     gtk_editable_set_text (GTK_EDITABLE (item->entry), item->new_name);
-    rfitem_entry_set_tooltip (item);
+    rfitem_row_show_org_name (item);
 
     /* Connected last, setting the values above must not change the item */
     g_signal_connect (item->restore_button, "clicked",
@@ -353,15 +424,24 @@ void
 rfitem_row_unbind (RFitem    *item,
                    GtkWidget *row)
 {
-    GtkWidget *child = gtk_widget_get_first_child (row);
+    GtkWidget *first = gtk_widget_get_first_child (row);
+    GtkWidget *names = gtk_widget_get_next_sibling (
+            gtk_widget_get_next_sibling (first));
 
-    for (; child != nullptr; child = gtk_widget_get_next_sibling (child))
+    for (GtkWidget *child = first; child != nullptr;
+         child = gtk_widget_get_next_sibling (child))
         g_signal_handlers_disconnect_by_data (child, item);
+
+    /* The entry is not a direct child of the row. Taken from this row, as
+     * item->entry can already belong to a newer one. */
+    g_signal_handlers_disconnect_by_data (gtk_widget_get_last_child (names),
+                                          item);
 
     if (item->box == row) {
         item->box            = nullptr;
         item->check_button   = nullptr;
         item->label          = nullptr;
+        item->org_label      = nullptr;
         item->entry          = nullptr;
         item->restore_button = nullptr;
         item->delete_button  = nullptr;
@@ -535,7 +615,8 @@ rfitem_entry_restore (RFitem *item)
 }
 /*----------------------------------------------------------------------------*/
 /**
- * @brief  Show new_name in the entry, if there is one and its text differs.
+ * @brief  Show org_name in the label and new_name in the entry, if the item
+ *         has a visible row. The entry is set only if its text differs.
  *
  * The change handler is blocked: it would write to new_name while the entry
  * is still reading from it.
@@ -547,7 +628,7 @@ rfitem_entry_sync (RFitem *item)
         return;
 
     /* The file could have been renamed */
-    rfitem_entry_set_tooltip (item);
+    rfitem_row_show_org_name (item);
 
     if (strcmp (item->new_name,
                 gtk_editable_get_text (GTK_EDITABLE (item->entry))) != 0) {

@@ -58,8 +58,11 @@
  * @brief Object representing this item in the list model, owned by the item
  * @var   RFitem::label
  * @brief Label showing file type, null while the item has no visible row
+ * @var   RFitem::org_label
+ * @brief Read-only label showing org_name, null while the item has no visible
+ *        row
  * @var   RFitem::entry
- * @brief Entry for file name, null while the item has no visible row
+ * @brief Entry for new file name, null while the item has no visible row
  * @var   RFitem::check_button
  * @brief Checkbutton to set file active for name change, null while the item
  *        has no visible row
@@ -87,6 +90,7 @@ RFitem {
     bool       checked;
     GObject   *object;
     GtkWidget *label;
+    GtkWidget *org_label;
     GtkWidget *entry;
     GtkWidget *check_button;
     GtkWidget *restore_button;
@@ -126,6 +130,15 @@ void rfitem_free (RFitem *item);
  * @brief      Create widgets of a list row, not showing any item yet.
  * @return     Row widget
  *
+ * @fn         GtkWidget * rfitem_header_new (void)
+ * @brief      Create the column headings of the file list.
+ *
+ * The heading row has the layout of a list row, so its columns line up with
+ * the original and new name. The row's controls are kept as invisible spacers
+ * that can not be focused or clicked.
+ *
+ * @return     Heading row widget
+ *
  * @fn            void rfitem_row_bind (RFitem *item, GtkWidget *row)
  * @brief         Show item in a row and connect the row's widgets to it.
  * @param[in,out] item Pointer to RFitem object
@@ -144,6 +157,9 @@ void rfitem_free (RFitem *item);
  */
 /*----------------------------------------------------------------------------*/
 [[nodiscard]] GtkWidget * rfitem_row_new (void)
+              __attribute__ ((returns_nonnull));
+
+[[nodiscard]] GtkWidget * rfitem_header_new (void)
               __attribute__ ((returns_nonnull));
 
 void rfitem_row_bind   (RFitem    *item,
@@ -266,7 +282,8 @@ static inline const char * rfitem_get_path (const RFitem *item) {
  * @return        none
  *
  * @fn            void rfitem_entry_sync (RFitem *item)
- * @brief         Show new_name in the entry, if there is one and its text
+ * @brief         Show org_name in the label and new_name in the entry, if the
+ *                item has a visible row. The entry is set only if its text
  *                differs.
  * @param[in,out] item RFitem with entry
  * @return        none

@@ -1717,7 +1717,7 @@ open (GtkApplication  *application,
     gtk_widget_set_margin_bottom (vbox, 10);
 
     gtk_box_append (GTK_BOX (vbox), toolbar);
-    gtk_box_append (GTK_BOX (vbox), gtk_label_new ("New file / directory name"));
+    gtk_box_append (GTK_BOX (vbox), rfitem_header_new ());
     gtk_box_append (GTK_BOX (vbox), create_separator ());
     gtk_box_append (GTK_BOX (vbox), entry_box);
     gtk_box_append (GTK_BOX (vbox), create_separator ());

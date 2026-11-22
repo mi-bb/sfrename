@@ -392,7 +392,13 @@ rfnames_create_view (RFnames *names)
     gtk_widget_add_css_class (names->view, "file-list");
     gtk_css_provider_load_from_string (css,
             "listview.file-list, listview.file-list > row "
-            "{ background: none; }");
+            "{ background: none; }"
+            /* Rows set their own margins, shared with the column headings */
+            "listview.file-list > row { padding: 0; }"
+            /* Invisible controls in the headings keep width, not height */
+            "box.file-list-header > button { min-height: 0; "
+            "padding-top: 0; padding-bottom: 0; margin-top: 0; "
+            "margin-bottom: 0; border-top-width: 0; border-bottom-width: 0; }");
     gtk_style_context_add_provider_for_display (
             gtk_widget_get_display (names->view),
             GTK_STYLE_PROVIDER (css),
